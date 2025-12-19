@@ -22,8 +22,10 @@ Uw antwoorden worden anoniem verwerkt en niet gedeeld met derden.
 Uw deelname is volledig vrijwillig. U kan op elk moment stoppen zonder opgave van reden.
 
 #### Contact
-Voor vragen of opmerkingen kan u contact opnemen met ons op onderstaande e-mailaddressen
+Voor vragen of opmerkingen kan u contact opnemen met ons op onderstaande e-mailaddressen:
+
 Astrid Verschraege: astrid.verschraege@hotmail.com
-Timothy D'Hoe: timothy.dhoe@gmail.com
+
+Timothy D'hoe: timothy.dhoe@gmail.com
 
 

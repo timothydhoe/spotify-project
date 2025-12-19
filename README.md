@@ -3,6 +3,7 @@
 
 ## Folder structure
 
+```bash
 spotify-playlist-project/
 ├── README.md
 ├── .gitignore
@@ -14,3 +15,4 @@ spotify-playlist-project/
 ├── data/
 │
 └── scripts/
+```

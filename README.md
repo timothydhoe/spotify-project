@@ -1,5 +1,6 @@
 # Spotify Playlist Project
 
+Muziek en Emotieregulatie - VDO Data Scientist Eindwerk
 
 ## Folder structure
 
@@ -16,3 +17,5 @@ spotify-playlist-project/
 │
 └── scripts/
 ```
+
+

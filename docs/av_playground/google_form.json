@@ -1,0 +1,81 @@
+{
+  "title": "Registratieformulier Muziek & Emotieregulatie Studie",
+  "description": "Dit formulier verzamelt basisgegevens van deelnemers voor een onderzoek naar de invloed van muziek op emotieregulatie. Deelnemers vullen hun gegevens in en kiezen beschikbare tijdslots.",
+  "sections": [
+    {
+      "id": "personal_info",
+      "title": "Persoonlijke gegevens",
+      "fields": [
+        {
+          "id": "full_name",
+          "label": "Volledige naam",
+          "type": "text",
+          "required": true
+        },
+        {
+          "id": "email",
+          "label": "E-mailadres",
+          "type": "email",
+          "required": true,
+          "validation": {
+            "regex": ".+@.+\\..+",
+            "error_message": "Gelieve een geldig e-mailadres in te vullen."
+          }
+        },
+        {
+          "id": "age",
+          "label": "Leeftijd",
+          "type": "number",
+          "required": true,
+          "min": 18,
+          "max": 70
+        }
+      ]
+    },
+    {
+      "id": "availability",
+      "title": "Beschikbaarheid",
+      "fields": [
+        {
+          "id": "preferred_timeslot",
+          "label": "Kies je beschikbare tijdslot(s)",
+          "type": "checkbox",
+          "required": true,
+          "options": [
+            "Voormiddag (09:00–12:00)",
+            "Namiddag (13:00–17:00)",
+            "Avond (18:00–21:00)"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "study_info",
+      "title": "Informatie over deelname",
+      "fields": [
+        {
+          "id": "music_experience",
+          "label": "Heb je ervaring met muziekinterventies?",
+          "type": "multiple_choice",
+          "required": false,
+          "options": [
+            "Ja, regelmatig",
+            "Af en toe",
+            "Nee, nooit"
+          ]
+        },
+        {
+          "id": "consent",
+          "label": "Ik ga akkoord met deelname aan dit onderzoek en de verwerking van mijn gegevens volgens de richtlijnen.",
+          "type": "checkbox",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "created_by": "Astrid Verschraege en Timothy D'Hoe",
+    "study_phase": "registratie"
+  }
+}

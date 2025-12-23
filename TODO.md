@@ -3,13 +3,24 @@
 - Dancing 🕺
 
 
+## Project Management
+
+1. Find Participants
+    - Participants list here: []
+
+2. Participants Form
+    - TODO...
+    
+3. Playlists
+    - research
+    - calm
+    - upbeat
+
 
 ## Interesting python libraries for the project
 
-
 ### Biometric analysis
 heartpy, hrv, neurokit2
-
 
 ### Music analysis
 spotipy (Spotify API), librosa (audio features)

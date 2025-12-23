@@ -9,7 +9,7 @@ Met de verzamelde gegevens willen we patronen, trends of inzichten ontdekken die
 
 #### Wat vragen we van u
 Als deelnemer vragen we u om:
-- Op bepaalde momenten een vooraf bepaalde playlist (1u) te beluisteren
+- Op bepaalde momenten een vooraf bepaalde playlist (30 min) te beluisteren
 - Deze activiteit te registreren in een online formulier
 - De informatie van uw smartwatch tussentijds (beperkt) te delen
 De totale tijdsinvestering bedraagt ongeveer 24u verspreid over de komende 6 maand.

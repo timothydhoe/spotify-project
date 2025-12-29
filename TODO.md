@@ -1,6 +1,6 @@
 # TODO
 
-- Dancing 🕺
+- Dancing 🕺 & Singing 🎤
 
 
 ## Project Management
@@ -23,7 +23,7 @@
 heartpy, hrv, neurokit2
 
 ### Music analysis
-spotipy (Spotify API), librosa (audio features)
+spotipy (Spotify API), librosa (audio features), mirror datasets (MSD, etc)
 
 
 ## Useful links
@@ -32,3 +32,4 @@ spotipy (Spotify API), librosa (audio features)
 - [Spotify API](https://developer.spotify.com/documentation/web-api)
 - [Fitbit API](https://dev.fitbit.com/)
 - [Apple HealthKit](https://developer.apple.com/documentation/healthkit)
+- [Mirror Dataset MSD + Spotify features](https://www.kaggle.com/datasets/zaheenhamidani/ultimate-spotify-tracks-db)

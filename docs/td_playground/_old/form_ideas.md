@@ -13,10 +13,10 @@
 ○ Nee, maar ik kan er één aanmaken
 ○ Nee, en ik wil geen Spotify gebruiken
 
+(geen spotify account --> je krijgt een general playlist)
 
 
-
-## Gezondheid & Medicatie (optioneel maar aanbevolen)
+<!-- ## Gezondheid & Medicatie (optioneel maar aanbevolen)
 
 **Deze informatie helpt ons bij het interpreteren van biometrische gegevens.**
 
@@ -31,7 +31,7 @@ H#### eeft u een medische aandoening die uw hartslag of stressniveau beïnvloedt
 ○ Ja → Welke? _____
 ○ Nee
 ○ Weet ik niet
-○ Wil ik liever niet zeggen
+○ Wil ik liever niet zeggen -->
 
 
 
@@ -89,7 +89,6 @@ Ik begrijp dat:
 
 
 
-
 #### Wat vragen we van u:
 - Elke 2 weken: een vooraf bepaalde playlist (30 min) beluisteren
 - Elke 2 weken: smartwatch data uploaden
@@ -121,7 +120,6 @@ Belangrijke documenten:
 📄 Privacyverklaring (GDPR): [LINK]
 📄 Toestemmingsformulier: [LINK]
 📄 Smartwatch export instructies: [LINK]
-
 
 
 
@@ -215,14 +213,14 @@ _____
 ○ Ja, regelmatig onderbroken
 ○ Ja, veel afleiding
 
-
+<!-- 
 ## Heb je de afgelopen 2 uur:
 ☐ Cafeïne gedronken (koffie, energiedrink, etc.)
 ☐ Alcohol gedronken
 ☐ Intensief gesport
 ☐ Een grote maaltijd gegeten
 ☐ Medicatie ingenomen die je hartslag beïnvloedt
-☐ Geen van bovenstaande
+☐ Geen van bovenstaande -->
 
 
 ## Over de Muziek
@@ -235,7 +233,7 @@ _____
 ○ Zeer onaangenaam
 
 
-## Verwachtingen
+<!-- ## Verwachtingen
 
 Wat verwachtte je van deze playlist VOORDAT je begon te luisteren?
 ○ Dat het me zou ontspannen
@@ -249,7 +247,7 @@ Wat verwachtte je van deze playlist VOORDAT je begon te luisteren?
 ○ Grotendeels
 ○ Niet echt
 ○ Nee, helemaal niet
-○ Had geen verwachtingen
+○ Had geen verwachtingen -->
 
 
 ## Was er een specifiek nummer dat je gevoel sterk beïnvloedde?

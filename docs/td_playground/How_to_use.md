@@ -1,5 +1,7 @@
 # How to use
 
+...WORK IN PROGRESS...
+
 ## Participants export their playlists
 
 1. Go to https://exportify.net
@@ -26,10 +28,10 @@ Run this file to concatenate all csv files.
 Run this file to prepare the CSV to be read by the playlist generator.
 (not sure this'll be needed in the future...)
 
+usage:
 ```bash
 python prepare_exportify.py
 ```
-
 
 #### Playlist_generator
 
@@ -39,3 +41,14 @@ example usage:
 ```bash
 python playlist_generator.py --input matched_P001.csv --participant P001 --preview
 ```
+
+
+#### playlist_analysis.ipynb
+
+A notebook to keep track of chosen values within the different playlists.
+TODO: Make sure each participant has a file like this.
+
+
+#### display_playlists.ipynb (old/redundant)
+
+A notebook to keep track of chosen values within the different playlists.

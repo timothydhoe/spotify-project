@@ -79,3 +79,67 @@
     "study_phase": "registratie"
   }
 }
+
+
+
+const FRUIT_LIST = [
+  "🍇 Druiven", "🍉 Watermeloen", "🍊 Mandarijn",
+  "🍋 Citroen", "🍋‍🟩 Limoen", "🍌 Banaan", "🍍 Ananas",
+  "🥭 Mango", "🍏 Appel", "🍐 Peer",
+  "🍑 Perzik", "🍒 Kersen", "🍓 Aardbei", "🫐 Blauwe bessen",
+  "🥝 Kiwi", "🥥 Kokosnoot"
+];
+
+function formOnSubmit(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Form Responses 1");
+  const row = e.range.getRow();
+
+  const existing = sheet.getRange(2, 11, sheet.getLastRow() - 1, 1)
+    .getValues()
+    .flat()
+    .filter(x => x);
+
+  const available = FRUIT_LIST.filter(f => !existing.includes(f));
+
+  if (available.length === 0) {
+    sheet.getRange(row, 11).setValue("⚠️ Geen fruit beschikbaar");
+    return;
+  }
+
+  const fruit = available[Math.floor(Math.random() * available.length)];
+
+  sheet.getRange(row, 11).setValue(fruit);
+
+  // 👉 NIEUW: stuur automatisch de mail
+  sendParticipationEmail(row);
+}
+
+
+function sendParticipationEmail(row) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Formulierreacties 1");
+
+  // Kolommen:
+  // D = e-mailadres (kolom 4)
+  // L = participatiecode (kolom 11)
+
+  const email = sheet.getRange(row, 4).getValue();
+  const code = sheet.getRange(row, 11).getValue();
+
+  if (!email || !code) {
+    return; // veiligheid: geen mail versturen zonder info
+  }
+
+  const subject = "Uw participatiecode voor het onderzoek";
+  const body =
+    "Beste deelnemer,\n\n" +
+    "Bedankt voor uw deelname aan de <i>Regulation of Emotions through Music</i> studie.\n\n" +
+    "Uw persoonlijke participatiecode is:\n\n" +
+    code + "\n\n" +
+    "Bewaar deze code goed. U heeft ze nodig voor verdere communicatie en check-in formulieren binnen het onderzoek.\n" +
+    "Alvast bedankt voor uw participatie\n\n" +
+    "Met vriendelijke groeten,\n" +
+
+    "Het REM-onderzoeksteam";
+
+  MailApp.sendEmail(email, subject, body);
+}

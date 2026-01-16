@@ -36,8 +36,8 @@ from spotify_modules.analyse import analyse_playlists
 #
 DEFAULT_PARAMS = {
     'calm': {
-        'min_tempo': 90,
-        'max_tempo': 160,
+        'min_tempo': 50,
+        'max_tempo': 95,
         'max_energy': 0.6
     },
     'neutral': {
@@ -47,8 +47,8 @@ DEFAULT_PARAMS = {
         'max_energy': 0.7
     },
     'upbeat': {
-        'min_tempo': 50,
-        'max_tempo': 90,
+        'min_tempo': 110,
+        'max_tempo': 200,
         'min_energy': 0.6
     }
 }

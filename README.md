@@ -1,96 +1,155 @@
-# Spotify Playlist Project AKA `Project Fruitmand`
+# Project R.E.M.
 
-Muziek en Emotieregulatie - VDO Data Scientist Eindwerk
+**Regulation of Emotion through Music**  
+VDO Data Scientist Eindwerk
 
-Regulation of Emotion through Music R.E.M
+---
 
+## Overview
 
+This project generates personalized music playlists to support emotion regulation research. The system creates three playlist types (calm, neutral, upbeat) based on participants' Spotify listening data.
 
+**Key Features:**
+- Automated playlist generation from Spotify data
+- ISO principle-based song ordering
+- Validation and quality analysis
+- Privacy-preserving participant management (fruit codenames)
 
-## TODO
-----
+---
 
-[x] Email adres aanmaken
+## Quick Start
 
-[x] Registratieformulier - opstart REM studie.
-    [x] Automatische deelnemerscode beslissing.
-[x] Infobrief voor inschrijving    
-    [x] algemene info
-[x] Privacyverklaring 
-
-[ ] Begeleidende brief met instructies
-    [x] algemene info
-    [x] stappen voor de participant (uitvoering)
-        [x] exportify
-        [ ] link playlisten toevoegen aan library.
-    [ ] Check-in formulieren. (vanaf ontvangst)
-    [ ] Smartwatch data exporteren en verzenden (bij ontvangst)
-
-[ ] YoutubeMusic -> ...
-
-[ ] Next Steps
-    [ ] dfdfdf
-[ ] Optioneel
-    [ ] Check-in formulier
-    [ ] mappenstructuur vastleggen.
-
-#### Noste week (12/01 - 16/01)
-[ ] CLI for exportify + playlist generator. (niet dringend)
-[ ] Playlist generatie voor alle deelnemers
-[ ] Uitsturen van playlisten
-[ ] Brief uitleg check-in momenten
-[ ] Aanmaken van reminders voor deelnemers. (elke 2 weken.)
-[ ] 
-
-#### Verder in de toekomst 🚀
-[ ] 
-
-
-### Deelnemers participate codename:
-🍒 - cherry
-🍓 - strawberry
-🍇 - grape
-🍉 - watermelon
-🍑 - peach
-🍊 - orange
-🍋 - lemon
-🍍 - pineapple
-🍌 - banana
-🍐 - pear - Astrid
-🍏 - green apple
-🥝 - kiwi
-🥭 - mango
-🥥 - coconut
-🫐 - blueberry
-
-
-
-
-## Setup
 ```bash
-# Install uv
-curl -LsSf https://astral.sh/uv/install.sh | sh  # macOS/Linux
-# or: powershell -c "irm https://astral.sh/uv/install.ps1 | iex"  # Windows
-
 # Install dependencies
 uv sync
+
+# Generate playlists for a participant
+python scripts/playlists/spotify_cli.py all aardbei
 ```
 
+See [QUICKSTART.md](scripts/playlists/QUICKSTART.md) for detailed instructions.
 
-## Folder structure
+---
+
+## Project Structure
+
+```
+spotify-project/
+├── data/
+│   └── playlists/
+│       └── [participant]/           # Participant data (fruit codenames)
+│           ├── *.csv                # Input: Exportify CSVs
+│           └── playlists_generated/ # Output: Generated playlists
+├── docs/
+│   ├── info_deelnemers/             # Participant information
+│   └── research_muziek/             # Research documentation
+├── scripts/
+│   └── playlists/
+│       ├── spotify_cli.py           # Main CLI
+│       ├── spotify_modules/         # Core playlist logic
+│       ├── QUICKSTART.md            # Getting started guide
+│       └── README.md                # Full documentation
+└── tests/                           # Unit tests
+```
+
+---
+
+## Participant Codenames
+
+Participants are assigned fruit codenames for privacy:
+
+| Code | Fruit | Status |
+|------|-------|--------|
+| peer | Pear | - |
+| bosbes | Blueberry | - |
+| limoen | Lime | - |
+| aardbei | Strawberry | - |
+| watermeloen | Watermelon | - |
+
+Full list: cherry, grape, peach, orange, lemon, pineapple, banana, apple, kiwi, mango, coconut
+
+---
+
+## Workflow
+
+### Data Collection
+1. Participant exports Spotify data via [Exportify.net](https://exportify.net)
+2. CSV files placed in `data/playlists/[codename]/`
+3. Playlists generated via CLI
+4. Outputs delivered to participant
+
+### Development
+```bash
+# Create feature branch
+git checkout -b feature/your-feature
+
+# Make changes, commit, push
+git push origin feature/your-feature
+
+# Create Pull Request on GitHub
+```
+
+See [contributing.md](contributing.md) for full workflow.
+
+---
+
+## Key Commands
 
 ```bash
-spotify-playlist-project/
-├── README.md
-├── .gitignore
-│
-├── docs/
-│   ├── participant_guide.md
-│   └── data_collection_template.md
-│
-├── data/
-│
-└── scripts/
+# Generate playlists (complete workflow)
+python scripts/playlists/spotify_cli.py all [codename]
+
+# Step-by-step
+python scripts/playlists/spotify_cli.py prepare [codename]
+python scripts/playlists/spotify_cli.py generate [codename]
+python scripts/playlists/spotify_cli.py analyse [codename]
+
+# Quick analysis
+python scripts/playlists/quick_playlist_analysis.py \
+  --calm path/to/calm.csv \
+  --upbeat path/to/upbeat.csv \
+  --id [codename]
 ```
 
+---
 
+## Documentation
+
+- **QUICKSTART.md** - Quick getting started guide
+- **README.md** (in scripts/playlists/) - Full CLI documentation
+- **docs/info_deelnemers/** - Participant information materials
+- **docs/research_muziek/** - Research methodology
+
+---
+
+## Contributing
+
+### Branch Strategy
+- `main` - Stable production code
+- `feature/*` - New features
+- `fix/*` - Bug fixes
+- `docs/*` - Documentation updates
+
+### Workflow
+1. Pull latest: `git pull origin main`
+2. Create branch: `git checkout -b feature/description`
+3. Make changes and commit
+4. Push: `git push origin feature/description`
+5. Create Pull Request on GitHub
+6. After merge: Delete branch and pull main
+
+### Commit Messages
+- Use descriptive messages: `Add email validation for participants`
+- Not: `fix stuff`, `updates`, `wip`
+
+---
+
+## Contact
+
+**Study Contact:** rem.study.2025@gmail.com
+
+---
+
+## License
+
+Research project - Hogeschool Vives

@@ -1,0 +1,32 @@
+
+PLAYLIST ANALYSIS REPORT
+============================================================
+Participant: P001
+Date: 2026-01-09
+
+PLAYLIST SIZES
+------------------------------------------------------------
+Calm:   12 songs (42.8 minutes)
+Upbeat: 12 songs (47.8 minutes)
+
+KEY METRICS (Mean Values)
+------------------------------------------------------------
+                  Calm      Upbeat    Difference
+Tempo (BPM)         82.6     120.7      +38.1
+Energy              0.11      0.78      +0.67
+Valence             0.21      0.93      +0.72
+Acousticness        0.98      0.12      -0.86
+Danceability        0.34      0.74      +0.40
+
+VALIDATION RESULTS
+------------------------------------------------------------
+✓ Tempo ranges
+✓ Energy separation
+✓ Statistical significance: p = 0.0000
+✓ Duration requirements
+
+Checks passed: 4/4
+
+CONCLUSION
+------------------------------------------------------------
+✓ Playlists show clear separation - suitable for study

@@ -3,98 +3,72 @@
 ## Installation
 
 ```bash
-# From project root
 pip install -r requirements.txt
 ```
 
-## Folder Setup
+## Setup
 
-For each participant:
 ```bash
-# Create participant folder (use fruit codenames)
+# Create participant folder
 mkdir -p data/playlists/aardbei
 
-# Add their exported CSV files
-mv participant_csvs/*.csv data/playlists/aardbei/
+# Add Spotify CSV files (from Exportify.net)
+mv your_csvs/*.csv data/playlists/aardbei/
 ```
 
-## Most Common Usage
-
-### Process participant data (all-in-one)
+## Run
 
 ```bash
-# From project root
-python scripts/playlists/spotify_cli.py all aardbei --participant aardbei
+# Generate everything (one command)
+python scripts/playlists/spotify_cli.py all aardbei
 ```
 
-This single command:
-1. Finds CSVs in `data/playlists/aardbei/`
-2. Creates `data/playlists/aardbei/playlists_generated/`
-3. Combines all CSV files
-4. Generates three playlists (calm, neutral, upbeat)
-5. Creates analysis report and visualizations
+That's it! Your playlists are in `data/playlists/aardbei/playlists_generated/`
 
-### Output files (in playlists_generated folder)
+---
 
-- `aardbei_calm_playlist.csv` - Calm playlist (12 songs)
-- `aardbei_neutral_playlist.csv` - Neutral playlist (12 songs) 
-- `aardbei_upbeat_playlist.csv` - Upbeat playlist (12 songs)
-- `aardbei_analysis_report.txt` - Statistics and validation
-- `aardbei_feature_comparison.jpg` - Boxplot comparisons
-- `aardbei_tempo_energy.jpg` - Scatter plot
-- `aardbei_distributions.jpg` - Feature distributions
-- `aardbei_mood_quadrant.jpg` - Mood analysis
+## Output Files
+
+- `aardbei_calm_playlist.csv` - 12 calm songs
+- `aardbei_neutral_playlist.csv` - 12 neutral songs
+- `aardbei_upbeat_playlist.csv` - 12 upbeat songs
+- `aardbei_analysis_report.txt` - Validation report
+- `aardbei_*.jpg` - Visualizations (4 plots)
+
+---
 
 ## Custom Parameters
 
-If default parameters don't work well:
+Adjust thresholds if needed:
 
 ```bash
 # More relaxed calm playlist
-python scripts/playlists/spotify_cli.py all aardbei --participant aardbei \
-  --calm-tempo-max 95 --calm-energy-max 0.6
+python scripts/playlists/spotify_cli.py all aardbei --calm-tempo-max 120
 
 # More energetic upbeat playlist
-python scripts/playlists/spotify_cli.py all aardbei --participant aardbei \
-  --upbeat-tempo-min 115 --upbeat-energy-min 0.7
+python scripts/playlists/spotify_cli.py all aardbei --upbeat-tempo-min 120
 
-# Adjust neutral playlist
-python scripts/playlists/spotify_cli.py all aardbei --participant aardbei \
-  --neutral-tempo-min 100 --neutral-tempo-max 110
+# Skip visualizations (faster)
+python scripts/playlists/spotify_cli.py all aardbei --no-viz
 ```
 
-## Step-by-Step (if needed)
-
-```bash
-# 1. Prepare data
-python scripts/playlists/spotify_cli.py prepare aardbei
-
-# 2. Generate playlists
-python scripts/playlists/spotify_cli.py generate aardbei --participant aardbei
-
-# 3. Analyze results
-python scripts/playlists/spotify_cli.py analyze aardbei --participant aardbei
-```
+---
 
 ## Help
 
 ```bash
-# See all options
 python scripts/playlists/spotify_cli.py --help
-
-# See options for specific command
-python scripts/playlists/spotify_cli.py generate --help
+python scripts/playlists/spotify_cli.py --help-full  # Advanced options
 ```
+
+---
 
 ## Troubleshooting
 
-**"No songs match criteria"**
-→ Relax parameters or ask participant for more playlists
+**"No songs match criteria"**  
+→ Participant needs to export more playlists, or adjust parameters
 
-**"Only X/10 songs"**
-→ Same solution as above
+**"Cannot find folder"**  
+→ Check folder structure: `data/playlists/[codename]/`
 
-**"FileNotFoundError"**
-→ Check you're running from project root and folder structure is correct
-
-**Full documentation: See README.md**
+**Full documentation:** See [README.md](README.md)

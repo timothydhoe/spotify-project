@@ -146,7 +146,7 @@ python scripts/playlists/quick_playlist_analysis.py \
 
 ## Contact
 
-**Study Contact:** rem.study.2025@gmail.com
+**Study Contact:** rem.study@gmail.com
 
 ---
 

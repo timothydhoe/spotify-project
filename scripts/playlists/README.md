@@ -136,7 +136,7 @@ python scripts/playlists/spotify_cli.py all aardbei --calm-tempo-max 120
 ## Validation
 
 Analysis checks 4 criteria:
-1. Tempo ranges (calm/neutral/upbeat appropriate)
+1. Tempo ranges (calm/neutral/upbeat)
 2. Energy separation (calm < 0.8, upbeat > 0.6)
 3. Tempo difference (15+ BPM between calm/upbeat)
 4. Duration (25+ minutes each)
@@ -152,7 +152,7 @@ Analysis checks 4 criteria:
 
 **"No songs match criteria"**
 - Export more playlists from Spotify
-- Adjust parameters: `--calm-tempo-max 120`
+- Adjust parameters: `--calm-tempo-max 105`
 
 **"Only X/10 songs"**
 - Request more diverse playlists from participant
@@ -229,3 +229,58 @@ For issues:
 2. Review validation criteria
 3. Verify CSV format matches Exportify
 4. Check folder structure
+
+---
+
+## Playlist generator Documentation
+
+### 18 Jan
+
+**Primary sort: Tempo**
+- Calm: Descending tempo (high → low BPM)
+- Upbeat: Ascending tempo (low → high BPM)
+
+**Secondary sort: Energy**
+- Used as tiebreaker for songs with similar tempo
+- Maintains gradient consistency
+
+#### METHODEN - Playlist Generatie
+
+Parameters (aangepast voor haalbaarheid):
+```
+- Calm: 50-90 BPM, energie <0.6
+- Upbeat: 110-180 BPM, energie >0.7
+- Neutral: 95-115 BPM, energie 0.5-0.7
+
+**Additionele features: acousticness, valence, loudness**
+```
+
+ISO-principe implementatie:
+Songs gesorteerd primair op tempo:
+```
+- Calm: Descending (89.8 → 79.4 BPM, gradient: -0.9 BPM/song)
+- Upbeat: Ascending (110.4 → 133.8 BPM, gradient: +2.3 BPM/song)
+```
+
+Validatie (bij test op bosbes):
+```
+- 4/4 criteria behaald
+- Duidelijke scheiding: 84/105/123 BPM gemiddeld
+- Energie separatie: 0.33/0.61/0.81
+```
+
+#### Outlier detectie
+
+file: outlier_detection.py
+Only used when in doubt if a playlist seems uneffective. Main use is for Quality Assurance.
+
+**Don't routinely check** every playlist
+
+**DO check** when:
+- Validation fails
+- Trajectory looks wrong
+- Participant gives feedback
+
+**DO** document that you used this for quality assurance
+
+

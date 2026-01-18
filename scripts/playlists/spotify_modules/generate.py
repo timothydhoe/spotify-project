@@ -1,7 +1,5 @@
 """
-file: generate.py
------------
-Generate personalized calm, neutral, and upbeat playlists
+generate.py - Generate personalised calm, neutral, and upbeat playlists
 
 WHAT THIS MODULE DOES:
 1. Loads combined song data from prepare step
@@ -14,8 +12,13 @@ ISO PRINCIPLE:
 Music interventions work best when they start at the listener's current state
 and gradually transition to the desired state:
 - Calm: High activation -> Low activation (stress to relaxation)
-- Upbeat: Low activation -> High activation (tired to energized)
+- Upbeat: Low activation -> High activation (tired to energised)
 - Neutral: Consistent medium activation (baseline control)
+
+WHY THREE PLAYLISTS:
+- Calm + Upbeat = Different therapeutic goals
+- Neutral = Control condition for experimental design
+- Personalised = Uses participant's own music library
 """
 
 import pandas as pd
@@ -35,15 +38,17 @@ TARGET_DURATION_MIN = 30
 
 # ISO activation weighting
 # Higher weight on tempo means tempo drives the trajectory more than energy
-TEMPO_WEIGHT = 0.6
-ENERGY_WEIGHT = 0.4
+TEMPO_WEIGHT = 0.8
+ENERGY_WEIGHT = 0.2
 
 
 # ============================================================
 # FILTERING: Song Selection with ISO Ordering
 # ============================================================
 
-def filter_calm_songs(df, min_tempo=50, max_tempo=110, max_energy=0.8):
+def filter_calm_songs(df, min_tempo=50, max_tempo=70, max_energy=0.6, 
+                      min_acousticness=0.3, max_valence=0.6, 
+                      min_loudness=-20, max_loudness=-8):
     """
     Filter and order songs for calm/relaxation playlist using ISO principle
     
@@ -53,25 +58,49 @@ def filter_calm_songs(df, min_tempo=50, max_tempo=110, max_energy=0.8):
     Phase 3 - Regulatie (60-70 BPM): Deep relaxation
     Phase 4 - Landing (50-60 BPM): Final calm state
     
+    RESEARCH-BACKED FEATURES:
+    - Tempo: 50-70 BPM (lower tempo = relaxation)
+    - Energy: <0.6 (softer, less intense)
+    - Acousticness: >0.3 (warmer, lower frequencies)
+    - Valence: <0.6 (not too energetic/positive)
+    - Loudness: -20 to -8 dB (soft but audible)
+    
     Args:
         df: DataFrame of all songs
         min_tempo: Minimum BPM threshold (default: 50)
-        max_tempo: Maximum BPM threshold (default: 110)
-        max_energy: Maximum energy threshold (default: 0.8)
+        max_tempo: Maximum BPM threshold (default: 70)
+        max_energy: Maximum energy threshold (default: 0.6)
+        min_acousticness: Minimum acousticness (default: 0.3)
+        max_valence: Maximum valence (default: 0.6)
+        min_loudness: Minimum loudness in dB (default: -20)
+        max_loudness: Maximum loudness in dB (default: -8)
     
     Returns:
         DataFrame of calm songs, ordered by DESCENDING activation
     """
-    # Filter by criteria
-    filtered = df[
+    # Build filter conditions
+    conditions = (
         (df['tempo'].between(min_tempo, max_tempo)) &
         (df['energy'] < max_energy)
-    ].copy()
+    )
+    
+    # Add optional features if they exist in the dataframe
+    if 'acousticness' in df.columns:
+        conditions &= (df['acousticness'] > min_acousticness)
+    
+    if 'valence' in df.columns:
+        conditions &= (df['valence'] < max_valence)
+    
+    if 'loudness' in df.columns:
+        conditions &= (df['loudness'].between(min_loudness, max_loudness))
+    
+    # Apply filters
+    filtered = df[conditions].copy()
     
     if len(filtered) == 0:
         return filtered
     
-    # Calculate activation score (higher = more energized)
+    # Calculate activation score (higher = more energised)
     max_tempo_in_set = filtered['tempo'].max()
     if max_tempo_in_set > 0:
         filtered['activation'] = (
@@ -82,7 +111,7 @@ def filter_calm_songs(df, min_tempo=50, max_tempo=110, max_energy=0.8):
         filtered['activation'] = filtered['energy']
     
     # Sort DESCENDING: Start high activation, end low (stress -> calm)
-    filtered = filtered.sort_values('activation', ascending=False)
+    filtered = filtered.sort_values(['tempo', 'energy'], ascending=[False, False])
     filtered = filtered.drop('activation', axis=1)
     
     return filtered
@@ -129,7 +158,8 @@ def filter_neutral_songs(df, min_tempo=95, max_tempo=115, min_energy=0.5, max_en
     return filtered
 
 
-def filter_upbeat_songs(df, min_tempo=110, max_tempo=130, min_energy=0.6):
+def filter_upbeat_songs(df, min_tempo=120, max_tempo=150, min_energy=0.7,
+                        min_danceability=0.6, min_valence=0.5, min_loudness=-10):
     """
     Filter and order songs for upbeat/energising playlist using ISO principle
     
@@ -139,25 +169,48 @@ def filter_upbeat_songs(df, min_tempo=110, max_tempo=130, min_energy=0.6):
     Phase 3 - Energise (110-130 BPM): Strong activation
     Phase 4 - Pieken (130-150 BPM): Peak motivation
     
+    RESEARCH-BACKED FEATURES:
+    - Tempo: 120-150 BPM (higher tempo = energy boost)
+    - Energy: >0.7 (intense, dynamic)
+    - Danceability: >0.6 (strong, regular beat)
+    - Valence: >0.5 (more positive/energetic)
+    - Loudness: >-10 dB (more dynamic)
+    
     Args:
         df: DataFrame of all songs
-        min_tempo: Minimum BPM threshold (default: 110)
-        max_tempo: Maximum BPM threshold (default: 130)
-        min_energy: Minimum energy threshold (default: 0.6)
+        min_tempo: Minimum BPM threshold (default: 120)
+        max_tempo: Maximum BPM threshold (default: 150)
+        min_energy: Minimum energy threshold (default: 0.7)
+        min_danceability: Minimum danceability (default: 0.6)
+        min_valence: Minimum valence (default: 0.5)
+        min_loudness: Minimum loudness in dB (default: -10)
     
     Returns:
         DataFrame of upbeat songs, ordered by ASCENDING activation
     """
-    # Filter by criteria
-    filtered = df[
+    # Build filter conditions
+    conditions = (
         (df['tempo'].between(min_tempo, max_tempo)) &
         (df['energy'] > min_energy)
-    ].copy()
+    )
+    
+    # Add optional features if they exist in the dataframe
+    if 'danceability' in df.columns:
+        conditions &= (df['danceability'] > min_danceability)
+    
+    if 'valence' in df.columns:
+        conditions &= (df['valence'] > min_valence)
+    
+    if 'loudness' in df.columns:
+        conditions &= (df['loudness'] > min_loudness)
+    
+    # Apply filters
+    filtered = df[conditions].copy()
     
     if len(filtered) == 0:
         return filtered
     
-    # Calculate activation score (higher = more energized)
+    # Calculate activation score (higher = more energised)
     max_tempo_in_set = filtered['tempo'].max()
     if max_tempo_in_set > 0:
         filtered['activation'] = (
@@ -167,8 +220,11 @@ def filter_upbeat_songs(df, min_tempo=110, max_tempo=130, min_energy=0.6):
     else:
         filtered['activation'] = filtered['energy']
     
-    # Sort ASCENDING: Start low activation, end high (tired -> energized)
-    filtered = filtered.sort_values('activation', ascending=True)
+    # Sort ASCENDING: Start low activation, end high (tired -> energised)
+    filtered = filtered.sort_values(['tempo', 'energy'], ascending=[True, True])
+    filtered = filtered.drop('activation', axis=1)
+    
+    return filtered
     filtered = filtered.drop('activation', axis=1)
     
     return filtered
@@ -276,7 +332,7 @@ def print_playlist_header(playlist_type):
     titles = {
         'calm': 'CALM PLAYLIST (Stress -> Relaxation)',
         'neutral': 'NEUTRAL PLAYLIST (Baseline Control)',
-        'upbeat': 'UPBEAT PLAYLIST (Tired -> Energized)'
+        'upbeat': 'UPBEAT PLAYLIST (Tired -> Energised)'
     }
     
     print(f"\n{'='*50}")

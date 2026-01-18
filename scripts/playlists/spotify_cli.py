@@ -1,6 +1,6 @@
 """
-file: spotify_cli.py
---------------------
+Spotify Playlist Generator CLI
+
 Create personalised calm, neutral, and upbeat playlists from your Spotify data.
 
 QUICK START:
@@ -28,17 +28,28 @@ from spotify_modules.analyse import analyse_playlists
 # CONFIGURATION
 # ============================================================
 
-# Default playlist parameters (work well for most participants)
-# 
-# TO CHANGE DEFAULTS: Edit these values below
-# - They will automatically be used unless overridden with command-line flags
-# - Example: Change calm_max_tempo from 110 to 120 to include faster calm songs
+# Default playlist parameters based on research:
+# "Muzikale Parameters en ISO-Opbouw voor Emotieregulatie via Muziek"
+#
+# RESEARCH-BACKED RANGES:
+# - Calm: 50-70 BPM (stress reduction, activates relaxation networks)
+# - Upbeat: 120-150 BPM (energy boost, activates alertness networks)
+# - Neutral: 95-115 BPM (baseline control, medium activation)
+#
+# Additional features based on scientific literature:
+# - Acousticness: Warmer, lower frequencies (calm) vs sharper attack (upbeat)
+# - Valence: Emotional positivity (lower for calm, higher for upbeat)
+# - Loudness: Dynamic range (quieter for calm, more dynamic for upbeat)
 #
 DEFAULT_PARAMS = {
     'calm': {
         'min_tempo': 50,
-        'max_tempo': 95,
-        'max_energy': 0.6
+        'max_tempo': 90,          # Research: 50-90 BPM for stress reduction (RAISED)
+        'max_energy': 0.6,        # Lower than before (warmer, calmer)
+        'min_acousticness': 0.2,  # Warmer sound, lower frequencies (LOWERED)
+        'max_valence': 0.7,       # Not too energetic/positive (RAISED)
+        'min_loudness': -20,      # Audible but soft
+        'max_loudness': -8        # Not too loud
     },
     'neutral': {
         'min_tempo': 95,
@@ -47,9 +58,12 @@ DEFAULT_PARAMS = {
         'max_energy': 0.7
     },
     'upbeat': {
-        'min_tempo': 110,
-        'max_tempo': 200,
-        'min_energy': 0.6
+        'min_tempo': 110,         # Research: 120-150 BPM for energy boost (LOWERED)
+        'max_tempo': 160,         # Increased from 130 (RAISED)
+        'min_energy': 0.7,        # more energetic
+        'min_danceability': 0.6,  # Strong, regular beat
+        'min_valence': 0.5,       # More positive/energetic
+        'min_loudness': -10       # More dynamic
     }
 }
 
@@ -152,7 +166,12 @@ def build_params_from_args(args):
         'calm': {
             'min_tempo': args.calm_tempo_min,
             'max_tempo': args.calm_tempo_max,
-            'max_energy': args.calm_energy_max
+            'max_energy': args.calm_energy_max,
+            # New research-backed parameters
+            'min_acousticness': getattr(args, 'calm_acousticness_min', DEFAULT_PARAMS['calm']['min_acousticness']),
+            'max_valence': getattr(args, 'calm_valence_max', DEFAULT_PARAMS['calm']['max_valence']),
+            'min_loudness': getattr(args, 'calm_loudness_min', DEFAULT_PARAMS['calm']['min_loudness']),
+            'max_loudness': getattr(args, 'calm_loudness_max', DEFAULT_PARAMS['calm']['max_loudness'])
         },
         'neutral': {
             'min_tempo': args.neutral_tempo_min,
@@ -163,7 +182,11 @@ def build_params_from_args(args):
         'upbeat': {
             'min_tempo': args.upbeat_tempo_min,
             'max_tempo': args.upbeat_tempo_max,
-            'min_energy': args.upbeat_energy_min
+            'min_energy': args.upbeat_energy_min,
+            # New research-backed parameters
+            'min_danceability': getattr(args, 'upbeat_danceability_min', DEFAULT_PARAMS['upbeat']['min_danceability']),
+            'min_valence': getattr(args, 'upbeat_valence_min', DEFAULT_PARAMS['upbeat']['min_valence']),
+            'min_loudness': getattr(args, 'upbeat_loudness_min', DEFAULT_PARAMS['upbeat']['min_loudness'])
         }
     }
     return params
@@ -394,7 +417,7 @@ EXAMPLES:
   # Preview what would happen (dry run)
   spotify_cli.py all aardbei --dry-run
   
-  # Skip visualisations (faster)
+  # Skip visualizations (faster)
   spotify_cli.py all aardbei --no-viz
   
   # Fine-tune calm playlist tempo
@@ -450,7 +473,7 @@ FOLDER STRUCTURE:
     )
     add_common_arguments(analyse_parser)
     add_participant_argument(analyse_parser)
-    analyse_parser.add_argument('--no-viz', action='store_true', help='Skip visualisation generation')
+    analyse_parser.add_argument('--no-viz', action='store_true', help='Skip visualization generation')
     
     # ========== ALL COMMAND ==========
     all_parser = subparsers.add_parser(
@@ -460,7 +483,7 @@ FOLDER STRUCTURE:
     add_common_arguments(all_parser)
     add_participant_argument(all_parser)
     add_playlist_parameters(all_parser, 'full' if show_advanced else 'basic')
-    all_parser.add_argument('--no-viz', action='store_true', help='Skip visualisation generation')
+    all_parser.add_argument('--no-viz', action='store_true', help='Skip visualization generation')
     all_parser.add_argument('--dry-run', action='store_true', help='Preview what would happen without making changes')
     
     return parser

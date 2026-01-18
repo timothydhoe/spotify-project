@@ -18,11 +18,20 @@
 
 ## Current Sprint (Week 12/01 - 16/01)
 
-- [ ] Playlist generation for all participants
+- [x] Update playlist generation with extra features
+- [x] Outlier detection file
+- [ ] Playlist generation for all participants  
 - [ ] Send out playlists to participants
 - [ ] Create check-in moment explanation letter
 - [ ] Set up reminders for participants (every 2 weeks)
 - [ ] Add playlist links to library instructions
+
+## Current Sprint (Week 19/01 - 23/01)
+
+- [ ] Research instructions for smartwatches
+- [ ] Send out Playlists
+- [ ] Send out Reminders
+- [ ] Send out Reminders
 
 ---
 

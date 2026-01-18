@@ -2,7 +2,7 @@
 
 ## Completed ✓
 
-- [x] Email address created (rem.study.2025@gmail.com)
+- [x] Email address created (rem.study@gmail.com)
 - [x] Registration form - study startup
   - [x] Automatic participant code assignment
 - [x] Information letter for registration

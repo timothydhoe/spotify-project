@@ -28,6 +28,11 @@
 
 ## Current Sprint (Week 19/01 - 23/01)
 
+- [ ] Danceability combo with tempo. (TD)
+    - [ ] Calm: high value danceability[8:] - low value tempo
+    - [ ] High: higher range danceability [.5:] - high value tempo
+
+- [ ] 
 - [ ] Research instructions for smartwatches
 - [ ] Send out Playlists
 - [ ] Send out Reminders

@@ -1,6 +1,7 @@
 """
-Spotify Playlist Generator CLI
+File: spotify_cli.py
 
+CLI used to combine the modules: prepare.py, generate.py and analyse.py.
 Create personalised calm, neutral, and upbeat playlists from your Spotify data.
 
 QUICK START:
@@ -47,6 +48,7 @@ DEFAULT_PARAMS = {
         'max_tempo': 90,          # Research: 50-90 BPM for stress reduction (RAISED)
         'max_energy': 0.6,        # Lower than before (warmer, calmer)
         'min_acousticness': 0.2,  # Warmer sound, lower frequencies (LOWERED)
+        # ADD MIN VALENCE
         'max_valence': 0.7,       # Not too energetic/positive (RAISED)
         'min_loudness': -20,      # Audible but soft
         'max_loudness': -8        # Not too loud
@@ -62,7 +64,7 @@ DEFAULT_PARAMS = {
         'max_tempo': 160,         # Increased from 130 (RAISED)
         'min_energy': 0.7,        # more energetic
         'min_danceability': 0.6,  # Strong, regular beat
-        'min_valence': 0.5,       # More positive/energetic
+        'min_valence': 0.6,       # More positive/energetic (RAISED)
         'min_loudness': -10       # More dynamic
     }
 }

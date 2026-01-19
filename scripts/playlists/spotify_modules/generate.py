@@ -1,5 +1,7 @@
 """
-generate.py - Generate personalised calm, neutral, and upbeat playlists
+file: generate.py
+-----------------
+Generate personalised calm, neutral, and upbeat playlists
 
 WHAT THIS MODULE DOES:
 1. Loads combined song data from prepare step
@@ -47,7 +49,7 @@ ENERGY_WEIGHT = 0.2
 # ============================================================
 
 def filter_calm_songs(df, min_tempo=50, max_tempo=70, max_energy=0.6, 
-                      min_acousticness=0.3, max_valence=0.6, 
+                      min_acousticness=0.3, max_valence=0.6, # ADD MIN VALENCE
                       min_loudness=-20, max_loudness=-8):
     """
     Filter and order songs for calm/relaxation playlist using ISO principle

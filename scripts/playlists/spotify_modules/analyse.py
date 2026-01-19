@@ -1,6 +1,6 @@
 """
 File: analyse.py
-----------
+----------------
 Analyse and visualise generated playlists
 
 WHAT THIS MODULE DOES:

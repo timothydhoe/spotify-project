@@ -4,7 +4,7 @@ File: analyse.py
 Analyse and visualise generated playlists
 
 WHAT THIS MODULE DOES:
-1. Loads calm, neutral, and upbeat playlists
+1. Loads calm, neutral, and energy playlists
 2. Calculates comparison statistics
 3. Validates playlist separation quality
 4. Generates 4 visualizations (boxplots, scatter, distributions, mood quadrant)
@@ -36,28 +36,28 @@ FEATURES_FOR_DISTRIBUTIONS = ['tempo', 'energy', 'valence', 'acousticness']
 PLOT_COLORS = {
     'Calm': 'blue',
     'Neutral': 'gray',
-    'Upbeat': 'red'
+    'Energy': 'red'
 }
 
 PLOT_MARKERS = {
     'Calm': 'o',
     'Neutral': 's',
-    'Upbeat': '^'
+    'Energy': '^'
 }
 
 # Validation thresholds
 TEMPO_RANGES = {
     'calm': (50, 110),
     'neutral': (95, 115),
-    'upbeat': (110, 130)
+    'energy': (110, 130)
 }
 
 ENERGY_THRESHOLDS = {
     'calm': (0, 0.8),
-    'upbeat': (0.6, 1.0)
+    'energy': (0.6, 1.0)
 }
 
-MIN_TEMPO_DIFFERENCE = 15  # BPM between calm and upbeat
+MIN_TEMPO_DIFFERENCE = 15  # BPM between calm and energy
 MIN_DURATION_MINUTES = 25
 
 
@@ -67,7 +67,7 @@ MIN_DURATION_MINUTES = 25
 
 def load_playlists(output_dir, participant_id):
     """
-    Load calm, neutral, and upbeat playlists from CSV files
+    Load calm, neutral, and energy playlists from CSV files
     
     Args:
         output_dir: Path to playlists_generated folder
@@ -82,7 +82,7 @@ def load_playlists(output_dir, participant_id):
     files = {
         'calm': output_dir / f"{participant_id}_calm_playlist.csv",
         'neutral': output_dir / f"{participant_id}_neutral_playlist.csv",
-        'upbeat': output_dir / f"{participant_id}_upbeat_playlist.csv"
+        'energy': output_dir / f"{participant_id}_energy_playlist.csv"
     }
     
     # Load available playlists
@@ -159,7 +159,7 @@ def check_tempo_ranges(dataframes, stats):
 
 def check_energy_separation(dataframes, stats):
     """
-    Check if calm and upbeat playlists have proper energy separation
+    Check if calm and energy playlists have proper energy separation
     
     Returns:
         Tuple: (passed, details_string)
@@ -174,9 +174,9 @@ def check_energy_separation(dataframes, stats):
         if calm_energy >= ENERGY_THRESHOLDS['calm'][1]:
             all_ok = False
     
-    if 'upbeat' in dataframes:
-        upbeat_energy = stats['energy'].get('upbeat_mean', 0)
-        if upbeat_energy <= ENERGY_THRESHOLDS['upbeat'][0]:
+    if 'energy' in dataframes:
+        energy_energy = stats['energy'].get('energy_mean', 0)
+        if energy_energy <= ENERGY_THRESHOLDS['energy'][0]:
             all_ok = False
     
     return all_ok, "Energy separation adequate"
@@ -184,17 +184,17 @@ def check_energy_separation(dataframes, stats):
 
 def check_tempo_difference(dataframes, stats):
     """
-    Check if calm and upbeat have substantial tempo difference
+    Check if calm and energy have substantial tempo difference
     
     Returns:
         Tuple: (passed, details_string)
     """
-    if 'tempo' not in stats or 'calm' not in dataframes or 'upbeat' not in dataframes:
+    if 'tempo' not in stats or 'calm' not in dataframes or 'energy' not in dataframes:
         return True, "Cannot check (playlists missing)"
     
     calm_tempo = stats['tempo'].get('calm_mean', 0)
-    upbeat_tempo = stats['tempo'].get('upbeat_mean', 0)
-    difference = upbeat_tempo - calm_tempo
+    energy_tempo = stats['tempo'].get('energy_mean', 0)
+    difference = energy_tempo - calm_tempo
     
     passed = difference >= MIN_TEMPO_DIFFERENCE
     
@@ -517,7 +517,7 @@ def format_feature_table(stats, dataframes):
         feature_label = 'Tempo (BPM)' if feature == 'tempo' else feature.capitalize()
         line = f"{feature_label:20s}"
         
-        for playlist_type in ['calm', 'neutral', 'upbeat']:
+        for playlist_type in ['calm', 'neutral', 'energy']:
             if playlist_type in dataframes:
                 mean_val = stats[feature].get(f'{playlist_type}_mean', 0)
                 if feature == 'tempo':
@@ -621,7 +621,7 @@ def analyse_playlists(output_dir, participant_id, generate_viz=True):
     Analyse and visualise generated playlists
     
     WORKFLOW:
-    1. Load calm, neutral, and upbeat playlists
+    1. Load calm, neutral, and energy playlists
     2. Calculate comparison statistics
     3. Validate playlist separation
     4. Generate visualizations (optional)
@@ -661,7 +661,7 @@ def analyse_playlists(output_dir, participant_id, generate_viz=True):
     
     if 'tempo' in stats:
         tempo_parts = []
-        for ptype in ['calm', 'neutral', 'upbeat']:
+        for ptype in ['calm', 'neutral', 'energy']:
             if ptype in dataframes:
                 tempo = stats['tempo'].get(f'{ptype}_mean', 0)
                 tempo_parts.append(f"{tempo:.1f} BPM ({ptype})")
@@ -669,7 +669,7 @@ def analyse_playlists(output_dir, participant_id, generate_viz=True):
     
     if 'energy' in stats:
         energy_parts = []
-        for ptype in ['calm', 'neutral', 'upbeat']:
+        for ptype in ['calm', 'neutral', 'energy']:
             if ptype in dataframes:
                 energy = stats['energy'].get(f'{ptype}_mean', 0)
                 energy_parts.append(f"{energy:.2f} ({ptype})")

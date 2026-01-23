@@ -43,6 +43,8 @@
 
 - [ ] Set up reminders for participants (every 2 weeks)
 - [ ] Add playlist links to library instructions
+- [ ] Kandidaten ronselen
+
 
 ---
 

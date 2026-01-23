@@ -11,7 +11,7 @@ WHAT THIS MODULE DOES:
 
 ISO PRINCIPLE:
 - Calm playlists should show DESCENDING tempo/energy (stress -> calm)
-- Upbeat playlists should show ASCENDING tempo/energy (tired -> energized)
+- energy playlists should show ASCENDING tempo/energy (tired -> energized)
 - Neutral playlists should show CONSISTENT tempo/energy (stable baseline)
 
 WHY THIS MATTERS:
@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 # Gradient direction expectations
 EXPECTED_DIRECTION = {
     'calm': 'descending',
-    'upbeat': 'ascending',
+    'energy': 'ascending',
     'neutral': 'consistent'
 }
 
@@ -49,13 +49,13 @@ SMOOTHNESS_SCORE_WEIGHT = 50  # Points for minimal violations
 # Plot styling
 PLOT_COLORS = {
     'calm': '#3498db',    # Blue
-    'upbeat': '#e74c3c',  # Red
+    'energy': '#e74c3c',  # Red
     'neutral': '#95a5a6'  # Gray
 }
 
 PLOT_TITLES = {
     'calm': 'Stress → Calm',
-    'upbeat': 'Tired → Energized',
+    'energy': 'Tired → Energized',
     'neutral': 'Baseline Control'
 }
 
@@ -140,7 +140,7 @@ def check_gradient_direction(metrics, playlist_type):
     
     Args:
         metrics: Trajectory metrics dict
-        playlist_type: 'calm', 'upbeat', or 'neutral'
+        playlist_type: 'calm', 'energy', or 'neutral'
     
     Returns:
         Tuple: (tempo_correct, energy_correct)
@@ -153,7 +153,7 @@ def check_gradient_direction(metrics, playlist_type):
         tempo_correct = tempo_gradient < 0
         energy_correct = energy_gradient < 0
     
-    elif playlist_type == 'upbeat':
+    elif playlist_type == 'energy':
         # Should be ascending (positive)
         tempo_correct = tempo_gradient > 0
         energy_correct = energy_gradient > 0
@@ -180,7 +180,7 @@ def calculate_iso_score(metrics, playlist_type, tempo_violations, energy_violati
     
     Args:
         metrics: Trajectory metrics dict
-        playlist_type: 'calm', 'upbeat', or 'neutral'
+        playlist_type: 'calm', 'energy', or 'neutral'
         tempo_violations: Number of tempo violations
         energy_violations: Number of energy violations
         total_transitions: Total number of song transitions
@@ -190,7 +190,7 @@ def calculate_iso_score(metrics, playlist_type, tempo_violations, energy_violati
     """
     tempo_correct, energy_correct = check_gradient_direction(metrics, playlist_type)
     
-    if playlist_type in ['calm', 'upbeat']:
+    if playlist_type in ['calm', 'energy']:
         # Gradient score: 50 points if both correct
         gradient_score = 0
         if tempo_correct and energy_correct:
@@ -230,7 +230,7 @@ def validate_iso_trajectory(playlist, playlist_type='calm'):
     
     Args:
         playlist: DataFrame with tempo and energy columns
-        playlist_type: 'calm', 'upbeat', or 'neutral'
+        playlist_type: 'calm', 'energy', or 'neutral'
     
     Returns:
         Dict with validation results
@@ -379,7 +379,7 @@ def plot_iso_trajectory(playlist, playlist_type, participant_id, output_path=Non
     
     Args:
         playlist: DataFrame with tempo and energy columns
-        playlist_type: 'calm', 'upbeat', or 'neutral'
+        playlist_type: 'calm', 'energy', or 'neutral'
         participant_id: Participant code
         output_path: Optional path to save figure
     
@@ -427,14 +427,14 @@ def plot_iso_trajectory(playlist, playlist_type, participant_id, output_path=Non
     return fig
 
 
-def plot_combined_iso_comparison(calm_playlist, upbeat_playlist, neutral_playlist,
+def plot_combined_iso_comparison(calm_playlist, energy_playlist, neutral_playlist,
                                    participant_id, output_path=None):
     """
     Create comparison plot showing ISO trajectories for all three playlists side-by-side
     
     Args:
         calm_playlist: Calm playlist DataFrame
-        upbeat_playlist: Upbeat playlist DataFrame
+        energy_playlist: energy playlist DataFrame
         neutral_playlist: Neutral playlist DataFrame
         participant_id: Participant code
         output_path: Optional path to save figure
@@ -448,7 +448,7 @@ def plot_combined_iso_comparison(calm_playlist, upbeat_playlist, neutral_playlis
     
     playlists = [
         (calm_playlist, 'calm'),
-        (upbeat_playlist, 'upbeat'),
+        (energy_playlist, 'energy'),
         (neutral_playlist, 'neutral')
     ]
     
@@ -515,13 +515,13 @@ def plot_combined_iso_comparison(calm_playlist, upbeat_playlist, neutral_playlis
 # REPORTING
 # ============================================================
 
-def generate_iso_report(calm_playlist, upbeat_playlist, neutral_playlist, participant_id):
+def generate_iso_report(calm_playlist, energy_playlist, neutral_playlist, participant_id):
     """
     Generate comprehensive ISO validation report
     
     Args:
         calm_playlist: Calm playlist DataFrame
-        upbeat_playlist: Upbeat playlist DataFrame
+        energy_playlist: energy playlist DataFrame
         neutral_playlist: Neutral playlist DataFrame
         participant_id: Participant code
     
@@ -537,7 +537,7 @@ def generate_iso_report(calm_playlist, upbeat_playlist, neutral_playlist, partic
     # Validate each playlist
     playlists = [
         (calm_playlist, 'calm', 'Calm (Stress → Relaxation)'),
-        (upbeat_playlist, 'upbeat', 'Upbeat (Tired → Energized)'),
+        (energy_playlist, 'energy', 'energy (Tired → Energized)'),
         (neutral_playlist, 'neutral', 'Neutral (Baseline Control)')
     ]
     
@@ -601,14 +601,14 @@ def generate_iso_report(calm_playlist, upbeat_playlist, neutral_playlist, partic
     return "\n".join(report)
 
 
-def save_iso_report(calm_playlist, upbeat_playlist, neutral_playlist,
+def save_iso_report(calm_playlist, energy_playlist, neutral_playlist,
                     participant_id, output_path):
     """
     Generate and save ISO validation report to file
     
     Args:
         calm_playlist: Calm playlist DataFrame
-        upbeat_playlist: Upbeat playlist DataFrame
+        energy_playlist: energy playlist DataFrame
         neutral_playlist: Neutral playlist DataFrame
         participant_id: Participant code
         output_path: Path to save report
@@ -616,7 +616,7 @@ def save_iso_report(calm_playlist, upbeat_playlist, neutral_playlist,
     Returns:
         Report content string
     """
-    report = generate_iso_report(calm_playlist, upbeat_playlist, neutral_playlist, participant_id)
+    report = generate_iso_report(calm_playlist, energy_playlist, neutral_playlist, participant_id)
     
     with open(output_path, 'w', encoding='utf-8') as f:
         f.write(report)

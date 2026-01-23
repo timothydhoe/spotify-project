@@ -1,8 +1,10 @@
 """
 File: spotify_cli.py
 
+SOURCE parameters: https://developer.spotify.com/documentation/web-api/reference/get-audio-features
+
 CLI used to combine the modules: prepare.py, generate.py and analyse.py.
-Create personalised calm, neutral, and upbeat playlists from your Spotify data.
+Create personalised calm, neutral, and energy playlists from your Spotify data.
 
 QUICK START:
     spotify_cli.py all aardbei
@@ -10,7 +12,7 @@ QUICK START:
 This processes your Spotify CSVs and generates three playlists optimised for:
 - Calm: Stress reduction (lower tempo/energy)
 - Neutral: Baseline control (medium tempo/energy)
-- Upbeat: Energy boost (higher tempo/energy)
+- energy: Energy boost (higher tempo/energy)
 
 For more options, run: spotify_cli.py --help
 """
@@ -34,22 +36,22 @@ from spotify_modules.analyse import analyse_playlists
 #
 # RESEARCH-BACKED RANGES:
 # - Calm: 50-70 BPM (stress reduction, activates relaxation networks)
-# - Upbeat: 120-150 BPM (energy boost, activates alertness networks)
+# - Energy: 120-150 BPM (energy boost, activates alertness networks)
 # - Neutral: 95-115 BPM (baseline control, medium activation)
 #
 # Additional features based on scientific literature:
-# - Acousticness: Warmer, lower frequencies (calm) vs sharper attack (upbeat)
-# - Valence: Emotional positivity (lower for calm, higher for upbeat)
-# - Loudness: Dynamic range (quieter for calm, more dynamic for upbeat)
+# - Acousticness: Warmer, lower frequencies (calm) vs sharper attack (energy)
+# - Valence: Emotional positivity (lower for calm, higher for energy)
+# - Loudness: Dynamic range (quieter for calm, more dynamic for energy)
 #
 DEFAULT_PARAMS = {
     'calm': {
         'min_tempo': 50,
         'max_tempo': 90,          # Research: 50-90 BPM for stress reduction (RAISED)
-        'max_energy': 0.6,        # Lower than before (warmer, calmer)
+        'max_energy': 0.6,        # Lower than before
         'min_acousticness': 0.2,  # Warmer sound, lower frequencies (LOWERED)
-        # ADD MIN VALENCE
-        'max_valence': 0.7,       # Not too energetic/positive (RAISED)
+        'min_valence': 0.4,       # Raised valence for positive connotation
+        'max_valence': 1.0,       # (RAISED)
         'min_loudness': -20,      # Audible but soft
         'max_loudness': -8        # Not too loud
     },
@@ -59,7 +61,7 @@ DEFAULT_PARAMS = {
         'min_energy': 0.5,
         'max_energy': 0.7
     },
-    'upbeat': {
+    'energy': {
         'min_tempo': 110,         # Research: 120-150 BPM for energy boost (LOWERED)
         'max_tempo': 160,         # Increased from 130 (RAISED)
         'min_energy': 0.7,        # more energetic
@@ -162,7 +164,7 @@ def build_params_from_args(args):
         args: Parsed command line arguments
     
     Returns:
-        Dict with calm, neutral, and upbeat parameters
+        Dict with calm, neutral, and energy parameters
     """
     params = {
         'calm': {
@@ -171,6 +173,7 @@ def build_params_from_args(args):
             'max_energy': args.calm_energy_max,
             # New research-backed parameters
             'min_acousticness': getattr(args, 'calm_acousticness_min', DEFAULT_PARAMS['calm']['min_acousticness']),
+            'min_valence': getattr(args, 'calm_valence_min', DEFAULT_PARAMS['calm']['min_valence']),
             'max_valence': getattr(args, 'calm_valence_max', DEFAULT_PARAMS['calm']['max_valence']),
             'min_loudness': getattr(args, 'calm_loudness_min', DEFAULT_PARAMS['calm']['min_loudness']),
             'max_loudness': getattr(args, 'calm_loudness_max', DEFAULT_PARAMS['calm']['max_loudness'])
@@ -181,14 +184,14 @@ def build_params_from_args(args):
             'min_energy': args.neutral_energy_min,
             'max_energy': args.neutral_energy_max
         },
-        'upbeat': {
-            'min_tempo': args.upbeat_tempo_min,
-            'max_tempo': args.upbeat_tempo_max,
-            'min_energy': args.upbeat_energy_min,
+        'energy': {
+            'min_tempo': args.energy_tempo_min,
+            'max_tempo': args.energy_tempo_max,
+            'min_energy': args.energy_energy_min,
             # New research-backed parameters
-            'min_danceability': getattr(args, 'upbeat_danceability_min', DEFAULT_PARAMS['upbeat']['min_danceability']),
-            'min_valence': getattr(args, 'upbeat_valence_min', DEFAULT_PARAMS['upbeat']['min_valence']),
-            'min_loudness': getattr(args, 'upbeat_loudness_min', DEFAULT_PARAMS['upbeat']['min_loudness'])
+            'min_danceability': getattr(args, 'energy_danceability_min', DEFAULT_PARAMS['energy']['min_danceability']),
+            'min_valence': getattr(args, 'energy_valence_min', DEFAULT_PARAMS['energy']['min_valence']),
+            'min_loudness': getattr(args, 'energy_loudness_min', DEFAULT_PARAMS['energy']['min_loudness'])
         }
     }
     return params
@@ -369,7 +372,7 @@ def add_playlist_parameters(parser, show_help='basic'):
     # Get defaults from DEFAULT_PARAMS
     calm_defaults = DEFAULT_PARAMS['calm']
     neutral_defaults = DEFAULT_PARAMS['neutral']
-    upbeat_defaults = DEFAULT_PARAMS['upbeat']
+    energy_defaults = DEFAULT_PARAMS['energy']
     
     # Calm playlist parameters
     calm_group = parser.add_argument_group('calm playlist (advanced tuning)')
@@ -391,14 +394,14 @@ def add_playlist_parameters(parser, show_help='basic'):
     neutral_group.add_argument('--neutral-energy-max', type=float, default=neutral_defaults['max_energy'], 
                               help=help_text or f"Max energy (default: {neutral_defaults['max_energy']})")
     
-    # Upbeat playlist parameters
-    upbeat_group = parser.add_argument_group('upbeat playlist (advanced tuning)')
-    upbeat_group.add_argument('--upbeat-tempo-min', type=int, default=upbeat_defaults['min_tempo'], 
-                             help=help_text or f"Min BPM (default: {upbeat_defaults['min_tempo']})")
-    upbeat_group.add_argument('--upbeat-tempo-max', type=int, default=upbeat_defaults['max_tempo'], 
-                             help=help_text or f"Max BPM (default: {upbeat_defaults['max_tempo']})")
-    upbeat_group.add_argument('--upbeat-energy-min', type=float, default=upbeat_defaults['min_energy'], 
-                             help=help_text or f"Min energy (default: {upbeat_defaults['min_energy']})")
+    # energy playlist parameters
+    energy_group = parser.add_argument_group('energy playlist (advanced tuning)')
+    energy_group.add_argument('--energy-tempo-min', type=int, default=energy_defaults['min_tempo'], 
+                             help=help_text or f"Min BPM (default: {energy_defaults['min_tempo']})")
+    energy_group.add_argument('--energy-tempo-max', type=int, default=energy_defaults['max_tempo'], 
+                             help=help_text or f"Max BPM (default: {energy_defaults['max_tempo']})")
+    energy_group.add_argument('--energy-energy-min', type=float, default=energy_defaults['min_energy'], 
+                             help=help_text or f"Min energy (default: {energy_defaults['min_energy']})")
 
 
 def create_parser():
@@ -409,7 +412,7 @@ def create_parser():
         Configured ArgumentParser
     """
     parser = argparse.ArgumentParser(
-        description='Spotify Playlist Generator - Create calm, neutral, and upbeat playlists',
+        description='Spotify Playlist Generator - Create calm, neutral, and energy playlists',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 EXAMPLES:
@@ -461,7 +464,7 @@ FOLDER STRUCTURE:
     # ========== GENERATE COMMAND ==========
     generate_parser = subparsers.add_parser(
         'generate',
-        help='Generate calm, neutral, and upbeat playlists'
+        help='Generate calm, neutral, and energy playlists'
     )
     add_common_arguments(generate_parser)
     add_participant_argument(generate_parser)

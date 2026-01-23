@@ -1,7 +1,7 @@
 """
 file: generate.py
 -----------------
-Generate personalised calm, neutral, and upbeat playlists
+Generate personalised calm, neutral, and energy playlists
 
 WHAT THIS MODULE DOES:
 1. Loads combined song data from prepare step
@@ -14,11 +14,11 @@ ISO PRINCIPLE:
 Music interventions work best when they start at the listener's current state
 and gradually transition to the desired state:
 - Calm: High activation -> Low activation (stress to relaxation)
-- Upbeat: Low activation -> High activation (tired to energised)
+- Energy: Low activation -> High activation (tired to energised)
 - Neutral: Consistent medium activation (baseline control)
 
 WHY THREE PLAYLISTS:
-- Calm + Upbeat = Different therapeutic goals
+- Calm + Energy = Different therapeutic goals
 - Neutral = Control condition for experimental design
 - Personalised = Uses participant's own music library
 """
@@ -48,9 +48,53 @@ ENERGY_WEIGHT = 0.2
 # FILTERING: Song Selection with ISO Ordering
 # ============================================================
 
+def smooth_loudness_transitions(df, max_jump_db=5.0):
+    """
+    Reorder songs to minimize loudness jumps between consecutive tracks
+    
+    GOAL: Create smooth listening experience without jarring volume changes
+    
+    ALGORITHM:
+    1. Start with first song (highest activation from ISO sort)
+    2. For each next position, pick song with closest loudness
+    3. Avoid jumps > max_jump_db between consecutive songs
+    
+    This preserves rough ISO trajectory while smoothing loudness.
+    
+    Args:
+        df: DataFrame already sorted by ISO principle
+        max_jump_db: Maximum acceptable loudness jump (default: 5 dB)
+        
+    Returns:
+        Reordered DataFrame with smooth loudness transitions
+    """
+    if 'loudness' not in df.columns or len(df) < 2:
+        return df
+    
+    # Convert to list for easier manipulation
+    songs = df.to_dict('records')
+    smoothed = [songs[0]]  # Start with first song
+    remaining = songs[1:]
+    
+    while remaining:
+        current_loudness = smoothed[-1]['loudness']
+        
+        # Find song with closest loudness to current
+        closest_idx = min(
+            range(len(remaining)),
+            key=lambda i: abs(remaining[i]['loudness'] - current_loudness)
+        )
+        
+        next_song = remaining.pop(closest_idx)
+        smoothed.append(next_song)
+    
+    # Convert back to DataFrame
+    return pd.DataFrame(smoothed)
+
+
 def filter_calm_songs(df, min_tempo=50, max_tempo=70, max_energy=0.6, 
-                      min_acousticness=0.3, max_valence=0.6, # ADD MIN VALENCE
-                      min_loudness=-20, max_loudness=-8):
+                      min_acousticness=0.3, min_valence=0.5, max_valence=1,
+                      min_loudness=-20, max_loudness=-8, min_danceability=0.5):
     """
     Filter and order songs for calm/relaxation playlist using ISO principle
     
@@ -66,6 +110,7 @@ def filter_calm_songs(df, min_tempo=50, max_tempo=70, max_energy=0.6,
     - Acousticness: >0.3 (warmer, lower frequencies)
     - Valence: <0.6 (not too energetic/positive)
     - Loudness: -20 to -8 dB (soft but audible)
+    - Danceability: >0.7 (steady, predictable rhythm aids relaxation)
     
     Args:
         df: DataFrame of all songs
@@ -76,6 +121,7 @@ def filter_calm_songs(df, min_tempo=50, max_tempo=70, max_energy=0.6,
         max_valence: Maximum valence (default: 0.6)
         min_loudness: Minimum loudness in dB (default: -20)
         max_loudness: Maximum loudness in dB (default: -8)
+        min_danceability: Minimum danceability (default: 0.7)
     
     Returns:
         DataFrame of calm songs, ordered by DESCENDING activation
@@ -91,10 +137,13 @@ def filter_calm_songs(df, min_tempo=50, max_tempo=70, max_energy=0.6,
         conditions &= (df['acousticness'] > min_acousticness)
     
     if 'valence' in df.columns:
-        conditions &= (df['valence'] < max_valence)
+        conditions &= (df['valence'].between(min_valence, max_valence))
     
     if 'loudness' in df.columns:
         conditions &= (df['loudness'].between(min_loudness, max_loudness))
+    
+    if 'danceability' in df.columns:
+        conditions &= (df['danceability'] > min_danceability)
     
     # Apply filters
     filtered = df[conditions].copy()
@@ -115,6 +164,10 @@ def filter_calm_songs(df, min_tempo=50, max_tempo=70, max_energy=0.6,
     # Sort DESCENDING: Start high activation, end low (stress -> calm)
     filtered = filtered.sort_values(['tempo', 'energy'], ascending=[False, False])
     filtered = filtered.drop('activation', axis=1)
+    
+    # Apply loudness smoothing to avoid jarring volume changes
+    # This maintains ISO trajectory while creating smooth transitions
+    filtered = smooth_loudness_transitions(filtered, max_jump_db=5.0)
     
     return filtered
 
@@ -160,10 +213,10 @@ def filter_neutral_songs(df, min_tempo=95, max_tempo=115, min_energy=0.5, max_en
     return filtered
 
 
-def filter_upbeat_songs(df, min_tempo=120, max_tempo=150, min_energy=0.7,
-                        min_danceability=0.6, min_valence=0.5, min_loudness=-10):
+def filter_energy_songs(df, min_tempo=120, max_tempo=150, min_energy=0.7,
+                        min_danceability=0.5, max_danceability=1.0, min_valence=0.5, min_loudness=-10):
     """
-    Filter and order songs for upbeat/energising playlist using ISO principle
+    Filter and order songs for energy/energising playlist using ISO principle
     
     ISO TRAJECTORY (Tired -> Energised):
     Phase 1 - Ontmoeting (70-90 BPM): Match low energy state
@@ -174,7 +227,7 @@ def filter_upbeat_songs(df, min_tempo=120, max_tempo=150, min_energy=0.7,
     RESEARCH-BACKED FEATURES:
     - Tempo: 120-150 BPM (higher tempo = energy boost)
     - Energy: >0.7 (intense, dynamic)
-    - Danceability: >0.6 (strong, regular beat)
+    - Danceability: 0.5-1.0 (varied rhythmic patterns)
     - Valence: >0.5 (more positive/energetic)
     - Loudness: >-10 dB (more dynamic)
     
@@ -183,12 +236,13 @@ def filter_upbeat_songs(df, min_tempo=120, max_tempo=150, min_energy=0.7,
         min_tempo: Minimum BPM threshold (default: 120)
         max_tempo: Maximum BPM threshold (default: 150)
         min_energy: Minimum energy threshold (default: 0.7)
-        min_danceability: Minimum danceability (default: 0.6)
+        min_danceability: Minimum danceability (default: 0.5)
+        max_danceability: Maximum danceability (default: 1.0)
         min_valence: Minimum valence (default: 0.5)
         min_loudness: Minimum loudness in dB (default: -10)
     
     Returns:
-        DataFrame of upbeat songs, ordered by ASCENDING activation
+        DataFrame of energy songs, ordered by ASCENDING activation
     """
     # Build filter conditions
     conditions = (
@@ -198,7 +252,7 @@ def filter_upbeat_songs(df, min_tempo=120, max_tempo=150, min_energy=0.7,
     
     # Add optional features if they exist in the dataframe
     if 'danceability' in df.columns:
-        conditions &= (df['danceability'] > min_danceability)
+        conditions &= (df['danceability'].between(min_danceability, max_danceability))
     
     if 'valence' in df.columns:
         conditions &= (df['valence'] > min_valence)
@@ -224,9 +278,6 @@ def filter_upbeat_songs(df, min_tempo=120, max_tempo=150, min_energy=0.7,
     
     # Sort ASCENDING: Start low activation, end high (tired -> energised)
     filtered = filtered.sort_values(['tempo', 'energy'], ascending=[True, True])
-    filtered = filtered.drop('activation', axis=1)
-    
-    return filtered
     filtered = filtered.drop('activation', axis=1)
     
     return filtered
@@ -334,7 +385,7 @@ def print_playlist_header(playlist_type):
     titles = {
         'calm': 'CALM PLAYLIST (Stress -> Relaxation)',
         'neutral': 'NEUTRAL PLAYLIST (Baseline Control)',
-        'upbeat': 'UPBEAT PLAYLIST (Tired -> Energised)'
+        'energy': 'ENERGY PLAYLIST (Tired -> Energised)'
     }
     
     print(f"\n{'='*50}")
@@ -382,7 +433,7 @@ def save_playlist(playlist, output_dir, participant_id, playlist_type):
         playlist: DataFrame to save
         output_dir: Output directory path
         participant_id: Participant code
-        playlist_type: 'calm', 'neutral', or 'upbeat'
+        playlist_type: 'calm', 'neutral', or 'energy'
     
     Returns:
         Path to saved file
@@ -409,7 +460,7 @@ def process_single_playlist(candidates, playlist_type, output_dir, participant_i
     
     Args:
         candidates: DataFrame of filtered candidate songs
-        playlist_type: 'calm', 'neutral', or 'upbeat'
+        playlist_type: 'calm', 'neutral', or 'energy'
         output_dir: Output directory path
         participant_id: Participant code
         preview: Whether to show detailed song list
@@ -458,11 +509,11 @@ def process_single_playlist(candidates, playlist_type, output_dir, participant_i
 
 def generate_playlists(output_dir, participant_id, params, preview=False):
     """
-    Generate calm, neutral, and upbeat playlists from combined songs
+    Generate calm, neutral, and energy playlists from combined songs
     
     WORKFLOW:
     1. Load combined song data
-    2. Filter songs into three categories (calm, neutral, upbeat)
+    2. Filter songs into three categories (calm, neutral, energy)
     3. Order songs using ISO principle
     4. Validate each playlist
     5. Save playlists to CSV files
@@ -470,7 +521,7 @@ def generate_playlists(output_dir, participant_id, params, preview=False):
     Args:
         output_dir: Path to playlists_generated folder
         participant_id: Participant code (e.g., aardbei, bosbes)
-        params: Dict with 'calm', 'neutral', and 'upbeat' parameter dicts
+        params: Dict with 'calm', 'neutral', and 'energy' parameter dicts
         preview: Show detailed song lists
     
     Returns:
@@ -502,11 +553,11 @@ def generate_playlists(output_dir, participant_id, params, preview=False):
     
     calm_candidates = filter_calm_songs(all_songs, **params['calm'])
     neutral_candidates = filter_neutral_songs(all_songs, **params['neutral'])
-    upbeat_candidates = filter_upbeat_songs(all_songs, **params['upbeat'])
+    energy_candidates = filter_energy_songs(all_songs, **params['energy'])
     
     print(f"\nCalm candidates: {len(calm_candidates)} (ISO: high->low activation)")
     print(f"Neutral candidates: {len(neutral_candidates)} (consistent medium)")
-    print(f"Upbeat candidates: {len(upbeat_candidates)} (ISO: low->high activation)")
+    print(f"Energy candidates: {len(energy_candidates)} (ISO: low->high activation)")
     
     # --------------------------------------------------------
     # STEP 2: Process each playlist type
@@ -522,8 +573,8 @@ def generate_playlists(output_dir, participant_id, params, preview=False):
         neutral_candidates, 'neutral', output_dir, participant_id, preview
     )
     
-    results['upbeat'] = process_single_playlist(
-        upbeat_candidates, 'upbeat', output_dir, participant_id, preview
+    results['energy'] = process_single_playlist(
+        energy_candidates, 'energy', output_dir, participant_id, preview
     )
     
     # --------------------------------------------------------

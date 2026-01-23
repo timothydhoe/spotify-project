@@ -169,6 +169,43 @@ def save_combined_file(df, output_dir):
     return output_path
 
 
+def filter_unsuitable_songs(df):
+    """
+    Remove songs unsuitable for therpeutic playlists
+
+    FILTERS:
+    - Speechiness > 0.7: Too much talking (podcasts, spoken word, ...)
+    - Liveness > 0.8: Live recordings with audience noise
+
+    These features interfere with music therapy effectiveness
+
+    Args:
+        df: DataFrame with potential unsuitable songs
+
+    Returns:
+        Dataframe with unsuitable songs removed
+    """
+    orginal_count = len(df)
+
+    if 'speechiness' in df.columns:
+        before = len(df)
+        df = df[df['speechiness'] <= 0.7]
+        if len(df) < before:
+            print(f"  Removed {before - len(df)} speechy track(s) (speechiness > 0.7)")
+
+    if 'liveness' in df.columns:
+        before = len(df)
+        df = df[df['liveness'] <= 0.8]
+        if len(df) < before:
+            print(f"  Removed {before - len(df)} live recording (liveness > 0.0)")
+
+    total_removed = orginal_count - len(df)
+    if total_removed > 0:
+        print(f"  Total unsuitable tracks removed: {total_removed}")
+    
+    return df
+
+
 # ============================================================
 # MAIN FUNCTION
 # ============================================================
@@ -184,6 +221,7 @@ def prepare_csvs(input_dir, output_dir):
     2. Read and combine them
     3. Standardise column names
     4. Remove duplicate songs
+    6. Filter unsuitable songs (speechiness and liveness)
     5. Save to output directory
     
     Args:
@@ -206,8 +244,12 @@ def prepare_csvs(input_dir, output_dir):
     
     # Step 4: Remove duplicates
     combined_df = remove_duplicates(combined_df)
-    
-    # Step 5: Save to output
+
+    # Step 5: Filter Unsuitable songs
+    combined_df = filter_unsuitable_songs(combined_df)
+    # print("TEST")
+
+    # Step 6: Save to output
     output_path = save_combined_file(combined_df, output_dir)
     
     # Summary

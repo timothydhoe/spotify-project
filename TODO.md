@@ -20,11 +20,7 @@
 
 - [x] Update playlist generation with extra features
 - [x] Outlier detection file
-- [ ] Playlist generation for all participants
-- [ ] Send out playlists to participants
-- [ ] Create check-in moment explanation letter
-- [ ] Set up reminders for participants (every 2 weeks)
-- [ ] Add playlist links to library instructions
+
 
 ## Current Sprint (Week 19/01 - 23/01)
 
@@ -32,11 +28,21 @@
     - [ ] Calm: high value danceability[8:] - low value tempo
     - [ ] High: higher range danceability [.5:] - high value tempo
 
-- [ ] 
+- [ ] Youtube music to Spotify playlist
+  - [ ] see link: https://www.tunemymusic.com/transfer/youtube-to-spotify
+- [ ] Playlist generation for all participants
+- [ ] Send out playlists to participants
+- [ ] Create check-in moment explanation letter
 - [ ] Research instructions for smartwatches
 - [ ] Send out Playlists
 - [ ] Send out Reminders
-- [ ] Send out Reminders
+  - [ ] Frederik Sap
+  - [ ] Evelien Viroux
+
+## Next Sprint (Week xx/01 - xx/01)
+
+- [ ] Set up reminders for participants (every 2 weeks)
+- [ ] Add playlist links to library instructions
 
 ---
 

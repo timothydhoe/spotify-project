@@ -20,7 +20,7 @@
 
 - [x] Update playlist generation with extra features
 - [x] Outlier detection file
-- [ ] Playlist generation for all participants  
+- [ ] Playlist generation for all participants
 - [ ] Send out playlists to participants
 - [ ] Create check-in moment explanation letter
 - [ ] Set up reminders for participants (every 2 weeks)

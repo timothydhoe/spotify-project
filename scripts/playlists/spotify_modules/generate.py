@@ -40,8 +40,8 @@ TARGET_DURATION_MIN = 30
 
 # ISO activation weighting
 # Higher weight on tempo means tempo drives the trajectory more than energy
-TEMPO_WEIGHT = 0.8
-ENERGY_WEIGHT = 0.2
+TEMPO_WEIGHT = 0.7
+ENERGY_WEIGHT = 0.3
 
 
 # ============================================================
@@ -94,7 +94,7 @@ def smooth_loudness_transitions(df, max_jump_db=5.0):
 
 def filter_calm_songs(df, min_tempo=50, max_tempo=70, max_energy=0.6, 
                       min_acousticness=0.3, min_valence=0.5, max_valence=1,
-                      min_loudness=-20, max_loudness=-8, min_danceability=0.5):
+                      min_loudness=-20, max_loudness=-8, min_danceability=0.4):
     """
     Filter and order songs for calm/relaxation playlist using ISO principle
     

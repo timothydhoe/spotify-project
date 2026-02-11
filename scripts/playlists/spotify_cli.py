@@ -47,7 +47,7 @@ from spotify_modules.analyse import analyse_playlists
 DEFAULT_PARAMS = {
     'calm': {
         'min_tempo': 50,
-        'max_tempo': 90,          # Research: 50-90 BPM for stress reduction (RAISED)
+        'max_tempo': 95,          # Research: 50-90 BPM for stress reduction (RAISED)
         'max_energy': 0.8,        # Lower than before
         'min_acousticness': 0.2,  # Warmer sound, lower frequencies (LOWERED)
         'min_valence': 0.1,       # Raised valence for positive connotation
@@ -58,7 +58,7 @@ DEFAULT_PARAMS = {
     'neutral': {
         'min_tempo': 95,
         'max_tempo': 115,
-        'min_energy': 0.5,
+        'min_energy': 0.4,
         'max_energy': 0.7
     },
     'energy': {

@@ -15,6 +15,7 @@ def clean_smartwatch(df: pd.DataFrame) -> pd.DataFrame:
         df: Raw smartwatch DataFrame
     Returns: Cleaned DataFrame
     """
+    # TODO: Start with Garmin Vivoactive 5
     # TODO: Drop rows where timestamp is null
     # Later: add outlier detection, gap handling
     pass

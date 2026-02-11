@@ -10,8 +10,8 @@ from datetime import timedelta
 
 def get_window_for_event(smartwatch_df: pd.DataFrame, 
                          checkin_row: pd.Series,
-                         window_before_hr: int = 1,
-                         window_after_hr: int = 1) -> pd.DataFrame:
+                         window_before_hr: int=1,
+                         window_after_hr: int=1) -> pd.DataFrame:
     """
     Extract smartwatch data window around a check-in event.
     

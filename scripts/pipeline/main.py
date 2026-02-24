@@ -2,7 +2,6 @@
 filename: main.py
 ------------------
 Run the data pipeline
-
 """
 
 from pathlib import Path

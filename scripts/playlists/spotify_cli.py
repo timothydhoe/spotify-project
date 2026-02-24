@@ -48,22 +48,22 @@ DEFAULT_PARAMS = {
     'calm': {
         'min_tempo': 50,
         'max_tempo': 95,          # Research: 50-90 BPM for stress reduction (RAISED)
-        'max_energy': 0.8,        # Lower than before
-        'min_acousticness': 0.2,  # Warmer sound, lower frequencies (LOWERED)
-        'min_valence': 0.1,       # Raised valence for positive connotation
+        'max_energy': 0.9,        # Lower than before
+        'min_acousticness': 0,  # Warmer sound, lower frequencies (LOWERED)
+        'min_valence': 0.0,       # Raised valence for positive connotation
         'max_valence': 1.0,       # (RAISED)
-        'min_loudness': -60,      # Audible but soft
-        'max_loudness': -5        # Not too loud
+        'min_loudness': -70,      # Audible but soft
+        'max_loudness': 0        # Not too loud
     },
     'neutral': {
         'min_tempo': 95,
         'max_tempo': 115,
-        'min_energy': 0.4,
-        'max_energy': 0.7
+        'min_energy': 0.2,
+        'max_energy': 0.8
     },
     'energy': {
-        'min_tempo': 110,         # Research: 120-150 BPM for energy boost (LOWERED)
-        'max_tempo': 160,         # Increased from 130 (RAISED)
+        'min_tempo': 120,         # Research: 120-150 BPM for energy boost (LOWERED)
+        'max_tempo': 180,         # Increased from 130 (RAISED)
         'min_energy': 0.7,        # more energetic
         'min_danceability': 0.5,  # Strong, regular beat
         'min_valence': 0.6,       # More positive/energetic (RAISED)

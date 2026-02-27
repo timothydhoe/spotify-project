@@ -1,0 +1,43 @@
+EINDWERK FLOW
+
+Wat hebben we nu:
+data van spotify
+persoonlijke garmindata
+
+Wat hebben we nodig
+smartwatch data - Download instructies in csv - Astrid
+Pipeline - uitsorteren relevante data: Timothy
+		Verschillen smartwatch
+		Fysische parameters (hartslag, ademhaling, whatevs)
+		Slaap - Activiteiten proberen isoleren
+		NaN aanpakken (bv periodes waar geen meting is)
+		Persoonlijke data eruit halen
+		
+Deadlines voor vooruitgang: straks vastleggen wat en wanneer. AGILE methodology
+
+Reminders uitsturen. Wekelijkse opvolging (Astrid). 
+ML - models : Classificatie muziek leren adhv perfecte voorbeelden via aangepaste playlistgenerator. Model toepassen op muziek van deelnemers 
+	om optimalisatie van playlisten te genereren. NN - LogReg - RandomForrest. Astrid 
+	
+	Voorspellen van verloop baseline
+	
+	Gecombineerd model: Timothaaay Voorspellen van de invloed van muziek op een persoonlijke baseline
+	
+Output: Spotify wrapped - but different (eventueel in streamlitapp)
+	Statistieken per persoon (minst stresserend uur van de dag)
+
+Presentatie
+Uploaden Syntra als Tim zijn werk doet
+
+
+
+Deadlines - Grote lijnen
+NU: 27 /2
+20/3: Exploratie - deel pipeline smartwatch / Deel classificatie muziek (nieuwe playlisten)
+25/4: Exploratie verschillende modellen: duidelijke voorstellen en eventuele start van verschillende modellen
+23/5: Significant resultaten verwerken - statistiek en visualisatie - Modellen moeten af zijn.
+20/06: Presentatie - streamlit/spotify wrapped;
+PPT: 22/06
+
+Deadlines - Kleine lijnen
+Weekly sprints voor progressie te tonen. Feedback en vragen. Check in. scrupules

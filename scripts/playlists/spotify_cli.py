@@ -82,7 +82,8 @@ def resolve_paths(codename):
     
     FOLDER STRUCTURE:
     data/playlists/[codename]/              <- Input CSVs
-    data/playlists/[codename]/playlists_generated/  <- Output playlists
+    data/playlists/[cod
+    ename]/playlists_generated/  <- Output playlists
     
     Args:
         codename: Participant codename (e.g., aardbei, bosbes)

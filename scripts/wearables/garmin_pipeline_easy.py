@@ -606,7 +606,7 @@ def run(export_dir: Path, out_dir: Path,
     df = transform(daily_df)
     print(f"\n  {len(df)} valid days after transform")
 
-    # 5. Analyze
+    # 5. Analyse
     analysis = analyze(df)
     print(f"  Steps: {analysis['avg_steps']:,}  RHR: {analysis['avg_rhr']:.0f}  Stress: {analysis['avg_stress']:.0f}")
     for ins in analysis["insights"]:

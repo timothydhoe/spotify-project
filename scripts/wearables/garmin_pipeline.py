@@ -96,8 +96,11 @@ def extract_fitness_age(path: Path) -> pd.DataFrame:
 
 # ── Extract: Minute-level FIT files ─────────────────────────────────────────
 
-def extract_fit_files(fit_zips: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame]:
+def extract_fit_files(fit_zips: list[Path], date_range: tuple = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Extract per-minute stress/BB and HR from FIT binaries inside zips.
+
+    Args:
+        date_range: Optional (start, end) datetime tuple. Files outside this range are skipped.
 
     Returns (stress_df, hr_df), both indexed by UTC timestamp.
     """
@@ -119,10 +122,27 @@ def extract_fit_files(fit_zips: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame]
             except Exception:
                 pass
 
-        print(f"  {len(fit_paths)} FIT files from {len(fit_zips)} zips")
+        total = len(fit_paths)
+        skipped = 0
 
-        for fp in fit_paths:
+        for i, fp in enumerate(fit_paths):
             try:
+                ff = fitparse.FitFile(str(fp))
+
+                # Quick date check: read first timestamp, skip if outside range
+                if date_range:
+                    first_ts = None
+                    for msg in ff.get_messages("monitoring_info"):
+                        first_ts = {f.name: f.value for f in msg.fields}.get("timestamp")
+                        break
+                    if not first_ts:
+                        for msg in fitparse.FitFile(str(fp)).get_messages("stress_level"):
+                            first_ts = {f.name: f.value for f in msg.fields}.get("stress_level_time")
+                            break
+                    if first_ts and (first_ts < date_range[0] or first_ts > date_range[1]):
+                        skipped += 1
+                        continue
+
                 # Pass 1: stress_level messages (1/min, includes body battery)
                 for msg in fitparse.FitFile(str(fp)).get_messages("stress_level"):
                     f = {field.name: field.value for field in msg.fields}
@@ -154,6 +174,13 @@ def extract_fit_files(fit_zips: list[Path]) -> tuple[pd.DataFrame, pd.DataFrame]
                             hr_rows.append({"timestamp": ts, "heart_rate": f["heart_rate"]})
             except Exception:
                 pass
+
+            # Progress indicator for large exports
+            if total > 500 and (i + 1) % 500 == 0:
+                print(f"    ... {i + 1}/{total} files processed")
+
+    print(f"  {total} FIT files from {len(fit_zips)} zips" +
+          (f" ({skipped} skipped — outside date range)" if skipped else ""))
 
     # Build, deduplicate, clean
     if not stress_rows:
@@ -573,22 +600,55 @@ def render_pdf(daily_df, analysis, fa_df, sessions_df, out_path):
 # ── Main ────────────────────────────────────────────────────────────────────
 
 def run(export_dir: Path, out_dir: Path,
-        checkin_path: Path | None = None, code: str | None = None):
+        checkin_path: Path | None = None, code: str | None = None,
+        months: int = 6):
 
     print(f"garmin_pipeline — {export_dir}\n")
 
     # 1. Find files
     jsons = sorted(export_dir.rglob("*.json"))
     zips  = sorted(export_dir.rglob("*.zip"))
-    print(f"  Found {len(jsons)} JSON, {len(zips)} ZIP files\n")
+    print(f"  Found {len(jsons)} JSON, {len(zips)} ZIP files")
 
-    # 2. Extract daily JSON
+    # Determine date range: from check-in CSV if available, else last N months
+    import datetime as _dt
+    date_end = _dt.datetime.now()
+    date_start = date_end - _dt.timedelta(days=months * 30)
+
+    if checkin_path and code:
+        try:
+            _ck = pd.read_csv(checkin_path)
+            _sess = _ck[_ck["Deelnemerscode"].str.lower() == code.lower()]
+            _dates = pd.to_datetime(_sess["Welke dag deed je een check-in?"], dayfirst=True)
+            if len(_dates):
+                date_start = (_dates.min() - _dt.timedelta(days=30)).to_pydatetime()
+                date_end   = (_dates.max() + _dt.timedelta(days=7)).to_pydatetime()
+        except Exception:
+            pass
+
+    print(f"  Date range: {date_start:%Y-%m-%d} → {date_end:%Y-%m-%d}\n")
+
+    # 2. Extract daily JSON (only files overlapping the date range)
     daily_df = fa_df = None
     for p in jsons:
         name = p.name.lower()
         if "udsfile" in name:
+            # Try to parse date range from filename: UDSFile_YYYY-MM-DD_YYYY-MM-DD.json
+            parts = p.stem.split("_")
+            skip = False
+            if len(parts) >= 3:
+                try:
+                    file_end = _dt.datetime.strptime(parts[-1], "%Y-%m-%d")
+                    file_start = _dt.datetime.strptime(parts[-2], "%Y-%m-%d")
+                    if file_end < date_start or file_start > date_end:
+                        skip = True
+                except ValueError:
+                    pass
+            if skip:
+                continue
             print(f"  Extracting daily summaries: {p.name}")
-            daily_df = extract_daily(p)
+            chunk = extract_daily(p)
+            daily_df = chunk if daily_df is None else pd.concat([daily_df, chunk])
         elif "fitnessagedata" in name:
             print(f"  Extracting fitness age: {p.name}")
             fa_df = extract_fitness_age(p)
@@ -596,11 +656,15 @@ def run(export_dir: Path, out_dir: Path,
     if daily_df is None or daily_df.empty:
         sys.exit("✗ No UDS data found.")
 
+    # Deduplicate in case UDS files overlap
+    daily_df = daily_df[~daily_df.index.duplicated(keep="last")].sort_index()
+    print(f"  → {len(daily_df)} daily records")
+
     # 3. Extract minute-level FIT
     stress_df = hr_df = pd.DataFrame()
     if zips:
         print(f"\n  Parsing FIT files...")
-        stress_df, hr_df = extract_fit_files(zips)
+        stress_df, hr_df = extract_fit_files(zips, date_range=(date_start, date_end))
 
     # 4. Transform
     df = transform(daily_df)
@@ -657,10 +721,42 @@ def run(export_dir: Path, out_dir: Path,
 
 
 if __name__ == "__main__":
-    p = argparse.ArgumentParser(description="Garmin GDPR export → analysis pipeline")
-    p.add_argument("export_dir", type=Path)
-    p.add_argument("--out", type=Path, default=Path("output"))
-    p.add_argument("--checkin", type=Path, default=None)
-    p.add_argument("--code", type=str, default=None)
+    p = argparse.ArgumentParser(
+        description="Garmin pipeline for R.E.M. study",
+        usage="%(prog)s <participant_code> [options]",
+    )
+    p.add_argument("code", type=str, help="Participant codename (e.g. kokosnoot)")
+    p.add_argument("--root", type=Path, default=None,
+                   help="Project root (auto-detected from script location)")
+    p.add_argument("--export", type=Path, default=None,
+                   help="Override: path to unzipped Garmin export")
+    p.add_argument("--checkin", type=Path, default=None,
+                   help="Override: path to check-in CSV")
+    p.add_argument("--out", type=Path, default=None,
+                   help="Override: output directory")
+    p.add_argument("--months", type=int, default=6,
+                   help="How many months of data to process (default: 6)")
     args = p.parse_args()
-    run(args.export_dir, args.out, args.checkin, args.code)
+
+    # Auto-detect project root: script lives in <root>/scripts/wearables/
+    root = args.root or Path(__file__).resolve().parent.parent.parent
+    if not (root / "data").exists():
+        sys.exit(f"✗ Can't find project root (tried {root}). Use --root.")
+
+    code = args.code
+    base = root / "data" / "wearables" / code
+
+    export_dir  = args.export  or base / "raw" / "export"
+    out_dir     = args.out     or base / "processed"
+    checkin     = args.checkin or next(
+        (root / "data" / "checkins").glob("*.csv"), None
+    )
+
+    if not export_dir.exists():
+        sys.exit(f"✗ Export not found: {export_dir}\n"
+                 f"  Place the unzipped Garmin export there, or use --export.")
+
+    if checkin and not checkin.exists():
+        checkin = None
+
+    run(export_dir, out_dir, checkin, code, args.months)

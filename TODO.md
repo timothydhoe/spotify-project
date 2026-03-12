@@ -37,6 +37,7 @@
 - [x] Opzetten pipeline (Garmin Vivoactive 5):
   - [x] resultaat: uurprogressie + tracefiles (minuutprogressie)
 - [x] Google Collab voor reminder
+- [x] Succesvolle merge docs/todo -> merde opgelost
 
 
 
@@ -63,6 +64,7 @@
 - [ ] Notebooks rond machine learning.
 - [ ] Klasseren van muziek.
 - [ ] Notebooks onderzoek van gegevens die uit data pipeline komt.
+
 
 
 

@@ -13,37 +13,75 @@
   - [x] General info
   - [x] Steps for participant (execution)
     - [x] Exportify instructions
+- [x] Playlist generation for all participants
+- [x] Send out playlists to participants
+- [x] Send out Playlists
+
+- [x] Danceability combo with tempo. (TD)
+  - [x] Calm: high value danceability[8:] - low value tempo
+  - [x] High: higher range danceability [.5:] - high value tempo
+
+- [x] Youtube music to Spotify playlist
+  - [x] see link: https://www.tunemymusic.com/transfer/youtube-to-spotify
+
+- [x] Send out Reminders
+  - [x] Frederik Sap
+  - [x] Evelien Viroux
+
+- [x] Set up reminders for participants (every 2 weeks)
+- [x] Update playlist generation with extra features
+- [x] Outlier detection file
+- [x] Create check-in moment explanation letter
+- [x] Research instructions for smartwatches 
+
+- [x] Opzetten pipeline (Garmin Vivoactive 5):
+  - [x] resultaat: uurprogressie + tracefiles (minuutprogressie)
+- [x] Google Collab voor reminder
+
+
+
+
 
 ---
 
-## Current Sprint (Week 12/01 - 16/01)
 
-- [x] Update playlist generation with extra features
-- [x] Outlier detection file
+## Current Sprint (Week 16/03 - 23/01)
 
 
-## Current Sprint (Week 19/01 - 23/01)
+- [ ] Transfer learning.
+- [ ] eindopdracht samen afmaken.
+- [ ] Peut-être rendez-vous avec Astrid le lundi. Un petit tête-à-tête pour discuter nous resultats.
+- [ ] Discussie **ML and DL** rond klassificatie van muziek:
+  - [ ] modellen bespreken
+  - [ ] verschillende modellen trainen
+  - [ ] ...
 
-- [ ] Danceability combo with tempo. (TD)
-    - [ ] Calm: high value danceability[8:] - low value tempo
-    - [ ] High: higher range danceability [.5:] - high value tempo
+- [ ] Discussie **ML and DL** om `arousal` status te bepalen:
+  - [ ] ...
 
-- [ ] Youtube music to Spotify playlist
-  - [ ] see link: https://www.tunemymusic.com/transfer/youtube-to-spotify
-- [ ] Playlist generation for all participants
-- [ ] Send out playlists to participants
-- [ ] Create check-in moment explanation letter
-- [ ] Research instructions for smartwatches
-- [ ] Send out Playlists
-- [ ] Send out Reminders
-  - [ ] Frederik Sap
-  - [ ] Evelien Viroux
+-- Astrid --
+- [ ] Notebooks rond machine learning.
+- [ ] Klasseren van muziek.
+- [ ] Notebooks onderzoek van gegevens die uit data pipeline komt.
 
-## Next Sprint (Week xx/01 - xx/01)
 
-- [ ] Set up reminders for participants (every 2 weeks)
-- [ ] Add playlist links to library instructions
-- [ ] Kandidaten ronselen
+
+-- Tim --
+- [ ] Verder data pipeline ontwikkelen:
+  - [ ] nakijken resultaten -> garmin vivoactive 5
+  - [ ] `if` resultaten approved by `Astrid`:
+        -> data pipeline voor andere weareables
+- [ ] Astrid nog maar eens uitleggen hoe Github werkt. 
+- [ ] Notebooks onderzoek van gegevens die uit data pipeline komt.
+
+
+
+
+- [ ] data structuur delen en bespreken
+
+
+
+
 
 
 ---

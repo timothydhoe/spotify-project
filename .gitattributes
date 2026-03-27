@@ -1,0 +1,12 @@
+# Handle line endings automatically for all files
+* text=auto
+
+# Explicitly use LF for these file types
+*.py    text eol=lf
+*.ipynb text eol=lf
+*.sh    text eol=lf
+*.md    text eol=lf
+
+# Windows-specific files that need CRLF (if any)
+*.bat   text eol=crlf
+*.cmd   text eol=crlf

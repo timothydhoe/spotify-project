@@ -1,0 +1,38 @@
+{
+  "created": "2026-03-29T15:27:19.891493",
+  "participant": "all",
+  "n_songs_total": 6411,
+  "n_songs_after_filter": 6198,
+  "scoring_features": [
+    "tempo",
+    "energy",
+    "loudness",
+    "valence",
+    "danceability",
+    "acousticness",
+    "instrumentalness",
+    "speechiness"
+  ],
+  "arousal_weights": {
+    "energy": 0.35,
+    "tempo": 0.3,
+    "loudness": 0.2,
+    "acousticness": -0.1,
+    "danceability": 0.05
+  },
+  "thresholds": {
+    "calm": 0.35,
+    "energy": 0.65,
+    "valence_floor": 0.25
+  },
+  "pre_filters": {
+    "speechiness_max": 0.66,
+    "liveness_max": 0.8
+  },
+  "class_distribution": {
+    "calm": 600,
+    "energy": 790,
+    "other": 4808
+  },
+  "silhouette_score": -0.062492351119457536
+}

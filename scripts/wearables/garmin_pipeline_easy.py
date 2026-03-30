@@ -21,6 +21,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from checkin_utils import fix_checkin_dates
+
 
 # ── Extract: Daily JSON ─────────────────────────────────────────────────────
 
@@ -261,7 +263,7 @@ def crossref_sessions(
         return pd.DataFrame(), []
 
     # Parse session times → UTC
-    sessions["_date"] = pd.to_datetime(sessions["Welke dag deed je een check-in?"], dayfirst=True)
+    sessions["_date"] = fix_checkin_dates(sessions)
     for col, src in [("_start", "Starttijd?"), ("_end", "Eindtijd?")]:
         sessions[col] = sessions.apply(
             lambda r: pd.Timestamp(f"{r['_date'].date()} {r[src]}") - pd.Timedelta(hours=utc_offset),

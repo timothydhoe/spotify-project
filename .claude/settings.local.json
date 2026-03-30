@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(for p:*)",
+      "Bash(do echo:*)",
+      "Read(//Users/timothydhoe/Code/spotify-project/data/wearables/**)",
+      "Bash(done)"
+    ]
+  }
+}

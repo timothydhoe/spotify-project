@@ -21,6 +21,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from checkin_utils import fix_checkin_dates
+
 
 # ── Extract: Health detail data (HR, Stress, SpO2) ─────────────────────────
 
@@ -292,7 +294,7 @@ def crossref_sessions(checkin_path, code, hr_df, stress_df, utc_offset=1, buffer
         print(f"  ⚠ No sessions for '{code}'")
         return pd.DataFrame(), []
 
-    sessions["_date"] = pd.to_datetime(sessions["Welke dag deed je een check-in?"], dayfirst=True)
+    sessions["_date"] = fix_checkin_dates(sessions)
     for col, src in [("_start", "Starttijd?"), ("_end", "Eindtijd?")]:
         sessions[col] = sessions.apply(
             lambda r: pd.Timestamp(f"{r['_date'].date()} {r[src]}") - pd.Timedelta(hours=utc_offset),
@@ -528,7 +530,7 @@ def run(export_dir, out_dir, checkin_path=None, code=None, months=6):
         try:
             _ck = pd.read_csv(checkin_path)
             _sess = _ck[_ck["Deelnemerscode"].str.lower() == code.lower()]
-            _dates = pd.to_datetime(_sess["Welke dag deed je een check-in?"], dayfirst=True)
+            _dates = fix_checkin_dates(_sess)
             if len(_dates):
                 date_start = (_dates.min() - _dt.timedelta(days=30)).to_pydatetime()
                 date_end = (_dates.max() + _dt.timedelta(days=7)).to_pydatetime()

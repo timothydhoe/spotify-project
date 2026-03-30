@@ -1,8 +1,8 @@
 {
-  "created": "2026-03-29T15:27:19.891493",
-  "participant": "all",
-  "n_songs_total": 6411,
-  "n_songs_after_filter": 6198,
+  "created": "2026-03-30T10:02:54.235999",
+  "participant": "kokosnoot",
+  "n_songs_total": 389,
+  "n_songs_after_filter": 389,
   "scoring_features": [
     "tempo",
     "energy",
@@ -30,9 +30,9 @@
     "liveness_max": 0.8
   },
   "class_distribution": {
-    "calm": 600,
-    "energy": 790,
-    "other": 4808
+    "calm": 28,
+    "energy": 106,
+    "other": 255
   },
-  "silhouette_score": -0.062492351119457536
+  "silhouette_score": 0.056440076942518236
 }

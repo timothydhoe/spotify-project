@@ -103,6 +103,24 @@ python3 scripts/wearables/garmin_pipeline.py <codename> [options]
 - **Privacy:** the `raw/` folder contains PII (email, profile). It's gitignored. Only `processed/` gets committed.
 - **matplotlib is optional.** If not installed, everything runs fine. You just don't get the PDF report.
 
+## Known data issues
+
+### Check-in date swapped on mobile (day/month reversed)
+
+**Issue:** When participants fill in the Google Form on a mobile device, the date picker can present fields in MM-DD-YYYY order instead of DD-MM-YYYY. The result is a date where day and month are swapped — for example, March 10 gets entered as `3-10-2026`, which pandas (with `dayfirst=True`) interprets as October 3, 2026.
+
+**Detection:** The `Tijdstempel` column is the server-side form submission timestamp and is always correct. A check-in date that falls *after* the submission timestamp is physically impossible, so it reliably flags a swapped date.
+
+**Fix:** `checkin_utils.py` (in this folder) provides a `fix_checkin_dates()` function used by all three pipeline scripts in place of a bare `pd.to_datetime()` call. When a suspicious date is detected, it swaps day and month in the raw string and re-parses. If the result is on or before the submission timestamp (plus one day of tolerance for midnight edge cases), the correction is accepted. A `UserWarning` is always emitted when a correction is applied, so it appears in pipeline output:
+
+```
+UserWarning: [check-in date] Submitted 2026-03-10: '3-10-2026' looks day/month-swapped (mobile bug) — auto-corrected to 2026-03-10
+```
+
+If the swap still does not yield a plausible date, the original value is kept and a warning is emitted asking for manual inspection.
+
+---
+
 ## Troubleshooting
 
 **"Export not found"** → the unzipped Garmin data isn't at `data/wearables/<name>/raw/export/`. Check the path.

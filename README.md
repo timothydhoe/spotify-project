@@ -54,6 +54,18 @@ spotify-project/
 
 ---
 
+## Known Data Issues
+
+### Check-in date swapped on mobile (day/month reversed)
+
+When participants fill in the Google Form on a mobile device, the date picker can present fields in MM-DD-YYYY order instead of DD-MM-YYYY. The result is that day and month are swapped in the `Welke dag deed je een check-in?` column — for example, March 10 gets recorded as `3-10-2026`, which is parsed as October 3.
+
+**Detection:** The `Tijdstempel` column is the server-side submission timestamp and is always reliable. A check-in date that falls after the submission timestamp is physically impossible, making it a reliable signal that the date is swapped.
+
+**Fix:** `scripts/wearables/checkin_utils.py` provides a `fix_checkin_dates()` function used by all wearables pipeline scripts. It compares each check-in date against the submission timestamp, and if the date is suspiciously in the future, swaps day and month and re-parses. A `UserWarning` is emitted for every corrected row so the researcher is always informed. See `scripts/wearables/README.md` for details.
+
+---
+
 ## Participant Codenames
 
 Participants are assigned fruit codenames for privacy:

@@ -3,7 +3,7 @@ name = "spotify-project"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.12"
 dependencies = [
     "fitparse>=1.2.0",
     "ipykernel>=7.1.0",
@@ -15,4 +15,5 @@ dependencies = [
     "scikit-learn>=1.8.0",
     "scipy>=1.16.3",
     "seaborn>=0.13.2",
+    "tensorflow>=2.16.0",
 ]

@@ -59,6 +59,8 @@
 
 - [ ] Discussie **ML and DL** om `arousal` status te bepalen:
   - [ ] Uitschrijven zodat Timothy het tenminste snapt
+  - [ ] De baseline per persoon uitwerken maar met verschillende activatieniveaus zoals bij het project van veerle. Definieer slaap, activiteitsniveau en gemiddelde op- en afbouwen van deze "statussen". Dan kan er in het bredere kader rond de luistersessies gekeken worden welk activatieniveau voor de sessie bezig was en of de muziek afhankelijk van de sessie significante invloed heeft op normaal hertstel.
+  - [ ] Activatieniveau: is de persoon bezig met een activiteit/sport is deze inspanning licht, medium of zwaar. Of is de persoon in rust of slaapt? Over de volledige dataset.
 
 -- Astrid --
 - [ ] Notebooks rond machine learning.

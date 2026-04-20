@@ -4,7 +4,8 @@
       "Bash(for p:*)",
       "Bash(do echo:*)",
       "Read(//Users/timothydhoe/Code/spotify-project/data/wearables/**)",
-      "Bash(done)"
+      "Bash(done)",
+      "Read(//Users/timothydhoe/**)"
     ]
   }
 }

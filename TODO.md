@@ -37,7 +37,10 @@
 - [x] Opzetten pipeline (Garmin Vivoactive 5):
   - [x] resultaat: uurprogressie + tracefiles (minuutprogressie)
 - [x] Google Collab voor reminder
-- [x] Succesvolle merge docs/todo -> merde opgelost
+- [x] Transfer learning.
+- [x] eindopdracht samen afmaken.
+- [x] Peut-être rendez-vous avec Astrid le lundi. Un petit tête-à-tête pour discuter nous resultats.
+- [x] Astrid nog maar eens uitleggen hoe Github werkt. 
 
 
 
@@ -46,40 +49,34 @@
 ---
 
 
-## Current Sprint (Week 16/03 - 23/01)
 
+## Current Sprint (Week 20/04 - 09/05)
 
-- [ ] Transfer learning.
-- [ ] eindopdracht samen afmaken.
-- [ ] Peut-être rendez-vous avec Astrid le lundi. Un petit tête-à-tête pour discuter nous resultats.
 - [ ] Discussie **ML and DL** rond klassificatie van muziek:
   - [ ] modellen bespreken
   - [ ] verschillende modellen trainen
   - [ ] ...
 
 - [ ] Discussie **ML and DL** om `arousal` status te bepalen:
-  - [ ] ...
+  - [ ] Uitschrijven zodat Timothy het tenminste snapt
 
 -- Astrid --
 - [ ] Notebooks rond machine learning.
 - [ ] Klasseren van muziek.
 - [ ] Notebooks onderzoek van gegevens die uit data pipeline komt.
+- [ ] - [ ] Bayesian Per-Participant Playlist Recommender
+- [ ] Circadian Baseline Deviation + Playlist Outcome Regression
 
 
 
-
--- Tim --
+-- Timothy --
 - [ ] Verder data pipeline ontwikkelen:
   - [ ] nakijken resultaten -> garmin vivoactive 5
   - [ ] `if` resultaten approved by `Astrid`:
         -> data pipeline voor andere weareables
-- [ ] Astrid nog maar eens uitleggen hoe Github werkt. 
 - [ ] Notebooks onderzoek van gegevens die uit data pipeline komt.
-
-
-
-
 - [ ] data structuur delen en bespreken
+- [ ] 1D-CNN on Per-Minute Pre-Session Stress Trajectories
 
 
 

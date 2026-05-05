@@ -12,6 +12,7 @@ Dependencies:
 """
 
 import argparse
+import io
 import json
 import sys
 import zipfile
@@ -158,7 +159,7 @@ def extract_fit_files(fit_zips: list[Path], date_range: tuple = None) -> tuple[p
 
     stress_rows, hr_rows = [], []
 
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as tmpdir:
         # Unzip all .fit files
         fit_paths = []
         for zp in fit_zips:
@@ -176,7 +177,10 @@ def extract_fit_files(fit_zips: list[Path], date_range: tuple = None) -> tuple[p
 
         for i, fp in enumerate(fit_paths):
             try:
-                ff = fitparse.FitFile(str(fp))
+                # Read file into memory to avoid holding file handles open (Windows)
+                fit_data = fp.read_bytes()
+
+                ff = fitparse.FitFile(io.BytesIO(fit_data))
 
                 # Quick date check: read first timestamp, skip if outside range
                 if date_range:
@@ -185,7 +189,8 @@ def extract_fit_files(fit_zips: list[Path], date_range: tuple = None) -> tuple[p
                         first_ts = {f.name: f.value for f in msg.fields}.get("timestamp")
                         break
                     if not first_ts:
-                        for msg in fitparse.FitFile(str(fp)).get_messages("stress_level"):
+                        ff2 = fitparse.FitFile(io.BytesIO(fit_data))
+                        for msg in ff2.get_messages("stress_level"):
                             first_ts = {f.name: f.value for f in msg.fields}.get("stress_level_time")
                             break
                     if first_ts and (first_ts < date_range[0] or first_ts > date_range[1]):
@@ -193,7 +198,7 @@ def extract_fit_files(fit_zips: list[Path], date_range: tuple = None) -> tuple[p
                         continue
 
                 # Pass 1: stress_level messages (1/min, includes body battery)
-                for msg in fitparse.FitFile(str(fp)).get_messages("stress_level"):
+                for msg in fitparse.FitFile(io.BytesIO(fit_data)).get_messages("stress_level"):
                     f = {field.name: field.value for field in msg.fields}
                     if f.get("stress_level_time") and f.get("stress_level_value") is not None:
                         stress_rows.append({
@@ -204,7 +209,7 @@ def extract_fit_files(fit_zips: list[Path], date_range: tuple = None) -> tuple[p
 
                 # Pass 2: monitoring messages (HR)
                 base_ts = None
-                for msg in fitparse.FitFile(str(fp)).get_messages():
+                for msg in fitparse.FitFile(io.BytesIO(fit_data)).get_messages():
                     f = {field.name: field.value for field in msg.fields}
                     if msg.name == "monitoring_info":
                         base_ts = f.get("timestamp")

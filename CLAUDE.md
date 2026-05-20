@@ -158,6 +158,7 @@ python -m py_compile scripts/playlists/spotify_cli.py
 - `fit_extractor.py` — extracts biometric data from Garmin FIT files
 - `activity_classifier.py` — classifies activity from wearable data
 - `music_classifier.py` — Gaussian Mixture Model clustering on audio features (k=3 vs. BIC-optimal) for exploratory music categorization
+- `music_classification.py` — arousal-score rule-based music classification (calm/energy/other) using weighted Spotify audio features; produces per-participant classified_songs.csv
 - `session_arc_analysis.py` — full session arc analysis: compares physiological metrics across pre/during/post windows against circadian baselines; runs significance tests and long-term trend analysis
 - Outputs follow a two-tier pattern:
   - Per-participant: `data/analysis/[codename]/[pipeline_name]/` (e.g. hourly baselines, posterior plots)
@@ -169,6 +170,7 @@ python -m py_compile scripts/playlists/spotify_cli.py
 |----------|---------|
 | `circadian_ml_analysis.ipynb` | Circadian baseline deviation analysis and ML model results |
 | `bayesian_recommender_viz.ipynb` | Bayesian recommender posteriors, shrinkage, sensitivity analysis |
+| `ml_music_classification.ipynb` | Arousal-score music classification: EDA, K-Means/GMM validation, threshold tuning, spot-check |
 | `recovery_analysis.ipynb` | Recovery feature analysis |
 | `who_needs_reminding.ipynb` | Google Colab tool — flags participants who haven't checked in for 3+ days |
 

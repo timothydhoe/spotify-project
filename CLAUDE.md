@@ -68,7 +68,9 @@ uv sync
 
 Uses a `.venv` managed by uv. All dependencies are tracked in `pyproject.toml` and `uv.lock`. Run commands with `uv run <command>` or activate the venv (`source .venv/Scripts/activate` on Windows Git Bash).
 
-Requires Python 3.12+. Key dependencies: `pandas`, `numpy`, `matplotlib`, `seaborn`, `scikit-learn`, `scipy`, `fitparse`, `rich`, `questionary`, `pymc`, `arviz`, `jax`, `numpyro`.
+Requires Python 3.12+. Key dependencies: `pandas`, `numpy`, `matplotlib`, `seaborn`, `scikit-learn`, `scipy`, `statsmodels`, `fitparse`, `rich`, `questionary`, `pymc`, `arviz`, `jax`, `numpyro`.
+
+**Important:** Always use `uv run python` instead of bare `python` — bare `python` may pick up a conda environment with incompatible package versions.
 
 ---
 
@@ -78,56 +80,63 @@ Requires Python 3.12+. Key dependencies: `pandas`, `numpy`, `matplotlib`, `seabo
 
 ```bash
 # Full workflow for a participant
-python scripts/playlists/spotify_cli.py all [codename]
+uv run python scripts/playlists/spotify_cli.py all [codename]
 
 # Individual steps
-python scripts/playlists/spotify_cli.py prepare [codename]
-python scripts/playlists/spotify_cli.py generate [codename]
-python scripts/playlists/spotify_cli.py analyse [codename]
+uv run python scripts/playlists/spotify_cli.py prepare [codename]
+uv run python scripts/playlists/spotify_cli.py generate [codename]
+uv run python scripts/playlists/spotify_cli.py analyse [codename]
 
 # With parameter tuning
-python scripts/playlists/spotify_cli.py generate [codename] --calm-tempo-max 95 --upbeat-energy-min 0.7
+uv run python scripts/playlists/spotify_cli.py generate [codename] --calm-tempo-max 95 --upbeat-energy-min 0.7
 
 # Quick analysis of existing playlists
-python scripts/playlists/quick_playlist_analysis.py --calm path/to/calm.csv --upbeat path/to/upbeat.csv --id [codename]
+uv run python scripts/playlists/quick_playlist_analysis.py --calm path/to/calm.csv --upbeat path/to/upbeat.csv --id [codename]
 
 # CLI help
-python scripts/playlists/spotify_cli.py --help
-python scripts/playlists/spotify_cli.py --help-full
+uv run python scripts/playlists/spotify_cli.py --help
+uv run python scripts/playlists/spotify_cli.py --help-full
 ```
 
 ### Wearables Pipeline
 
 ```bash
 # Garmin — run after unzipping export to data/wearables/[codename]/raw/export/
-python3 scripts/wearables/garmin_pipeline.py [codename]
+uv run python scripts/wearables/garmin_pipeline.py [codename]
 
 # If unzip created an extra wrapper folder
-python3 scripts/wearables/garmin_pipeline.py [codename] --export data/wearables/[codename]/raw/export/ExtraFolder
+uv run python scripts/wearables/garmin_pipeline.py [codename] --export data/wearables/[codename]/raw/export/ExtraFolder
 
 # Huawei device
-python3 scripts/wearables/huawei_pipeline.py [codename]
+uv run python scripts/wearables/huawei_pipeline.py [codename]
 ```
 
 ### Analysis
 
 ```bash
 # Bayesian recommender — full sampling via JAX/NumPyro (~30s)
-python scripts/analysis/bayesian_recommender.py
+uv run python scripts/analysis/bayesian_recommender.py
 
 # Reuse existing trace (skip sampling, regenerate plots/recommendations)
-python scripts/analysis/bayesian_recommender.py --reuse-trace
+uv run python scripts/analysis/bayesian_recommender.py --reuse-trace
 
 # Circadian baseline + ML + significance
-python scripts/analysis/circadian_baseline.py
-python scripts/analysis/circadian_ml.py
-python scripts/analysis/circadian_significance.py
+uv run python scripts/analysis/circadian_baseline.py
+uv run python scripts/analysis/circadian_ml.py
+uv run python scripts/analysis/circadian_significance.py
 ```
 
 ### Syntax Checking (no test suite yet)
 
 ```bash
-python -m py_compile scripts/playlists/spotify_cli.py
+uv run python -m py_compile scripts/playlists/spotify_cli.py
+```
+
+### SSL note
+
+Conda sets `SSL_CERT_DIR` and `SSL_CERT_FILE` env vars that conflict with uv. If `uv add` or `uv sync` fails with `UnknownIssuer`, run with:
+```bash
+SSL_CERT_DIR="" SSL_CERT_FILE="" uv add <package> --system-certs
 ```
 
 ---

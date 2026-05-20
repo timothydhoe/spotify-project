@@ -182,6 +182,80 @@ def compute_circadian_hr_baseline(
     return baseline
 
 
+def compute_pre_study_baseline(
+    participant: str,
+    data_dir: Path,
+) -> pd.DataFrame:
+    """Compute hourly stress baseline from days before the first session only.
+
+    Used as a fixed reference for long-term trend analysis.
+    Returns DataFrame: hour, mean_stress_pre, std_stress_pre, n_obs_stress_pre.
+    """
+    proc_dir = data_dir / participant / "processed"
+    stress_df = _load_minute_stress(proc_dir)
+
+    # Find first session date
+    sessions_df = pd.read_csv(proc_dir / "session_biometrics.csv")
+    first_session = pd.to_datetime(sessions_df["date"]).min().date()
+
+    # Filter to days strictly before first session
+    stress_df["date"] = stress_df["timestamp"].dt.date
+    pre_study = stress_df[stress_df["date"] < first_session].copy()
+
+    if len(pre_study) == 0:
+        print(f"  WARNING: {participant} has no stress data before first session")
+        return pd.DataFrame(columns=["hour", "mean_stress_pre", "std_stress_pre", "n_obs_stress_pre"])
+
+    pre_study["hour"] = pre_study["timestamp"].dt.hour
+    baseline = (
+        pre_study.groupby("hour")["stress"]
+        .agg(mean_stress_pre="mean", std_stress_pre="std", n_obs_stress_pre="count")
+        .reset_index()
+    )
+
+    sparse = baseline["n_obs_stress_pre"] < MIN_OBS_PER_HOUR
+    baseline.loc[sparse, ["mean_stress_pre", "std_stress_pre"]] = np.nan
+
+    return baseline
+
+
+def compute_pre_study_hr_baseline(
+    participant: str,
+    data_dir: Path,
+) -> pd.DataFrame:
+    """Compute hourly HR baseline from days before the first session only.
+
+    Used as a fixed reference for long-term trend analysis.
+    Returns DataFrame: hour, mean_hr_pre, std_hr_pre, n_obs_hr_pre.
+    """
+    proc_dir = data_dir / participant / "processed"
+    hr_df = _load_minute_hr(proc_dir)
+
+    # Find first session date
+    sessions_df = pd.read_csv(proc_dir / "session_biometrics.csv")
+    first_session = pd.to_datetime(sessions_df["date"]).min().date()
+
+    # Filter to days strictly before first session
+    hr_df["date"] = hr_df["timestamp"].dt.date
+    pre_study = hr_df[hr_df["date"] < first_session].copy()
+
+    if len(pre_study) == 0:
+        print(f"  WARNING: {participant} has no HR data before first session")
+        return pd.DataFrame(columns=["hour", "mean_hr_pre", "std_hr_pre", "n_obs_hr_pre"])
+
+    pre_study["hour"] = pre_study["timestamp"].dt.hour
+    baseline = (
+        pre_study.groupby("hour")["heart_rate"]
+        .agg(mean_hr_pre="mean", std_hr_pre="std", n_obs_hr_pre="count")
+        .reset_index()
+    )
+
+    sparse = baseline["n_obs_hr_pre"] < MIN_OBS_PER_HOUR
+    baseline.loc[sparse, ["mean_hr_pre", "std_hr_pre"]] = np.nan
+
+    return baseline
+
+
 def build_feature_matrix(
     participants: list[str],
     data_dir: Path,
@@ -213,6 +287,12 @@ def build_feature_matrix(
         hr_baseline = compute_circadian_hr_baseline(participant, data_dir)
         hr_baseline_lookup = hr_baseline.set_index("hour")["mean_hr"]
 
+        pre_study_bl = compute_pre_study_baseline(participant, data_dir)
+        pre_study_stress_lookup = pre_study_bl.set_index("hour")["mean_stress_pre"] if len(pre_study_bl) > 0 else pd.Series(dtype=float)
+
+        pre_study_hr_bl = compute_pre_study_hr_baseline(participant, data_dir)
+        pre_study_hr_lookup = pre_study_hr_bl.set_index("hour")["mean_hr_pre"] if len(pre_study_hr_bl) > 0 else pd.Series(dtype=float)
+
         proc_dir = data_dir / participant / "processed"
         sessions = pd.read_csv(proc_dir / "session_biometrics.csv")
 
@@ -242,6 +322,13 @@ def build_feature_matrix(
             expected_hr = hr_baseline_lookup.get(hour, np.nan)
             pre_hr = row["pre_hr_mean"]
             hr_baseline_deviation = pre_hr - expected_hr if pd.notna(pre_hr) else np.nan
+
+            # Pre-study deviations (fixed reference for long-term trend analysis)
+            pre_study_expected_stress = pre_study_stress_lookup.get(hour, np.nan)
+            pre_study_stress_deviation = pre_stress - pre_study_expected_stress if pd.notna(pre_stress) else np.nan
+
+            pre_study_expected_hr = pre_study_hr_lookup.get(hour, np.nan)
+            pre_study_hr_deviation = pre_hr - pre_study_expected_hr if pd.notna(pre_hr) else np.nan
 
             # Days since last session
             if i == 0:
@@ -287,6 +374,9 @@ def build_feature_matrix(
                 "expected_stress_at_hour": expected_stress,
                 "pre_hr_mean": pre_hr,
                 "expected_hr_at_hour": expected_hr,
+                # Pre-study deviations (fixed reference for long-term trend)
+                "pre_study_stress_deviation": pre_study_stress_deviation,
+                "pre_study_hr_deviation": pre_study_hr_deviation,
             }
             rows.append(features)
 
@@ -334,9 +424,13 @@ def export_baselines(
 
         stress_baseline = compute_circadian_baseline(participant, data_dir)
         hr_baseline = compute_circadian_hr_baseline(participant, data_dir)
+        pre_stress_baseline = compute_pre_study_baseline(participant, data_dir)
+        pre_hr_baseline = compute_pre_study_hr_baseline(participant, data_dir)
 
-        # Merge stress and HR baselines into one CSV for easy visualization
+        # Merge all baselines into one CSV for easy visualization
         baseline = stress_baseline.merge(hr_baseline, on="hour", how="outer")
+        baseline = baseline.merge(pre_stress_baseline, on="hour", how="outer")
+        baseline = baseline.merge(pre_hr_baseline, on="hour", how="outer")
         baseline.to_csv(participant_dir / "hourly_baseline.csv", index=False)
 
     feature_matrix, excluded_features = build_feature_matrix(participants, data_dir)

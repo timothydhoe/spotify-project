@@ -16,7 +16,11 @@ import numpy as np
 import pandas as pd
 
 
+
 MIN_OBS_PER_HOUR = 5  # Below this threshold, hourly baseline is set to NaN
+
+# Ordinal encoding for pre-session activity state (higher = more active)
+PRE_STATE_ENCODING = {"Sleep": 0, "Rest": 1, "Light": 2, "Medium": 3, "Heavy": 4}
 
 
 def _load_minute_stress(proc_dir: Path) -> pd.DataFrame:
@@ -256,6 +260,45 @@ def compute_pre_study_hr_baseline(
     return baseline
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+#  ACTIVITY STATE HELPERS (inlined to avoid circular import with session_arc)
+# ══════════════════════════════════════════════════════════════════════════════
+
+_ANALYSIS_DIR = Path(__file__).resolve().parents[2] / "data" / "analysis"
+
+
+def _load_classified_minutes(participant: str) -> pd.DataFrame | None:
+    """Load classified_minutes.csv produced by pipeline.py.
+
+    Returns None (with warning) if the file doesn't exist yet.
+    """
+    path = _ANALYSIS_DIR / participant / "classified_minutes.csv"
+    if not path.exists():
+        print(
+            f"  WARNING: [{participant}] classified_minutes.csv not found — "
+            f"pre_state will be NaN. Run: python scripts/analysis/pipeline.py --participants {participant}"
+        )
+        return None
+    return pd.read_csv(path, index_col="timestamp", parse_dates=True)
+
+
+def _classify_window_state(
+    classified_df: pd.DataFrame,
+    start_utc: pd.Timestamp,
+    end_utc: pd.Timestamp,
+) -> str:
+    """Majority-vote activity state in the [start_utc, end_utc] window."""
+    if classified_df.empty or "activity_state" not in classified_df.columns:
+        return "Rest"
+    try:
+        window = classified_df.loc[start_utc:end_utc, "activity_state"].dropna()
+        if window.empty:
+            return "Rest"
+        return str(window.mode().iloc[0])
+    except (KeyError, IndexError):
+        return "Rest"
+
+
 def build_feature_matrix(
     participants: list[str],
     data_dir: Path,
@@ -301,6 +344,9 @@ def build_feature_matrix(
 
         # Load daily respiration if available (from garmin_daily.csv)
         resp_lookup = _load_daily_resp(proc_dir)
+
+        # Load classified minutes for pre_state computation
+        classified_df = _load_classified_minutes(participant)
 
         # Parse dates and times
         sessions["date"] = pd.to_datetime(sessions["date"])
@@ -351,6 +397,20 @@ def build_feature_matrix(
             # Daily respiration for session date (optional)
             avg_resp_daily = resp_lookup.get(session_date_str, np.nan)
 
+            # Pre-session activity state from classified minutes
+            if classified_df is not None:
+                start_local = pd.Timestamp(f"{row['date'].date()} {row['start_local']}")
+                start_utc = start_local - pd.Timedelta(hours=1)  # CET → UTC
+                pre_state = _classify_window_state(
+                    classified_df,
+                    start_utc - pd.Timedelta(minutes=30),
+                    start_utc,
+                )
+                pre_state_encoded = PRE_STATE_ENCODING.get(pre_state, np.nan)
+            else:
+                pre_state = np.nan
+                pre_state_encoded = np.nan
+
             features = {
                 "participant": participant,
                 "date": row["date"],
@@ -366,13 +426,20 @@ def build_feature_matrix(
                 "days_since_last_session": days_since_last,
                 "hrv_rmssd": hrv_rmssd,
                 "avg_resp_daily": avg_resp_daily,
+                "pre_state": pre_state,
+                "pre_state_encoded": pre_state_encoded,
                 # Targets
                 "mood_delta": mood_delta,
                 "stress_delta": stress_delta,
-                # Context (not features, but useful for inspection)
+                # Session window means (pre already used above; during/post from biometrics)
                 "pre_stress_mean": pre_stress,
-                "expected_stress_at_hour": expected_stress,
+                "during_stress_mean": row.get("stress_mean", np.nan),
+                "post_stress_mean": row.get("post_stress_mean", np.nan),
                 "pre_hr_mean": pre_hr,
+                "during_hr_mean": row.get("hr_mean", np.nan),
+                "post_hr_mean": row.get("post_hr_mean", np.nan),
+                # Context (not features, but useful for inspection)
+                "expected_stress_at_hour": expected_stress,
                 "expected_hr_at_hour": expected_hr,
                 # Pre-study deviations (fixed reference for long-term trend)
                 "pre_study_stress_deviation": pre_study_stress_deviation,

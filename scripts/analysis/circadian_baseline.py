@@ -225,8 +225,8 @@ def export_baselines(
 if __name__ == "__main__":
     from pathlib import Path
 
-    DATA_DIR = Path("data/wearables")
-    ANALYSIS_DIR = Path("data/analysis")
+    DATA_DIR = Path(__file__).resolve().parents[2] / "data/wearables"
+    ANALYSIS_DIR = Path(__file__).resolve().parents[2] / "data/analysis"
     PARTICIPANTS = ["bosbes", "kokosnoot", "limoen", "peer"]
 
     fm = export_baselines(PARTICIPANTS, DATA_DIR, ANALYSIS_DIR)

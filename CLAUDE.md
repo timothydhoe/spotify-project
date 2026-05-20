@@ -157,6 +157,8 @@ python -m py_compile scripts/playlists/spotify_cli.py
 - `session_features.py`, `session_effect.py`, `baselines.py` — session-level feature extraction and baseline computation
 - `fit_extractor.py` — extracts biometric data from Garmin FIT files
 - `activity_classifier.py` — classifies activity from wearable data
+- `music_classifier.py` — Gaussian Mixture Model clustering on audio features (k=3 vs. BIC-optimal) for exploratory music categorization
+- `session_arc_analysis.py` — full session arc analysis: compares physiological metrics across pre/during/post windows against circadian baselines; runs significance tests and long-term trend analysis
 - Outputs follow a two-tier pattern:
   - Per-participant: `data/analysis/[codename]/[pipeline_name]/` (e.g. hourly baselines, posterior plots)
   - Combined: `data/analysis/[pipeline_name]/` (e.g. feature matrices, model results, combined plots)
@@ -242,3 +244,4 @@ Validation passes when 3–4 of 4 criteria are met: tempo ranges, energy separat
 - The check-in CSV (`data/checkins/Check-in_formulier_REM.csv`) is the join key between playlist sessions and biometric data — participant codename + date + time must align across both sources
 - `outlier_detection.py` is a QA debug tool — use when validation fails or biometric trajectories look anomalous, not routinely
 - No automated test suite (`tests/` is empty); run `py_compile` checks before committing
+- `spotify_tui.py` uses hardcoded relative paths (`data/playlists/...`) — must be run from the project root. All other scripts resolve paths relative to `__file__` and work from any directory.

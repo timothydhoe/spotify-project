@@ -20,8 +20,8 @@ from pathlib import Path
 
 import pandas as pd
 
-_WEARABLES_DIR = Path("data/wearables")
-_ANALYSIS_DIR = Path("data/analysis")
+_WEARABLES_DIR = Path(__file__).resolve().parents[2] / "data/wearables"
+_ANALYSIS_DIR = Path(__file__).resolve().parents[2] / "data/analysis"
 
 _PARTICIPANTS = [
     "bosbes", "citroen", "kiwi", "kokosnoot",

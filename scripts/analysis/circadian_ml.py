@@ -449,7 +449,7 @@ def plot_circadian_overlay(participants: list[str], analysis_dir: Path, output_d
 
 
 def main() -> None:
-    analysis_dir = Path("data/analysis")
+    analysis_dir = Path(__file__).resolve().parents[2] / "data/analysis"
     combined_dir = analysis_dir / "circadian_baselines"
     combined_plots = combined_dir / "plots"
     feature_matrix_path = combined_dir / "feature_matrix.csv"

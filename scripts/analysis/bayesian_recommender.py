@@ -5,6 +5,10 @@ Given a participant's current physiological state, predicts which playlist type
 (Calm / Neutral / Energy) will produce the best mood outcome using partial pooling
 across participants.
 
+Stress and HR covariates use circadian baseline deviations when available
+(from circadian_baseline.py's feature_matrix.csv), controlling for time-of-day
+patterns. Falls back to raw pre_stress_mean / pre_hr_mean otherwise.
+
 Mood scoring accounts for emotion valence:
     composite = valence(emotion) * intensity
     mood_delta = composite_after - composite_before
@@ -143,13 +147,36 @@ def load_checkin_sessions() -> pd.DataFrame:
     return df
 
 
+def _load_feature_matrix() -> pd.DataFrame | None:
+    """Load circadian feature matrix if available (provides baseline deviations)."""
+    fm_path = DATA_ROOT / "analysis" / "circadian_baselines" / "feature_matrix.csv"
+    if not fm_path.exists():
+        return None
+    fm = pd.read_csv(fm_path)
+    fm["date"] = pd.to_datetime(fm["date"]).dt.date
+    return fm
+
+
 def build_model_data(participants_with_bio: list[str] | None = None) -> pd.DataFrame:
     """Combine biometric sessions and check-in-only sessions into one DataFrame.
 
     Participants with biometrics get full feature vectors.
     Check-in-only participants contribute mood + playlist data (biometrics = NaN).
+
+    When the circadian feature matrix is available, stress and HR covariates are
+    circadian baseline deviations (controlling for time-of-day patterns).
+    Falls back to raw pre_stress_mean / pre_hr_mean otherwise.
     """
     checkin_df = load_checkin_sessions()
+
+    # Try to load circadian baseline deviations
+    fm = _load_feature_matrix()
+    use_circadian = fm is not None
+    if use_circadian:
+        print("  Using circadian baseline deviations (from feature_matrix.csv)")
+    else:
+        print("  WARNING: feature_matrix.csv not found — using raw stress/HR values.")
+        print("           Run circadian_baseline.py first for circadian-adjusted covariates.")
 
     # Load biometric sessions and merge mood delta from biometrics where available
     bio_frames = []
@@ -161,6 +188,11 @@ def build_model_data(participants_with_bio: list[str] | None = None) -> pd.DataF
             if bio.empty:
                 continue
             bio_participants.add(code)
+
+            # Parse date for feature matrix join
+            if use_circadian:
+                bio["_date"] = pd.to_datetime(bio["date"], errors="coerce").dt.date
+                fm_part = fm[fm["participant"] == code].copy()
 
             # Compute composite mood from biometric session data
             # session_biometrics has mood_before/mood_after as emotion strings
@@ -185,15 +217,27 @@ def build_model_data(participants_with_bio: list[str] | None = None) -> pd.DataF
                     mood_after_comp = 0.0
                     mood_delta = float(r["mood_after_score"]) - float(r["mood_before_score"])
 
+                # Look up circadian deviations from feature matrix
+                stress_val = r.get("pre_stress_mean")
+                hr_val = r.get("pre_hr_mean")
+                if use_circadian:
+                    row_date = r.get("_date") if "_date" in r.index else None
+                    if row_date is not None:
+                        fm_match = fm_part[fm_part["date"] == row_date]
+                        if not fm_match.empty:
+                            fm_row = fm_match.iloc[0]
+                            stress_val = fm_row.get("baseline_deviation_entry")
+                            hr_val = fm_row.get("hr_baseline_deviation")
+
                 bio_rows.append({
                     "participant": code,
                     "playlist": r["playlist"],
                     "mood_delta": mood_delta,
                     "mood_before_composite": mood_before_comp,
                     "mood_after_composite": mood_after_comp,
-                    "pre_stress_mean": r.get("pre_stress_mean"),
+                    "baseline_deviation": stress_val,
                     "bb_start": r.get("bb_start"),
-                    "pre_hr_mean": r.get("pre_hr_mean"),
+                    "hr_baseline_deviation": hr_val,
                     "hour_of_day": pd.to_datetime(r.get("start_local", "12:00"), errors="coerce").hour
                         if pd.notna(r.get("start_local")) else 12,
                     "has_biometrics": True,
@@ -205,9 +249,9 @@ def build_model_data(participants_with_bio: list[str] | None = None) -> pd.DataF
     # Check-in-only participants (those not in bio_participants)
     ci_only = checkin_df[~checkin_df["participant"].isin(bio_participants)].copy()
     ci_only["has_biometrics"] = False
-    ci_only["pre_stress_mean"] = np.nan
+    ci_only["baseline_deviation"] = np.nan
     ci_only["bb_start"] = np.nan
-    ci_only["pre_hr_mean"] = np.nan
+    ci_only["hr_baseline_deviation"] = np.nan
 
     # Combine
     all_frames = bio_frames + ([ci_only] if not ci_only.empty else [])
@@ -232,16 +276,19 @@ def build_model_data(participants_with_bio: list[str] | None = None) -> pd.DataF
 def build_hierarchical_model(data: pd.DataFrame, participant_codes: list[str]):
     """Build the hierarchical Bayesian regression model.
 
-    Participants with biometrics contribute stress/BB/HR covariates.
-    Check-in-only participants contribute mood + playlist effects to the group prior.
-    Biometric features are set to 0 (group mean after z-scoring) for missing data.
+    Participants with biometrics contribute circadian-adjusted stress/HR deviations
+    and body battery covariates. Check-in-only participants contribute mood + playlist
+    effects to the group prior. Biometric features are set to 0 (group mean after
+    z-scoring) for missing data.
     """
     n_participants = len(participant_codes)
     n_playlists = 3
 
     # Z-score biometric features (fill NaN with 0 = group mean)
+    # baseline_deviation and hr_baseline_deviation are circadian-adjusted when
+    # feature_matrix.csv is available, raw pre_stress_mean/pre_hr_mean otherwise
     z_cols = {}
-    for col in ["pre_stress_mean", "bb_start", "pre_hr_mean"]:
+    for col in ["baseline_deviation", "bb_start", "hr_baseline_deviation"]:
         vals = data[col].copy()
         mu, sd = vals.mean(), vals.std()
         if pd.isna(mu) or sd == 0 or pd.isna(sd):
@@ -264,21 +311,21 @@ def build_hierarchical_model(data: pd.DataFrame, participant_codes: list[str]):
     participant_idx = data["participant_idx"].values.astype(int)
     playlist_idx = data["playlist_idx"].values.astype(int)
 
-    stress_z = z_cols["pre_stress_mean_z"]
+    stress_z = z_cols["baseline_deviation_z"]
     bb_z = z_cols["bb_start_z"]
-    hr_z = z_cols["pre_hr_mean_z"]
+    hr_z = z_cols["hr_baseline_deviation_z"]
     hour_z = z_cols["hour_z"]
 
     with pm.Model() as model:
         # Store metadata on model for later use
         model._participant_codes = participant_codes
         model._z_params = {
-            "stress_mu": float(data["pre_stress_mean"].mean()) if data["pre_stress_mean"].notna().any() else 0,
-            "stress_sd": float(data["pre_stress_mean"].std()) if data["pre_stress_mean"].notna().any() else 1,
+            "stress_mu": float(data["baseline_deviation"].mean()) if data["baseline_deviation"].notna().any() else 0,
+            "stress_sd": float(data["baseline_deviation"].std()) if data["baseline_deviation"].notna().any() else 1,
             "bb_mu": float(data["bb_start"].mean()) if data["bb_start"].notna().any() else 0,
             "bb_sd": float(data["bb_start"].std()) if data["bb_start"].notna().any() else 1,
-            "hr_mu": float(data["pre_hr_mean"].mean()) if data["pre_hr_mean"].notna().any() else 0,
-            "hr_sd": float(data["pre_hr_mean"].std()) if data["pre_hr_mean"].notna().any() else 1,
+            "hr_mu": float(data["hr_baseline_deviation"].mean()) if data["hr_baseline_deviation"].notna().any() else 0,
+            "hr_sd": float(data["hr_baseline_deviation"].std()) if data["hr_baseline_deviation"].notna().any() else 1,
             "hour_mu": float(hour_mu),
             "hour_sd": float(hour_sd),
         }
@@ -386,6 +433,9 @@ def recommend_playlist(
     mood_before: float = 5.0,
 ) -> dict:
     """Predict mood_delta for each playlist type given current state.
+
+    pre_stress and pre_hr are circadian baseline deviations when
+    feature_matrix.csv is available, raw values otherwise.
 
     Returns dict with per-playlist predictions and a recommendation.
     """
@@ -627,11 +677,10 @@ def main():
         p_data = data[data["participant"] == participant]
         rec_kwargs = {"hour_of_day": int(p_data["hour_of_day"].median())}
         if has_bio:
-            for col in ["pre_stress_mean", "bb_start", "pre_hr_mean"]:
+            for col in ["baseline_deviation", "bb_start", "hr_baseline_deviation"]:
                 val = p_data[col].dropna().median()
                 if pd.notna(val):
-                    # Map column names to recommend_playlist parameter names
-                    param_name = {"pre_stress_mean": "pre_stress", "bb_start": "bb_start", "pre_hr_mean": "pre_hr"}[col]
+                    param_name = {"baseline_deviation": "pre_stress", "bb_start": "bb_start", "hr_baseline_deviation": "pre_hr"}[col]
                     rec_kwargs[param_name] = float(val)
 
         rec = recommend_playlist(trace, model, participant, **rec_kwargs)

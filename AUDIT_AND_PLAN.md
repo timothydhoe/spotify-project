@@ -1,6 +1,6 @@
 # MoodTune — Critical Audit & Implementation Plan
 
-> **Status:** Implementation in progress. Phase 0, Phase 1, Phase 2, and Phase 3 (stats bar) complete. Remaining: A2.5, A2.6, documentation (Phase 4).
+> **Status:** Implementation in progress. Phase 0, Phase 1, Phase 2, Phase 3, and A2.6 complete. Remaining: Phase 4 documentation.
 > **Conducted:** 2026-05-24
 > **Auditor:** Senior UX/UI + Data Science review (Claude Sonnet 4.6)
 > **App branch:** `feat/app-shiny` | **App:** `uv run shiny run app.py`
@@ -441,14 +441,17 @@ Resultaten shows Kalm playlist with −1.0 mood delta for Bosbes — the most sc
   - `_compute_study_stats(app_data)` reads from `feature_matrix.csv`: session count, participant count, week range from date span
   - **Files:** `modules/home.py`
 
-- [ ] **[A2.5]** Validate music classification weights against outcome data
-  - Regress `arousal_class` on `mood_delta` in feature_matrix
-  - Report whether rule-based classification correlates with outcomes
-  - **Files:** new analysis in `notebooks/music_classification_validation.ipynb`
+- [x] **[A2.5]** Validate music classification weights against outcome data
+  - Kruskal-Wallis across playlist types: H=0.31, p=0.856 (not significant, N too small)
+  - Arousal score OLS vs mood_delta: r=0.27, p=0.097 — trend but not significant
+  - **Files:** `scripts/analysis/music_classification_validation.py`, outputs in `data/analysis/music_classification_validation/`
 
-- [ ] **[A2.6]** Validate GMM clustering against outcomes
-  - Test whether GMM cluster membership (k=3, optimal k) predicts stress reduction better than rule-based classification
-  - **Files:** `notebooks/ml_music_classification.ipynb`
+- [x] **[A2.6]** Validate GMM clustering against outcomes
+  - **Optimal BIC k=8** (not 3) — audio features naturally form 8 sub-genres, not 3 archetypes; silhouette at k=3 = 0.090 (weak)
+  - **GMM k=3 vs rule-based calm/energy: Cramér's V=0.918** — near-perfect agreement: Cluster 0 = 100% energy songs, Cluster 2 = 100% calm songs, Cluster 1 = mixed arousal
+  - **GMM k=3 vs generated playlist type: V=0.505** — strong; calm playlists are 76% Cluster 2, energy playlists avoid Cluster 2 entirely
+  - Conclusion: GMM corroborates rule-based ISO threshold approach; neither validated against biometric outcomes (no per-song session tracking)
+  - **Files:** `scripts/analysis/gmm_clustering_validation.py`, `data/analysis/gmm_clustering_validation/`
 
 - [ ] **[A2.4 — future]** Implement live Bayesian inference in Aanbevelen
   - Load `trace.nc` at app startup; sample from posterior given current slider inputs via NumPyro
@@ -467,7 +470,7 @@ Resultaten shows Kalm playlist with −1.0 mood delta for Bosbes — the most sc
   - Bayesian model: all 6 (N=29 sessions; kiwi/watermeloen via check-in only)
   - Significance tests: bosbes, kokosnoot, peer (limoen excluded — no stress)
 
-- [ ] **[B3.5]** Audit all Plotly charts for modebar visibility — ensure `dark_layout()` is used or modebar explicitly removed
+- [x] **[B3.5]** Audit all Plotly charts for modebar visibility — all 5 chart modules (circadian, recommendation, science, results, session_replay) use `dark_layout()` which removes zoom/pan/select/save toolbar buttons
   - **Files:** All `modules/*.py` chart functions
 
 - [ ] End-to-end visual QA: navigate all 8 pages, verify now-playing bar doesn't overlap content on any page

@@ -53,9 +53,22 @@ Three parallel ML directions being explored in `notebooks/`:
 - **Arousal/stress prediction** — Predict stress trajectory from biometric baseline + context (time of day, prior session, playlist type).
 - **Combined mood model** — Given current physiological state, predict which playlist type will produce the best mood outcome for that participant. Most novel contribution of the project.
 
+### Current ML Metrics (mood_delta, LOO-CV, post data-leakage fix — 2026-05-24)
+
+After removing look-ahead features (`during_stress_mean`, `post_stress_mean`, `during_hr_mean`, `post_hr_mean`) and adding inner 5-fold CV hyperparameter search:
+
+| Model | MAE | RMSE | R² (LOO) | Overfit gap |
+|---|---|---|---|---|
+| Dummy basislijn | 1.988 | 2.752 | −0.052 | 0.052 |
+| Ridge regressie | 1.711 | 2.150 | 0.358 | 0.378 |
+| **Random Forest** | **1.444** | **2.097** | **0.389** | 0.455 |
+| Gradient Boosting | 1.589 | 2.136 | 0.366 | 0.575 |
+
+Best model: Random Forest (R²=0.389). Overfit gaps are high at N=40 — results are exploratory only. `baseline_deviation_entry` is the strongest SHAP feature.
+
 ### Final Output Goal
 
-A **Streamlit app** styled like "Spotify Wrapped" — per-participant summary with key stats (e.g., least stressful hour of the day, playlist effectiveness, biometric trends). Target: ready for final presentation June 20, 2026.
+A **Shiny for Python app** styled like "Spotify Wrapped" — per-participant summary with biometric arcs, model explainability, Bayesian recommendations. Run with `uv run shiny run app.py`. Target: ready for final presentation June 20, 2026.
 
 ---
 

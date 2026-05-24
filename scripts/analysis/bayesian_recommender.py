@@ -547,6 +547,53 @@ def export_streamlit_json(trace, model, out_path: Path):
     return result
 
 
+def prior_predictive_check(model, out_dir: Path, n_samples: int = 500) -> None:
+    """Draw prior predictive samples and plot the implied mood_delta distribution.
+
+    Answers: what mood outcomes does our prior believe are plausible before seeing data?
+    A prior that generates mood_delta ∈ [-20, +20] is too wide; ∈ [-5, +5] is reasonable.
+    """
+    with model:
+        prior_pred = pm.sample_prior_predictive(samples=n_samples, random_seed=42)
+
+    # The prior predictive distribution for mood_delta_obs
+    if "prior_predictive" in prior_pred:
+        samples = prior_pred.prior_predictive["mood_delta_obs"].values.flatten()
+    elif "mood_delta_obs" in prior_pred:
+        samples = np.array(prior_pred["mood_delta_obs"]).flatten()
+    else:
+        print("  Prior predictive check: mood_delta_obs not found in samples, skipping plot.")
+        return
+
+    # Clip extreme tails for display (keep 99th percentile)
+    p1, p99 = np.percentile(samples, [1, 99])
+    samples_clipped = samples[(samples >= p1) & (samples <= p99)]
+
+    fig, ax = plt.subplots(figsize=(8, 4))
+    ax.hist(samples_clipped, bins=60, density=True, alpha=0.75, color="#4A90D9", edgecolor="none")
+    ax.axvline(0, color="#E8913A", linewidth=1.5, linestyle="--", label="Zero (no change)")
+    ax.axvline(-3, color="gray", linewidth=1, linestyle=":", alpha=0.7, label="±3 (plausible range)")
+    ax.axvline(+3, color="gray", linewidth=1, linestyle=":", alpha=0.7)
+    ax.set_xlabel("Prior predictive mood_delta")
+    ax.set_ylabel("Density")
+    ax.set_title(
+        f"Prior Predictive Check — Mood Delta\n"
+        f"N={len(samples_clipped):,} samples | 1–99th pct: [{p1:.1f}, {p99:.1f}]"
+    )
+    ax.legend(fontsize=9)
+
+    out_path = out_dir / "prior_predictive_check.png"
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    print(f"  -> {out_path} (prior predictive range: {p1:.1f} to {p99:.1f})")
+    plt.close(fig)
+
+    # Summary stats
+    print(f"  Prior predictive summary:")
+    print(f"    mean={np.mean(samples):.2f}, std={np.std(samples):.2f}")
+    print(f"    P(mood_delta > 0) = {(samples > 0).mean():.2%}")
+    print(f"    P(|mood_delta| > 5) = {(np.abs(samples) > 5).mean():.2%} (would suggest wide priors)")
+
+
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main():
@@ -601,6 +648,10 @@ def main():
     # Build model
     print(f"\n  Building hierarchical model...")
     model = build_hierarchical_model(data, participant_codes)
+
+    # Prior predictive check (always run — fast, doesn't touch posterior)
+    print(f"\n  Running prior predictive check...")
+    prior_predictive_check(model, out_dir)
 
     # Sample or reuse existing trace
     if args.reuse_trace and trace_path.exists():

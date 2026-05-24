@@ -14,6 +14,7 @@ from pathlib import Path
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+plt.style.use("dark_background")
 import numpy as np
 import pandas as pd
 import shap
@@ -23,7 +24,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.inspection import permutation_importance
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
-from sklearn.model_selection import LeaveOneOut, cross_val_predict
+from sklearn.model_selection import GridSearchCV, KFold, LeaveOneOut, cross_val_predict
 from sklearn.pipeline import Pipeline
 
 # ── Configuration ────────────────────────────────────────────────────────────
@@ -39,10 +40,9 @@ FEATURE_COLS = [
     "mood_before_score",
     "bb_start",
     "days_since_last_session",
-    "during_stress_mean",
-    "post_stress_mean",
-    "during_hr_mean",
-    "post_hr_mean",
+    # during_stress_mean, post_stress_mean, during_hr_mean, post_hr_mean removed:
+    # these are post-session measurements and cause temporal data leakage when
+    # predicting mood_delta (the outcome of the same session).
     "pre_state_encoded",
     "hrv_rmssd",
     "avg_resp_daily",
@@ -50,6 +50,10 @@ FEATURE_COLS = [
 
 # Participant one-hot columns are added dynamically
 TARGET_COLS = {"mood_delta": "Mood Delta", "stress_delta": "Stress Delta"}
+
+_RIDGE_ALPHAS     = [0.01, 0.1, 1.0, 10.0, 100.0]
+_RF_MAX_DEPTHS    = [2, 3, 5, None]
+_GBM_MAX_DEPTHS   = [1, 2, 3]
 
 MODELS = {
     "DummyMean": DummyRegressor(strategy="mean"),
@@ -61,6 +65,54 @@ MODELS = {
         n_estimators=50, max_depth=2, learning_rate=0.1, random_state=42
     ),
 }
+
+
+def tune_models(X: pd.DataFrame, y: pd.Series) -> dict:
+    """Select hyperparameters via 5-fold CV on the full dataset.
+
+    Returns a new MODELS dict with tuned estimators. This single inner CV pass
+    is a pragmatic approximation at N=40; full nested LOO would be O(N×K) fits.
+    """
+    cv = KFold(n_splits=5, shuffle=True, random_state=42)
+    imp = SimpleImputer(strategy="median")
+    X_imp = imp.fit_transform(X)
+
+    tuned = {"DummyMean": DummyRegressor(strategy="mean")}
+
+    # Ridge
+    gs = GridSearchCV(Ridge(), {"alpha": _RIDGE_ALPHAS}, cv=cv, scoring="neg_mean_absolute_error", refit=True)
+    gs.fit(X_imp, y)
+    best_alpha = gs.best_params_["alpha"]
+    print(f"  Ridge best α={best_alpha}")
+    tuned["Ridge"] = Ridge(alpha=best_alpha)
+
+    # RandomForest
+    gs = GridSearchCV(
+        RandomForestRegressor(n_estimators=100, random_state=42),
+        {"max_depth": _RF_MAX_DEPTHS},
+        cv=cv, scoring="neg_mean_absolute_error", refit=True,
+    )
+    gs.fit(X_imp, y)
+    best_depth = gs.best_params_["max_depth"]
+    print(f"  RF best max_depth={best_depth}")
+    tuned["RandomForest"] = RandomForestRegressor(
+        n_estimators=100, max_depth=best_depth, random_state=42
+    )
+
+    # GradientBoosting
+    gs = GridSearchCV(
+        GradientBoostingRegressor(n_estimators=50, learning_rate=0.1, random_state=42),
+        {"max_depth": _GBM_MAX_DEPTHS},
+        cv=cv, scoring="neg_mean_absolute_error", refit=True,
+    )
+    gs.fit(X_imp, y)
+    best_depth = gs.best_params_["max_depth"]
+    print(f"  GBM best max_depth={best_depth}")
+    tuned["GradientBoosting"] = GradientBoostingRegressor(
+        n_estimators=50, max_depth=best_depth, learning_rate=0.1, random_state=42
+    )
+
+    return tuned
 
 
 # ── Data preparation ─────────────────────────────────────────────────────────
@@ -146,11 +198,18 @@ def train_and_evaluate(
     groups: pd.Series,
     target_name: str,
 ) -> tuple[pd.DataFrame, dict]:
-    """Run all models with LOO CV, return comparison DataFrame and per-model results."""
+    """Run all models with LOO CV, return comparison DataFrame and per-model results.
+
+    Hyperparameters for Ridge, RF, GBM are selected via inner 5-fold CV before
+    the outer LOO evaluation loop.
+    """
+    print(f"\nTuning hyperparameters for {target_name} (inner 5-fold CV)...")
+    models = tune_models(X, y)
+
     results = {}
     rows = []
 
-    for name, model in MODELS.items():
+    for name, model in models.items():
         res = run_loo_cv(X, y, model, list(X.columns))
         res["model_name"] = name
         results[name] = res
@@ -279,7 +338,7 @@ def run_shap(
 
     fitted_model = pipe.named_steps["model"]
     explainer = shap.Explainer(fitted_model, X_imputed)
-    shap_values = explainer(X_imputed)
+    shap_values = explainer(X_imputed, check_additivity=False)
 
     # Save beeswarm plot
     output_dir.mkdir(parents=True, exist_ok=True)

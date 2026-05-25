@@ -1,6 +1,6 @@
 # MoodTune — Critical Audit & Implementation Plan
 
-> **Status:** Implementation in progress. Phase 0, Phase 1, Phase 2, Phase 3, and A2.6 complete. Remaining: Phase 4 documentation.
+> **Status:** COMPLETE. All phases 0–4 done. App verified with full Playwright QA pass (2026-05-25).
 > **Conducted:** 2026-05-24
 > **Auditor:** Senior UX/UI + Data Science review (Claude Sonnet 4.6)
 > **App branch:** `feat/app-shiny` | **App:** `uv run shiny run app.py`
@@ -463,17 +463,18 @@ Resultaten shows Kalm playlist with −1.0 mood delta for Bosbes — the most sc
 
 ### Phase 4 — Polish & Validation
 
-- [ ] **[A1.1]** After Phase 1 re-runs complete: document updated model metrics in `CLAUDE.md` under "ML Tracks (in progress)"
+- [x] **[A1.1]** Document updated model metrics in `CLAUDE.md` — added "Current ML Metrics" table with post-leakage-fix LOO-CV results (RF R²=0.389 best)
 
-- [ ] **[A1.4]** Document which participants contribute to each analysis in `docs/analysis_participants.md`
-  - Feature matrix: bosbes, kokosnoot, limoen, peer (N=40)
-  - Bayesian model: all 6 (N=29 sessions; kiwi/watermeloen via check-in only)
-  - Significance tests: bosbes, kokosnoot, peer (limoen excluded — no stress)
+- [x] **[A1.4]** Document which participants contribute to each analysis in `docs/analysis_participants.md` — created with full breakdown per pipeline
 
 - [x] **[B3.5]** Audit all Plotly charts for modebar visibility — all 5 chart modules (circadian, recommendation, science, results, session_replay) use `dark_layout()` which removes zoom/pan/select/save toolbar buttons
   - **Files:** All `modules/*.py` chart functions
 
-- [ ] End-to-end visual QA: navigate all 8 pages, verify now-playing bar doesn't overlap content on any page
+- [x] End-to-end visual QA: all 8 pages verified with Playwright full-page screenshots (2026-05-25)
+  - Wetenschap ✓, Pipeline ✓, Circadiaan ✓, Afspelen ✓, Resultaten ✓, Model ✓, Home ✓
+  - Aanbevelen: fixed posterior caption text clipping (split long captions into two `<p>` tags; added `min-width:0` to flex columns in `recommendation.py`)
+  - CSS: added `overflow-wrap: break-word; word-break: break-word` to `.mt-caption`
+  - Now-playing bar confirmed not overlapping content on any page (padding-bottom: 112px effective)
 
 ---
 

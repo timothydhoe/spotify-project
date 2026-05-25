@@ -176,7 +176,7 @@ def ui():
                                          selected="bosbes", width="200px"),
                     ),
 
-                    style="flex:1; min-width:300px;",
+                    style="flex:1; min-width:0; max-width:480px;",
                 ),
 
                 # Rechts - uitvoer
@@ -205,9 +205,10 @@ def ui():
                                 style="margin-bottom:8px; font-style:italic;"),
                         output_widget("posterior_chart"),
                     ),
-                    _ui.p("Foutenbalken = 89% geloofwaardigheidsinterval. "
-                          "Brede intervallen wijzen op kleine steekproef.",
-                          class_="mt-caption mt-secondary", style="margin-top:4px;"),
+                    _ui.p("Foutenbalken = 89% geloofwaardigheidsinterval.",
+                          class_="mt-caption mt-secondary", style="margin-top:4px; margin-bottom:2px;"),
+                    _ui.p("Brede intervallen wijzen op kleine steekproef.",
+                          class_="mt-caption mt-secondary", style="margin-top:0;"),
                     _ui.output_ui("sample_size_note"),
                     _ui.output_ui("explanation_callout"),
                     _ui.div(
@@ -216,7 +217,7 @@ def ui():
                         _ui.output_ui("expanded_calc"),
                         style="margin-top:16px;",
                     ),
-                    style="flex:1.2; min-width:320px;",
+                    style="flex:1.2; min-width:0;",
                 ),
 
                 style="display:flex; gap:48px; flex-wrap:wrap;",
@@ -321,10 +322,13 @@ def server(input, output, session, app_data: AppData):
             bio = app_data.session_biometrics.get(p, None)
             n = len(bio) if bio is not None and not bio.empty else 0
         if n > 0:
-            return _ui.p(
-                f"N={n} sessies voor {p.capitalize()} — posterior breedte neemt af naarmate meer sessies beschikbaar zijn.",
-                class_="mt-caption mt-secondary",
-                style="margin-top:2px; font-style:italic;",
+            return _ui.div(
+                _ui.p(f"N={n} sessies voor {p.capitalize()}.",
+                      class_="mt-caption mt-secondary",
+                      style="margin:2px 0 0; font-style:italic;"),
+                _ui.p("Posterior breedte neemt af naarmate meer sessies beschikbaar zijn.",
+                      class_="mt-caption mt-secondary",
+                      style="margin:0; font-style:italic;"),
             )
         return _ui.div()
 

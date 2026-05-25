@@ -379,6 +379,8 @@ body > .container-fluid,
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-tertiary);
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .mt-mono {

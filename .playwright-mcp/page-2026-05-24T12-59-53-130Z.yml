@@ -1,0 +1,157 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Wetenschap" [ref=e8] [cursor=pointer]
+        - tab "Pipeline" [ref=e9] [cursor=pointer]
+        - tab "Circadiaan" [ref=e10] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e11] [cursor=pointer]
+        - tab "Afspelen" [ref=e12] [cursor=pointer]
+        - tab "Resultaten" [ref=e13] [cursor=pointer]
+        - tab "Model" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]: PROJECT R.E.M.
+          - generic [ref=e21]: MoodTune
+          - paragraph [ref=e22]: Genereer jouw gepersonaliseerde ISO-afspeellijst op basis van Bayesiaanse analyse van historische sessies.
+          - generic [ref=e25]:
+            - button "Bosbes" [ref=e26] [cursor=pointer]
+            - button "Kiwi" [ref=e27] [cursor=pointer]
+            - button "Kokosnoot" [ref=e28] [cursor=pointer]
+            - button "Limoen" [ref=e29] [cursor=pointer]
+            - button "Peer" [ref=e30] [cursor=pointer]
+            - button "Watermeloen" [ref=e31] [cursor=pointer]
+          - button "Genereer afspeellijst" [active] [ref=e32] [cursor=pointer]:
+            - generic [ref=e33]: Genereer afspeellijst
+        - generic [ref=e34]:
+          - generic [ref=e35]:
+            - generic [ref=e36]: "6"
+            - generic [ref=e37]: Deelnemers
+          - generic [ref=e38]:
+            - generic [ref=e39]: "47"
+            - generic [ref=e40]: Sessies
+          - generic [ref=e41]:
+            - generic [ref=e42]: "8"
+            - generic [ref=e43]: Weken
+          - generic [ref=e44]:
+            - generic [ref=e45]: "3"
+            - generic [ref=e46]: Afspeellijsttypes
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]: 🎵
+              - generic [ref=e53]:
+                - generic [ref=e54]: Gegenereerd voor Bosbes
+                - heading "Energieke Afspeellijst" [level=1] [ref=e55]
+                - paragraph [ref=e56]: ISO-geordende nummers om je arousal geleidelijk te begeleiden. Gebaseerd op jouw sessie van ma 2 mrt. 2026.
+                - generic [ref=e57]:
+                  - generic [ref=e58]: ENERGY
+                  - generic [ref=e59]:
+                    - strong [ref=e60]: "12"
+                    - text: nummers
+                  - strong [ref=e62]: 46 min
+                  - generic [ref=e63]: "ISO-richting: Stijgend BPM"
+            - generic [ref=e64]:
+              - generic [ref=e65]:
+                - generic [ref=e66]: "#"
+                - generic [ref=e67]: Titel
+                - generic [ref=e68]: BPM
+                - generic [ref=e69]: Energie
+                - generic [ref=e70]: Duur
+              - generic [ref=e71] [cursor=pointer]:
+                - generic [ref=e72]: ♪
+                - generic [ref=e74]:
+                  - generic [ref=e75]: Enjoy the Silence
+                  - generic [ref=e76]: Depeche Mode
+                - generic [ref=e77]: 113 BPM
+                - generic [ref=e80]: 4:15
+              - generic [ref=e81] [cursor=pointer]:
+                - generic [ref=e82]: "2"
+                - generic [ref=e84]:
+                  - generic [ref=e85]: Smells Like Teen Spirit
+                  - generic [ref=e86]: Nirvana
+                - generic [ref=e87]: 117 BPM
+                - generic [ref=e90]: 5:01
+              - generic [ref=e91] [cursor=pointer]:
+                - generic [ref=e92]: "3"
+                - generic [ref=e94]:
+                  - generic [ref=e95]: Buddy Holly
+                  - generic [ref=e96]: Weezer
+                - generic [ref=e97]: 121 BPM
+                - generic [ref=e100]: 2:39
+              - generic [ref=e101] [cursor=pointer]:
+                - generic [ref=e102]: "4"
+                - generic [ref=e104]:
+                  - generic [ref=e105]: Stuck In The Middle With You
+                  - generic [ref=e106]: Stealers Wheel
+                - generic [ref=e107]: 124 BPM
+                - generic [ref=e110]: 3:26
+              - generic [ref=e111] [cursor=pointer]:
+                - generic [ref=e112]: "5"
+                - generic [ref=e114]:
+                  - generic [ref=e115]: Believer
+                  - generic [ref=e116]: Imagine Dragons
+                - generic [ref=e117]: 125 BPM
+                - generic [ref=e120]: 3:24
+              - generic [ref=e121] [cursor=pointer]:
+                - generic [ref=e122]: "6"
+                - generic [ref=e124]:
+                  - generic [ref=e125]: Losing My Religion
+                  - generic [ref=e126]: R.E.M.
+                - generic [ref=e127]: 125 BPM
+                - generic [ref=e130]: 4:27
+              - generic [ref=e131] [cursor=pointer]:
+                - generic [ref=e132]: "7"
+                - generic [ref=e134]:
+                  - generic [ref=e135]: 1979 - Remastered 2012
+                  - generic [ref=e136]: The Smashing Pumpkins
+                - generic [ref=e137]: 127 BPM
+                - generic [ref=e140]: 4:26
+              - generic [ref=e141] [cursor=pointer]:
+                - generic [ref=e142]: "8"
+                - generic [ref=e144]:
+                  - generic [ref=e145]: Bloodline
+                  - generic [ref=e146]: Alex Warren;Jelly Roll
+                - generic [ref=e147]: 128 BPM
+                - generic [ref=e150]: 3:02
+              - generic [ref=e151] [cursor=pointer]:
+                - generic [ref=e152]: "9"
+                - generic [ref=e154]:
+                  - generic [ref=e155]: Housewife
+                  - generic [ref=e156]: Daan
+                - generic [ref=e157]: 131 BPM
+                - generic [ref=e160]: 6:08
+              - generic [ref=e161] [cursor=pointer]:
+                - generic [ref=e162]: "10"
+                - generic [ref=e164]:
+                  - generic [ref=e165]: London Calling - Remastered
+                  - generic [ref=e166]: The Clash
+                - generic [ref=e167]: 134 BPM
+                - generic [ref=e170]: 3:19
+              - generic [ref=e171] [cursor=pointer]:
+                - generic [ref=e172]: "11"
+                - generic [ref=e174]:
+                  - generic [ref=e175]: Eyes Wide Open
+                  - generic [ref=e176]: Gotye
+                - generic [ref=e177]: 139 BPM
+                - generic [ref=e180]: 3:11
+              - generic [ref=e181] [cursor=pointer]:
+                - generic [ref=e182]: "12"
+                - generic [ref=e184]:
+                  - generic [ref=e185]: Summer Of '69
+                  - generic [ref=e186]: Bryan Adams
+                - generic [ref=e187]: 139 BPM
+                - generic [ref=e190]: 3:36
+              - generic [ref=e191]:
+                - generic [ref=e192]: ISO-richting
+                - generic [ref=e197]: "- stijgend bpm"
+          - generic [ref=e198]: Aanbevolen voor Bosbes op basis van historische sessies. 38% posterior-kans
+    - generic [ref=e199]:
+      - generic [ref=e202]:
+        - generic [ref=e204]: Selecteer een afspeellijst
+        - generic [ref=e205]: MoodTune
+      - generic [ref=e207]: "- -"

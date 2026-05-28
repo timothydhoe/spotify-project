@@ -1,0 +1,138 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [selected] [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e44]:
+      - generic [ref=e45]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e46] [cursor=pointer]
+      - button "Kiwi ○" [ref=e47] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e48] [cursor=pointer]
+      - button "Limoen ◑" [ref=e49] [cursor=pointer]
+      - button "Peer ◑" [ref=e50] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e51] [cursor=pointer]
+      - generic [ref=e52]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e75]:
+      - tablist [ref=e76]:
+        - tab "Resultaten" [ref=e77] [cursor=pointer]
+        - tab "Sessie-replay" [ref=e78] [cursor=pointer]
+        - tab "Circadiaans ritme" [active] [selected] [ref=e79] [cursor=pointer]
+      - tabpanel [ref=e410]:
+        - generic [ref=e411]:
+          - generic [ref=e412]:
+            - generic [ref=e413]: Jouw Circadiaans Ritme
+            - paragraph [ref=e414]: Hoe verhoudt jouw stressniveau zich tot jouw eigen basislijn op elk uur van de dag?
+            - generic [ref=e415]:
+              - generic [ref=e416]: Wat is dit?
+              - paragraph [ref=e417]: "We vergelijken jouw sessie-stress met JOUW typische stress op datzelfde uur op niet-sessiedagen. Dit corrigeert voor je natuurlijke dagritme. Formule:"
+              - text: afwijking = pre_stress − verwacht_stress_op_dat_uur
+          - generic [ref=e419]:
+            - generic [ref=e421]: Uurlijkse stressbasislijn - Bosbes
+            - generic [ref=e422]: Grijs band = ±1σ variatie op niet-sessiedagen. Gekleurde stippen = sessies.
+            - generic [ref=e423]: Klik op een sessie-punt voor sessiedetails ↓
+            - generic [ref=e427]:
+              - img:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: 0:00
+                      - generic:
+                        - generic: 3:00
+                      - generic:
+                        - generic: 6:00
+                      - generic:
+                        - generic: 9:00
+                      - generic:
+                        - generic: 12:00
+                      - generic:
+                        - generic: 15:00
+                      - generic:
+                        - generic: 18:00
+                      - generic:
+                        - generic: 21:00
+                    - generic:
+                      - generic:
+                        - generic: "10"
+                      - generic:
+                        - generic: "20"
+                      - generic:
+                        - generic: "30"
+                      - generic:
+                        - generic: "40"
+                      - generic:
+                        - generic: "50"
+                      - generic:
+                        - generic: "60"
+              - img:
+                - generic:
+                  - generic [ref=e444]:
+                    - generic [ref=e446]: Jouw gemiddelde stress
+                    - generic [ref=e449]: Kalm-sessie
+                    - generic [ref=e456]: Neutraal-sessie
+                    - generic [ref=e463]: Energiek-sessie
+                  - generic:
+                    - generic: Uur van de dag
+                  - generic:
+                    - generic: Stress (0-100)
+              - toolbar [ref=e469]:
+                - link "plotly-logomark" [ref=e471] [cursor=pointer]:
+                  - /url: https://plotly.com/
+                  - img "plotly-logomark" [ref=e472]
+              - img
+          - generic [ref=e486]:
+            - generic [ref=e487]:
+              - generic [ref=e488]: 1:00
+              - generic [ref=e489]: Gouden uur (laagste stress)
+            - generic [ref=e490]:
+              - generic [ref=e491]: 12-14:00
+              - generic [ref=e492]: Piekstressvenster
+            - generic [ref=e493]:
+              - generic [ref=e494]: +9.1 pt
+              - generic [ref=e495]: Pre-sessie afwijking (gem.)
+              - generic [ref=e496]: stresspunten t.o.v. circadiane basislijn
+          - generic [ref=e499]:
+            - generic [ref=e500]: Bereken jouw circadiane afwijking
+            - paragraph [ref=e501]: Stel een hypothetisch stressniveau en uur in. De app berekent dan hoeveel dit afwijkt van jouw normale stressniveau op dat uur.
+            - generic [ref=e502]:
+              - generic [ref=e503]:
+                - generic [ref=e504]:
+                  - generic [ref=e505]: "Huidig uur:"
+                  - generic [ref=e506]: 17:00
+                - generic [ref=e507]:
+                  - generic [ref=e509]:
+                    - generic [ref=e511]: "0"
+                    - generic [ref=e512]: "23"
+                    - generic [ref=e513]: "17"
+                  - textbox [ref=e516]: "17"
+              - generic [ref=e517]:
+                - generic [ref=e518]:
+                  - generic [ref=e519]: "Hypothetisch stressniveau:"
+                  - generic [ref=e520]: "55"
+                - generic [ref=e521]:
+                  - generic [ref=e523]:
+                    - generic [ref=e525]: "0"
+                    - generic [ref=e526]: "100"
+                    - generic [ref=e527]: "55"
+                  - textbox [ref=e530]: "55"
+                - generic [ref=e531]: (Stel een waarde in om je circadiane afwijking te berekenen)
+              - generic [ref=e533]:
+                - generic [ref=e534]:
+                  - generic [ref=e535]: "Verwachte stress op dit uur:"
+                  - generic [ref=e536]: "26.4 stresspunten (sigma: ±13.9)"
+                - generic [ref=e537]:
+                  - generic [ref=e538]: "Jouw afwijking:"
+                  - generic [ref=e539]: +28.6 stresspunten
+                - generic [ref=e540]: "Dit betekent: je bent 28.6 stresspunten méér gestresseerd dan gebruikelijk op 17:00."
+                - generic [ref=e541]: afwijking = 55 (huidig) − 26.4 (verwacht op 17:00) = +28.6
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e74]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e289]

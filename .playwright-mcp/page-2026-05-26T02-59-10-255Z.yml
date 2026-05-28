@@ -1,0 +1,161 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [selected] [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e44]:
+      - generic [ref=e45]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e46] [cursor=pointer]
+      - button "Kiwi ○" [ref=e47] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e48] [cursor=pointer]
+      - button "Limoen ◑" [ref=e49] [cursor=pointer]
+      - button "Peer ◑" [ref=e50] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e51] [cursor=pointer]
+      - generic [ref=e52]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e196]:
+      - tablist [ref=e197]:
+        - tab "Wetenschap" [ref=e198] [cursor=pointer]
+        - tab "Model & Data" [ref=e199] [cursor=pointer]
+        - tab "Pipeline" [selected] [ref=e200] [cursor=pointer]
+      - tabpanel [ref=e377]:
+        - generic [ref=e378]:
+          - generic [ref=e379]:
+            - generic [ref=e380]: De Datapipeline
+            - paragraph [ref=e381]: Hoe ruwe Spotify- en Garmin-gegevens worden omgezet naar gepersonaliseerde afspeellijstaanbevelingen.
+          - generic [ref=e383]:
+            - generic [ref=e386]:
+              - button "Diagram" [ref=e387] [cursor=pointer]
+              - button "Gegevens" [ref=e388] [cursor=pointer]
+            - generic [ref=e448]:
+              - generic [ref=e449]:
+                - generic [ref=e450]: 🎵 Muziektrack — Geen biometriedata gebruikt
+                - generic [ref=e451]:
+                  - generic [ref=e452]:
+                    - button "🎵 Exportify CSV" [ref=e453] [cursor=pointer]
+                    - generic [ref=e454]: N≈2,793 nummers
+                  - generic [ref=e455]: "->"
+                  - button "🔧 prepare.py" [ref=e457] [cursor=pointer]
+                  - generic [ref=e458]: "->"
+                  - generic [ref=e459]:
+                    - button "⚙️ generate.py" [ref=e460] [cursor=pointer]
+                    - generic [ref=e461]: N≈2,973 nummers
+                  - generic [ref=e462]: "->"
+                  - generic [ref=e463]:
+                    - button "📋 Afspeellijsten" [ref=e464] [cursor=pointer]
+                    - generic [ref=e465]: N≈2,973 nummers
+              - generic [ref=e467]:
+                - generic [ref=e468]: ⌚ Biometrietrack — Geen audiodata gebruikt
+                - generic [ref=e469]:
+                  - button "⌚ Garmin FIT" [ref=e471] [cursor=pointer]
+                  - generic [ref=e472]: "->"
+                  - generic [ref=e473]:
+                    - button "🔄 garmin_pipeline.py" [ref=e474] [cursor=pointer]
+                    - generic [ref=e475]: N=94 sessies
+                  - generic [ref=e476]: "->"
+                  - generic [ref=e477]:
+                    - button "📊 Biometrische CSV's" [ref=e478] [cursor=pointer]
+                    - generic [ref=e479]: N=94 sessies
+              - generic [ref=e481]:
+                - generic [ref=e482]: 🤖 Analysetrack — Muziek + biometrie samengevoegd via feature-matrix
+                - generic [ref=e483]:
+                  - generic [ref=e484]:
+                    - button "📝 Check-ins" [ref=e485] [cursor=pointer]
+                    - generic [ref=e486]: N=105 check-ins
+                  - generic [ref=e487]: "->"
+                  - generic [ref=e488]:
+                    - button "🧮 circadian_baseline.py" [ref=e489] [cursor=pointer]
+                    - generic [ref=e490]: N=94 sessies
+                  - generic [ref=e491]: "->"
+                  - generic [ref=e492]:
+                    - button "🤖 circadian_ml.py" [ref=e493] [cursor=pointer]
+                    - generic [ref=e494]: N=94 sessies
+                  - generic [ref=e495]: "->"
+                  - generic [ref=e496]:
+                    - button "📐 bayesian_recommender.py" [ref=e497] [cursor=pointer]
+                    - generic [ref=e498]: N=18 posteriors
+            - generic [ref=e501]:
+              - generic [ref=e502]:
+                - generic [ref=e503]: 🔧
+                - generic [ref=e504]: prepare.py
+              - paragraph [ref=e505]: "Combineert meerdere Exportify-bestanden per deelnemer, verwijdert duplicaten op basis van Spotify-URI en normaliseert kolomnamen. Output: een schone bibliotheek-CSV klaar voor filtering."
+              - generic [ref=e507]:
+                - generic [ref=e508]:
+                  - generic [ref=e509]: Invoer
+                  - generic [ref=e510]:
+                    - generic [ref=e511]: Spotify URI
+                    - generic [ref=e512]: name
+                    - generic [ref=e513]: artists
+                    - generic [ref=e514]: tempo
+                    - generic [ref=e515]: energy
+                    - generic [ref=e516]: valence
+                    - generic [ref=e517]: acousticness
+                    - generic [ref=e518]: danceability
+                    - generic [ref=e519]: loudness
+                    - generic [ref=e520]: …
+                - generic [ref=e521]: →
+                - generic [ref=e522]:
+                  - generic [ref=e523]: Uitvoer
+                  - generic [ref=e524]:
+                    - generic [ref=e525]: zelfde kolommen
+                    - generic [ref=e526]: duplicaten verwijderd op Spotify URI
+                    - generic [ref=e527]: kolomnamen genormaliseerd
+              - generic [ref=e528]:
+                - generic [ref=e529]: "Voorbeeld: gecombineerde bibliotheek na deduplicatie (bosbes)"
+                - table [ref=e531]:
+                  - rowgroup [ref=e532]:
+                    - row "name artists tempo energy valence acousticness danceability" [ref=e533]:
+                      - columnheader "name" [ref=e534]
+                      - columnheader "artists" [ref=e535]
+                      - columnheader "tempo" [ref=e536]
+                      - columnheader "energy" [ref=e537]
+                      - columnheader "valence" [ref=e538]
+                      - columnheader "acousticness" [ref=e539]
+                      - columnheader "danceability" [ref=e540]
+                  - rowgroup [ref=e541]:
+                    - row "i Am A Mountain Coldplay 119.926 0.367 0.331 0.894 0.612" [ref=e542]:
+                      - cell "i Am A Mountain" [ref=e543]
+                      - cell "Coldplay" [ref=e544]
+                      - cell "119.926" [ref=e545]
+                      - cell "0.367" [ref=e546]
+                      - cell "0.331" [ref=e547]
+                      - cell "0.894" [ref=e548]
+                      - cell "0.612" [ref=e549]
+                    - row "The Woods Hollow Coves 106.05 0.41 0.224 0.411 0.802" [ref=e550]:
+                      - cell "The Woods" [ref=e551]
+                      - cell "Hollow Coves" [ref=e552]
+                      - cell "106.05" [ref=e553]
+                      - cell "0.41" [ref=e554]
+                      - cell "0.224" [ref=e555]
+                      - cell "0.411" [ref=e556]
+                      - cell "0.802" [ref=e557]
+                    - row "The Woods - Acoustic Hollow Coves 104.991 0.558 0.287 0.724 0.568" [ref=e558]:
+                      - cell "The Woods - Acoustic" [ref=e559]
+                      - cell "Hollow Coves" [ref=e560]
+                      - cell "104.991" [ref=e561]
+                      - cell "0.558" [ref=e562]
+                      - cell "0.287" [ref=e563]
+                      - cell "0.724" [ref=e564]
+                      - cell "0.568" [ref=e565]
+                    - row "Keep Your Head Up Ben Howard 79.105 0.61 0.553 0.604 0.48" [ref=e566]:
+                      - cell "Keep Your Head Up" [ref=e567]
+                      - cell "Ben Howard" [ref=e568]
+                      - cell "79.105" [ref=e569]
+                      - cell "0.61" [ref=e570]
+                      - cell "0.553" [ref=e571]
+                      - cell "0.604" [ref=e572]
+                      - cell "0.48" [ref=e573]
+          - generic [ref=e443]:
+            - generic [ref=e444]: Waarom twee aparte tracks?
+            - paragraph [ref=e445]: De muziek wordt samengesteld op basis van audiokenmerken — los van je biometrische data. Zo kunnen we later meten of het de muziek was die je stemming beïnvloedde, niet andersom. Als we biometrische feedback hadden gebruikt om de afspeellijst te genereren, zouden we het zelfstandige effect van de muziek niet meer kunnen meten. In de analysetrack worden beide samengevoegd om dit effect te kwantificeren.
+            - generic [ref=e447]: Klik op een stap in het diagram om de details te bekijken.
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e74]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e194]

@@ -15,6 +15,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 plt.style.use("dark_background")
+matplotlib.rcParams["figure.facecolor"] = "#111827"
+matplotlib.rcParams["axes.facecolor"]   = "#111827"
 import numpy as np
 import pandas as pd
 import shap
@@ -29,23 +31,32 @@ from sklearn.pipeline import Pipeline
 
 # ── Configuration ────────────────────────────────────────────────────────────
 
-# Features used in models (hrv_rmssd excluded — only 1 participant has it)
+# Base features read directly from feature_matrix.csv.
+# hrv_rmssd omitted: 100% NaN for 3/4 participants — SimpleImputer would assign
+# peer's median as a constant for everyone else, providing no real signal.
+# during_stress_mean, post_stress_mean, during_hr_mean, post_hr_mean removed:
+# those are post-session measurements and cause temporal data leakage.
 FEATURE_COLS = [
     "baseline_deviation_entry",
     "hr_baseline_deviation",
-    "hour_of_day",
-    "day_of_week",
+    "hour_of_day",       # used to compute hour_sin/hour_cos in prepare_data()
+    "day_of_week",       # used to compute dow_sin/dow_cos in prepare_data()
     "playlist_calm",
     "playlist_energy",
     "mood_before_score",
     "bb_start",
     "days_since_last_session",
-    # during_stress_mean, post_stress_mean, during_hr_mean, post_hr_mean removed:
-    # these are post-session measurements and cause temporal data leakage when
-    # predicting mood_delta (the outcome of the same session).
     "pre_state_encoded",
-    "hrv_rmssd",
     "avg_resp_daily",
+    "session_number",    # per-participant chronological index; captures learning effect
+]
+
+# Derived features computed inside prepare_data() — not in feature_matrix.csv
+_DERIVED_FEATURE_COLS = [
+    "hour_sin", "hour_cos",      # cyclical encoding for hour_of_day
+    "dow_sin", "dow_cos",        # cyclical encoding for day_of_week
+    "calm_x_dev",                # playlist_calm × baseline_deviation_entry (ISO interaction)
+    "energy_x_dev",              # playlist_energy × baseline_deviation_entry (ISO interaction)
 ]
 
 # Participant one-hot columns are added dynamically
@@ -121,7 +132,12 @@ def tune_models(X: pd.DataFrame, y: pd.Series) -> dict:
 def prepare_data(
     feature_matrix_path: Path, target: str
 ) -> tuple[pd.DataFrame, pd.Series, list[str], pd.Series]:
-    """Load feature matrix, drop rows with NaN target, return X, y, feature names, participant groups.
+    """Load feature matrix, engineer derived features, return X, y, feature names, groups.
+
+    Derived features added here:
+    - Cyclical encoding for hour_of_day and day_of_week (sin/cos pairs)
+    - ISO interaction terms: playlist_calm/energy × baseline_deviation_entry
+    - session_number already in feature_matrix after circadian_baseline.py update
 
     Imputation is NOT done here — it happens inside CV folds via sklearn Pipeline.
     """
@@ -130,15 +146,28 @@ def prepare_data(
     # Drop rows where target is NaN
     fm = fm.dropna(subset=[target]).reset_index(drop=True)
 
-    # One-hot encode participant (drop_first to avoid collinearity)
-    participant_dummies = pd.get_dummies(fm["participant"], prefix="p", drop_first=True)
+    # Cyclical encoding for circular features
+    fm["hour_sin"] = np.sin(2 * np.pi * fm["hour_of_day"] / 24)
+    fm["hour_cos"] = np.cos(2 * np.pi * fm["hour_of_day"] / 24)
+    fm["dow_sin"]  = np.sin(2 * np.pi * fm["day_of_week"] / 7)
+    fm["dow_cos"]  = np.cos(2 * np.pi * fm["day_of_week"] / 7)
 
-    feature_cols = FEATURE_COLS + list(participant_dummies.columns)
-    X = pd.concat([fm[FEATURE_COLS], participant_dummies], axis=1)
+    # ISO-principle interaction terms
+    fm["calm_x_dev"]   = fm["playlist_calm"]   * fm["baseline_deviation_entry"]
+    fm["energy_x_dev"] = fm["playlist_energy"]  * fm["baseline_deviation_entry"]
+
+    # Build final feature list: base (excluding raw hour/dow) + derived + participant dummies
+    base_cols = [c for c in FEATURE_COLS if c not in ("hour_of_day", "day_of_week")]
+    derived_cols = _DERIVED_FEATURE_COLS
+
+    participant_dummies = pd.get_dummies(fm["participant"], prefix="p", drop_first=True)
+    all_feature_cols = base_cols + derived_cols + list(participant_dummies.columns)
+
+    X = pd.concat([fm[base_cols + derived_cols], participant_dummies], axis=1)
     y = fm[target]
     groups = fm["participant"]
 
-    return X, y, feature_cols, groups
+    return X, y, all_feature_cols, groups
 
 
 # ── Cross-validation ─────────────────────────────────────────────────────────
@@ -357,6 +386,97 @@ def run_shap(
     return shap_values
 
 
+def run_shap_dependence(
+    shap_values: "shap.Explanation",
+    X_imputed: pd.DataFrame,
+    target_name: str,
+    output_dir: Path,
+    top_n: int = 2,
+) -> None:
+    """Save SHAP dependence plots for the top N features by mean |SHAP|."""
+    if shap_values is None:
+        return
+    output_dir.mkdir(parents=True, exist_ok=True)
+    mean_abs = np.abs(shap_values.values).mean(axis=0)
+    top_idx  = np.argsort(mean_abs)[::-1][:top_n]
+    feature_names = X_imputed.columns.tolist()
+    for idx in top_idx:
+        feature = feature_names[idx]
+        fig, ax = plt.subplots(figsize=(8, 5))
+        shap.plots.scatter(shap_values[:, feature], color=shap_values, ax=ax, show=False)
+        ax.set_title(f"SHAP dependentie — {feature} → {target_name}")
+        ax.set_xlabel(feature)
+        ax.set_ylabel("SHAP-waarde")
+        safe_name = feature.replace("/", "_").replace(" ", "_")
+        fig_path = output_dir / f"shap_dependence_{target_name}_{safe_name}.png"
+        fig.tight_layout()
+        fig.savefig(fig_path, dpi=150, bbox_inches="tight")
+        plt.close(fig)
+        print(f"  Saved dependence: {fig_path}")
+
+
+def run_learning_curves(
+    X: pd.DataFrame,
+    y: pd.Series,
+    target_name: str,
+    output_dir: Path,
+) -> None:
+    """Learning curve for Random Forest and Ridge, showing train vs. LOO-CV MAE as N grows."""
+    from sklearn.model_selection import learning_curve
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    models = {
+        "Random Forest": Pipeline([
+            ("imp", SimpleImputer(strategy="median")),
+            ("clf", RandomForestRegressor(n_estimators=200, max_depth=4, random_state=42)),
+        ]),
+        "Ridge": Pipeline([
+            ("imp", SimpleImputer(strategy="median")),
+            ("clf", Ridge(alpha=1.0)),
+        ]),
+    }
+
+    fig, ax = plt.subplots(figsize=(9, 5))
+    colors = {"Random Forest": "#22c55e", "Ridge": "#3b82f6"}
+
+    n_total = len(y)
+    train_sizes = np.linspace(0.3, 1.0, 8)
+
+    for name, model in models.items():
+        color = colors[name]
+        try:
+            ts, train_scores, cv_scores = learning_curve(
+                model, X, y,
+                train_sizes=train_sizes,
+                cv=LeaveOneOut(),
+                scoring="neg_mean_absolute_error",
+                n_jobs=-1,
+            )
+            train_mae = -train_scores.mean(axis=1)
+            cv_mae    = -cv_scores.mean(axis=1)
+            ax.plot(ts, train_mae, "--", color=color, alpha=0.5, linewidth=1.5, label=f"{name} (train)")
+            ax.plot(ts, cv_mae,   "-",  color=color, linewidth=2,   label=f"{name} (LOO-CV)")
+            ax.fill_between(ts,
+                cv_mae - (-cv_scores).std(axis=1),
+                cv_mae + (-cv_scores).std(axis=1),
+                color=color, alpha=0.08)
+        except Exception as e:
+            print(f"  Learning curve skipped for {name}: {e}")
+
+    ax.axhline(y.std(), color=(1, 1, 1, 0.3), linestyle=":", linewidth=1, label=f"σ target ({y.std():.2f})")
+    ax.set_xlabel(f"Trainingsgrootte (van {n_total} sessies)")
+    ax.set_ylabel("MAE")
+    ax.set_title(f"Leercurven — {target_name} (LOO-CV)")
+    ax.legend(fontsize=8, ncol=2)
+    ax.set_ylim(bottom=0)
+    fig.tight_layout()
+    out_path = output_dir / f"learning_curves_{target_name}.png"
+    fig.savefig(out_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  Saved learning curves: {out_path}")
+
+
 # ── Plotting ─────────────────────────────────────────────────────────────────
 
 
@@ -381,7 +501,9 @@ def plot_model_comparison(comparison: pd.DataFrame, target_name: str, output_dir
     fig, ax = plt.subplots(figsize=(8, 5))
     models = comparison["model"]
     mae_vals = comparison["MAE"]
-    colors = ["#aaaaaa" if m == "DummyMean" else "#4c78a8" for m in models]
+    _MODEL_COLORS = {"DummyMean": "#6b7280", "Ridge": "#3b82f6",
+                     "RandomForest": "#22c55e", "GradientBoosting": "#f97316", "MixedLM": "#a855f7"}
+    colors = [_MODEL_COLORS.get(m, "#6b7280") for m in models]
     ax.barh(models, mae_vals, color=colors, edgecolor="black")
     ax.set_xlabel("MAE (lower is better)")
     ax.set_title(f"Model Comparison — {target_name}")
@@ -443,7 +565,7 @@ def plot_ridge_coefficients(coefs_df: pd.DataFrame, target_name: str, output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     fig, ax = plt.subplots(figsize=(8, 6))
     sorted_df = coefs_df.sort_values("coefficient")
-    colors = ["#e45756" if c < 0 else "#4c78a8" for c in sorted_df["coefficient"]]
+    colors = ["#ef4444" if c < 0 else "#3b82f6" for c in sorted_df["coefficient"]]
     ax.barh(sorted_df["feature"], sorted_df["coefficient"], color=colors, edgecolor="black")
     ax.set_xlabel("Ridge Coefficient")
     ax.set_title(f"Ridge Coefficients — {target_name}")
@@ -461,7 +583,7 @@ def plot_permutation_importance(
     fig, ax = plt.subplots(figsize=(8, 6))
     # Sort descending by absolute importance (most negative = most important for neg_mae)
     sorted_df = perm_df.sort_values("importance_mean", ascending=True)
-    ax.barh(sorted_df["feature"], -sorted_df["importance_mean"], color="#4c78a8", edgecolor="black")
+    ax.barh(sorted_df["feature"], -sorted_df["importance_mean"], color="#22c55e", edgecolor="black")
     ax.set_xlabel("Importance (MAE increase when shuffled)")
     ax.set_title(f"Permutation Importance — {model_name} ({target_name})")
     fig.tight_layout()
@@ -474,13 +596,13 @@ def plot_circadian_curve(participant: str, baseline_path: Path, output_dir: Path
     output_dir.mkdir(parents=True, exist_ok=True)
     bl = pd.read_csv(baseline_path)
     fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(bl["hour"], bl["mean_stress"], "o-", color="#4c78a8", linewidth=2)
+    ax.plot(bl["hour"], bl["mean_stress"], "o-", color="#22c55e", linewidth=2)
     valid = bl["mean_stress"].notna()
     ax.fill_between(
         bl.loc[valid, "hour"],
         bl.loc[valid, "mean_stress"] - bl.loc[valid, "std_stress"],
         bl.loc[valid, "mean_stress"] + bl.loc[valid, "std_stress"],
-        alpha=0.2, color="#4c78a8",
+        alpha=0.2, color="#22c55e",
     )
     ax.set_xlabel("Hour of Day")
     ax.set_ylabel("Mean Stress")
@@ -510,6 +632,93 @@ def plot_circadian_overlay(participants: list[str], analysis_dir: Path, output_d
     fig.tight_layout()
     fig.savefig(output_dir / "circadian_curves_overlay.png", dpi=150)
     plt.close(fig)
+
+
+# ── Linear Mixed-Effects Model ───────────────────────────────────────────────
+
+
+def run_lme_loo(fm_path: Path, target: str) -> dict | None:
+    """LOO-CV for linear mixed-effects model with participant as random intercept.
+
+    Uses statsmodels MixedLM. Prediction is fixed-effects-only (conservative).
+    This is the statistically correct baseline for repeated-measures data where
+    sklearn models treat all 40 sessions as independent observations.
+
+    Returns a dict with keys matching model comparison row format, or None on failure.
+    """
+    try:
+        import statsmodels.formula.api as smf
+    except ImportError:
+        print("  statsmodels not available — skipping LME")
+        return None
+
+    fm = pd.read_csv(fm_path)
+    fm = fm.dropna(subset=[target]).reset_index(drop=True)
+
+    # Derived features (same as prepare_data)
+    fm["hour_sin"]     = np.sin(2 * np.pi * fm["hour_of_day"] / 24)
+    fm["hour_cos"]     = np.cos(2 * np.pi * fm["hour_of_day"] / 24)
+    fm["calm_x_dev"]   = fm["playlist_calm"]  * fm["baseline_deviation_entry"]
+    fm["energy_x_dev"] = fm["playlist_energy"] * fm["baseline_deviation_entry"]
+
+    predictor_cols = [
+        "baseline_deviation_entry", "hr_baseline_deviation",
+        "playlist_calm", "playlist_energy", "mood_before_score",
+        "bb_start", "session_number", "calm_x_dev", "energy_x_dev",
+        "hour_sin", "hour_cos",
+    ]
+    available = [c for c in predictor_cols if c in fm.columns]
+
+    # Impute NaN with column medians (LME requires complete cases)
+    data = fm.copy()
+    for col in available:
+        data[col] = data[col].fillna(data[col].median())
+
+    if data["participant"].nunique() < 2:
+        print("  LME: fewer than 2 participants — skipping")
+        return None
+
+    formula = f"{target} ~ " + " + ".join(available)
+    n = len(data)
+    y_pred = np.full(n, np.nan)
+
+    print(f"  Running LME LOO-CV ({n} folds)...")
+    failed = 0
+    for i in range(n):
+        train_idx = [j for j in range(n) if j != i]
+        train = data.iloc[train_idx]
+        test  = data.iloc[[i]]
+        try:
+            result = smf.mixedlm(formula, train, groups=train["participant"]).fit(
+                reml=False, method="lbfgs", disp=False
+            )
+            y_pred[i] = float(result.predict(test).iloc[0])
+        except Exception:
+            failed += 1
+            y_pred[i] = float(train[target].mean())
+
+    if failed > 0:
+        print(f"  LME: {failed}/{n} folds fell back to mean (convergence failure)")
+
+    y = data[target].values
+    valid = ~np.isnan(y_pred)
+    if valid.sum() < 5:
+        print("  LME: too few valid predictions — skipping")
+        return None
+
+    mae  = float(mean_absolute_error(y[valid], y_pred[valid]))
+    rmse = float(np.sqrt(mean_squared_error(y[valid], y_pred[valid])))
+    r2   = float(r2_score(y[valid], y_pred[valid]))
+
+    print(f"  LME LOO: MAE={mae:.3f}  RMSE={rmse:.3f}  R²={r2:.3f}")
+    return {
+        "model": "MixedLM",
+        "MAE": mae,
+        "RMSE": rmse,
+        "R2_LOO": r2,
+        "R2_train_mean": float("nan"),
+        "overfit_gap": float("nan"),
+    }
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -547,6 +756,21 @@ def main() -> None:
 
         # Model comparison
         comparison, results = train_and_evaluate(X, y, groups, target)
+        # LME — statistically correct model for repeated-measures data
+        lme_result = run_lme_loo(feature_matrix_path, target)
+        if lme_result is not None:
+            lme_row = {
+                "model": lme_result["model"],
+                "MAE": lme_result["MAE"],
+                "RMSE": lme_result["RMSE"],
+                "R2_LOO": lme_result["R2_LOO"],
+                "R2_train_mean": lme_result["R2_train_mean"],
+                "overfit_gap": lme_result["overfit_gap"],
+            }
+            comparison = pd.concat(
+                [comparison, pd.DataFrame([lme_row])], ignore_index=True
+            )
+
         comparison.to_csv(combined_dir / f"model_results_{target}.csv", index=False)
 
         print(f"\n  Model comparison:")
@@ -561,9 +785,11 @@ def main() -> None:
         plot_model_comparison(comparison, target, combined_plots)
         plot_per_participant_mae(comparison, target, combined_plots)
 
-        # Best model (by MAE, excluding Dummy)
-        non_dummy = comparison[comparison["model"] != "DummyMean"]
-        best_name = non_dummy.loc[non_dummy["MAE"].idxmin(), "model"]
+        # Best model (by MAE, excluding Dummy and MixedLM — the latter is a
+        # statistical reference only and has no sklearn-compatible object for
+        # SHAP / permutation importance / learning curves).
+        sklearn_models = comparison[~comparison["model"].isin(["DummyMean", "MixedLM"])]
+        best_name = sklearn_models.loc[sklearn_models["MAE"].idxmin(), "model"]
         best_result = results[best_name]
         print(f"\n  Best model: {best_name} (MAE={best_result['MAE']:.3f})")
 
@@ -589,7 +815,16 @@ def main() -> None:
 
         # SHAP — combined (with data quality warning)
         if best_name != "DummyMean":
-            run_shap(X, y, best_name, target, combined_plots)
+            sv = run_shap(X, y, best_name, target, combined_plots)
+            if sv is not None:
+                # Reconstruct X_imputed from the same pipeline steps as run_shap does
+                from sklearn.impute import SimpleImputer
+                imp = SimpleImputer(strategy="median").fit(X)
+                X_imp = pd.DataFrame(imp.transform(X), columns=X.columns)
+                run_shap_dependence(sv, X_imp, target, combined_plots, top_n=2)
+
+            # Learning curves
+            run_learning_curves(X, y, target, combined_plots)
 
             # SHAP — per participant
             for p in participants:

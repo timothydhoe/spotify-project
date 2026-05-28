@@ -1,0 +1,35 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - tabpanel [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: PROJECT R.E.M.
+          - generic [ref=e19]: MoodTune
+          - paragraph [ref=e20]: Kies een willekeurig moment uit de wearables-data. Het ML-model berekent op basis van de biometrische staat op dat moment welk afspeellijsttype de beste stemmingsverbetering zou opleveren.
+        - generic [ref=e22]:
+          - generic [ref=e23]: Kies een moment
+          - paragraph [ref=e24]: Selecteer een datum en uur. Het model zoekt de werkelijke biometrische waarden op uit de wearables-data.
+          - generic [ref=e25]:
+            - generic [ref=e26]: Datum
+            - textbox "Datum" [ref=e27]: 2026-01-01
+          - generic [ref=e29]:
+            - generic [ref=e30]: Uur van de dag
+            - generic [ref=e32]:
+              - generic [ref=e34]: 0h
+              - generic [ref=e35]: 23h
+              - generic [ref=e36]: 8h
+            - textbox "Uur van de dag" [ref=e39]: "8"
+          - button "Willekeurig moment" [ref=e41] [cursor=pointer]
+        - button "Genereer afspeellijst" [ref=e46] [cursor=pointer]:
+          - generic [ref=e47]: Genereer afspeellijst
+    - generic [ref=e50]:
+      - generic [ref=e55]: MoodTune
+      - generic [ref=e57]: "- -"

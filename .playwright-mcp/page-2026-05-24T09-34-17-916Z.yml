@@ -1,0 +1,105 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Wetenschap" [ref=e8] [cursor=pointer]
+        - tab "Pipeline" [ref=e9] [cursor=pointer]
+        - tab "Circadiaan" [ref=e10] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e11] [cursor=pointer]
+        - tab "Afspelen" [ref=e12] [cursor=pointer]
+        - tab "Resultaten" [active] [selected] [ref=e13] [cursor=pointer]
+        - tab "Model" [ref=e14] [cursor=pointer]
+  - tabpanel [ref=e698]:
+    - generic [ref=e699]:
+      - generic [ref=e702]:
+        - button "Bosbes" [ref=e703] [cursor=pointer]
+        - generic "Geen sessiedata voor deze deelnemer" [ref=e704]:
+          - button "Kiwi"
+        - button "Kokosnoot" [ref=e705] [cursor=pointer]
+        - button "Limoen" [ref=e706] [cursor=pointer]
+        - button "Peer" [ref=e707] [cursor=pointer]
+        - generic "Geen sessiedata voor deze deelnemer" [ref=e708]:
+          - button "Watermeloen"
+      - generic [ref=e710]:
+        - generic [ref=e711]: R.E.M.-profiel van Bosbes
+        - generic [ref=e712]: 8 sessies - Project R.E.M.
+      - generic [ref=e715]:
+        - generic [ref=e716]:
+          - generic [ref=e717]:
+            - generic [ref=e718]: "8"
+            - generic [ref=e719]: Voltooide sessies
+            - generic [ref=e720]: totaal
+          - generic [ref=e721]:
+            - generic [ref=e722]: +0.2 pt
+            - generic [ref=e723]: Gem. stemmingsverbetering
+            - generic [ref=e724]: per sessie gemiddeld
+          - generic [ref=e725]:
+            - generic [ref=e726]: 100%
+            - generic [ref=e727]: Voltooiingspercentage
+            - generic [ref=e728]: 8 van ~8 geplande sessies
+        - generic [ref=e729]:
+          - generic [ref=e730]:
+            - generic [ref=e731]: +50 min
+            - generic [ref=e732]: Herstelvoordeel
+            - generic [ref=e733]: sneller dan jouw basislijn
+          - generic [ref=e734]:
+            - generic [ref=e735]: 1:00
+            - generic [ref=e736]: Jouw Gouden Uur
+            - generic [ref=e737]: Laagste stress
+          - generic [ref=e738]:
+            - generic [ref=e739]: 12-14:00
+            - generic [ref=e740]: Piekstressvenster
+            - generic [ref=e741]: Vermijd zware taken
+      - generic [ref=e743]:
+        - generic [ref=e744]: Stemmingsverbetering per afspeellijsttype
+        - generic [ref=e745]: Gemiddelde stemmingsdelta (na - voor) per type - hover voor N sessies
+        - generic [ref=e749]:
+          - img:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: "-1.0"
+                          - generic:
+                            - generic: "+0.0"
+                          - generic:
+                            - generic: "+2.0"
+                - generic:
+                  - generic:
+                    - generic: −1
+                  - generic:
+                    - generic: −0.5
+                  - generic:
+                    - generic: "0"
+                  - generic:
+                    - generic: "0.5"
+                  - generic:
+                    - generic: "1"
+                  - generic:
+                    - generic: "1.5"
+                  - generic:
+                    - generic: "2"
+                - generic:
+                  - generic:
+                    - generic: Kalm
+                  - generic:
+                    - generic: Energiek
+                  - generic:
+                    - generic: Neutraal
+          - img:
+            - generic:
+              - generic:
+                - generic: Gem. stemmingsverbetering (pt)
+          - toolbar [ref=e763]:
+            - link "plotly-logomark" [ref=e765] [cursor=pointer]:
+              - /url: https://plotly.com/
+              - img "plotly-logomark" [ref=e766]
+          - img
+      - generic [ref=e779]: "\"Jouw muziek is jouw medicijn.\""
+  - img [ref=e238]

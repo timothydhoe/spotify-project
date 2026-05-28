@@ -1,0 +1,51 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Science" [ref=e8] [cursor=pointer]
+        - tab "Circadian" [ref=e9] [cursor=pointer]
+        - tab "Recommend" [ref=e10] [cursor=pointer]
+        - tab "Replay" [ref=e11] [cursor=pointer]
+        - tab "Results" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e16]:
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: PROJECT R.E.M.
+        - generic [ref=e20]: What if music could regulate your stress?
+        - paragraph [ref=e21]: We tested whether ISO-ordered, personalized Spotify playlists can measurably reduce physiological stress — and tracked every heartbeat to find out.
+        - link "See the Science ↗" [ref=e23] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e24]:
+        - generic [ref=e25]: HOW IT WORKS
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: 💓
+            - generic [ref=e29]: Stress Detected
+            - generic [ref=e30]: Smartwatch measures your HRV & stress level
+          - generic [ref=e31]: →
+          - generic [ref=e32]:
+            - generic [ref=e33]: 🎵
+            - generic [ref=e34]: ISO Playlist Generated
+            - generic [ref=e35]: Songs ordered to gradually guide your arousal toward calm
+          - generic [ref=e36]: →
+          - generic [ref=e37]:
+            - generic [ref=e38]: 📉
+            - generic [ref=e39]: Recovery Measured
+            - generic [ref=e40]: Biometrics tracked 60 min post-session
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]: "6"
+          - generic [ref=e44]: Participants
+        - generic [ref=e45]:
+          - generic [ref=e46]: "47"
+          - generic [ref=e47]: Sessions
+        - generic [ref=e48]:
+          - generic [ref=e49]: "8"
+          - generic [ref=e50]: Weeks
+        - generic [ref=e51]:
+          - generic [ref=e52]: "3"
+          - generic [ref=e53]: Playlist Types
+      - generic [ref=e54]: All analysis is open-source. Data anonymized with fruit codenames.

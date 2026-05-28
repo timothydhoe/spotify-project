@@ -627,7 +627,10 @@ if __name__ == "__main__":
 
     export_dir = args.export or base / "raw" / "export"
     out_dir    = args.out    or base / "processed"
-    checkin    = args.checkin or next((root / "data" / "check_in").glob("*.csv"), None)
+    checkin    = args.checkin or next(
+        (f for f in (root / "data" / "checkins").glob("*.csv")
+         if not f.name.startswith("_")), None
+    )
 
     if not export_dir.exists():
         sys.exit(f"✗ Export not found: {export_dir}\n"

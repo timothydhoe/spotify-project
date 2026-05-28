@@ -1,0 +1,174 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [selected] [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e1393]:
+      - generic [ref=e1394]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e1395] [cursor=pointer]
+      - button "Kiwi ○" [ref=e1396] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e1397] [cursor=pointer]
+      - button "Limoen ◑" [ref=e1398] [cursor=pointer]
+      - button "Peer ◑" [ref=e1399] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e1400] [cursor=pointer]
+      - generic [ref=e1401]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e814]:
+      - tablist [ref=e815]:
+        - tab "Resultaten" [ref=e816] [cursor=pointer]
+        - tab "Sessie-replay" [selected] [ref=e817] [cursor=pointer]
+        - tab "Circadiaans ritme" [ref=e818] [cursor=pointer]
+      - tabpanel [ref=e1280]:
+        - generic [ref=e1281]:
+          - generic [ref=e1282]:
+            - generic [ref=e1283]: Selecteer sessie
+            - generic [ref=e1285]:
+              - button "< Vorige" [ref=e1402] [cursor=pointer]
+              - combobox [ref=e1290]:
+                - option "di 10 mrt. 2026 Energiek"
+                - option "do 5 mrt. 2026 Energiek"
+                - option "di 3 mrt. 2026 Kalm"
+                - option "ma 2 mrt. 2026 —" [selected]
+                - option "ma 23 feb. 2026 Energiek"
+                - option "di 17 feb. 2026 Neutraal"
+                - option "di 3 feb. 2026 Energiek"
+                - option "vr 30 jan. 2026 Kalm"
+              - generic [ref=e1291]:
+                - button "Volgende >"
+              - generic [ref=e1403]:
+                - generic [ref=e1404]: ENERGIEK
+                - generic [ref=e1405]: Sessie 8 van 8
+          - generic [ref=e1406]:
+            - generic [ref=e1407]:
+              - generic [ref=e1408]: di 10 mrt. 2026
+              - generic [ref=e1409]: Datum
+            - generic [ref=e1410]:
+              - generic [ref=e1411]: 08:03
+              - generic [ref=e1412]: Starttijd
+            - generic [ref=e1413]:
+              - generic [ref=e1414]: 37 min
+              - generic [ref=e1415]: Duur
+            - generic [ref=e1416]:
+              - text: ENERGIEK
+              - generic [ref=e1417]: Afspeellijst
+          - generic [ref=e1418]:
+            - generic [ref=e1419]: ✗
+            - generic [ref=e1420]: Stemming gedaald -2 pt
+          - generic [ref=e1421]:
+            - generic [ref=e1422]:
+              - generic [ref=e1423]: VOOR
+              - generic [ref=e1424]: 59 min
+            - generic [ref=e1425]:
+              - generic [ref=e1426]: TIJDENS SESSIE
+              - generic [ref=e1427]: 37 min
+            - generic [ref=e1428]:
+              - generic [ref=e1429]: NA
+              - generic [ref=e1430]: 59 min
+          - generic [ref=e1433]:
+            - img:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: −60
+                    - generic:
+                      - generic: −40
+                    - generic:
+                      - generic: −20
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "20"
+                    - generic:
+                      - generic: "40"
+                    - generic:
+                      - generic: "60"
+                    - generic:
+                      - generic: "80"
+                  - generic:
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "20"
+                    - generic:
+                      - generic: "40"
+                    - generic:
+                      - generic: "60"
+                    - generic:
+                      - generic: "80"
+                    - generic:
+                      - generic: "100"
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: "40"
+                      - generic:
+                        - generic: "60"
+                      - generic:
+                        - generic: "80"
+                      - generic:
+                        - generic: "100"
+                      - generic:
+                        - generic: "120"
+            - img:
+              - generic:
+                - generic [ref=e1454]:
+                  - generic [ref=e1456]: Stress
+                  - generic [ref=e1459]: Hartslag
+                - generic:
+                  - generic: Minuten t.o.v. sessiestart
+                - generic:
+                  - generic: Stress (0-100)
+                - generic:
+                  - generic: Hartslag (bpm)
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Ontmoeting
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: De-escalatie
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Regulatie
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Landing
+            - toolbar [ref=e1461]:
+              - link "plotly-logomark" [ref=e1463] [cursor=pointer]:
+                - /url: https://plotly.com/
+                - img "plotly-logomark" [ref=e1464]
+            - img
+          - generic [ref=e1477]:
+            - generic [ref=e1478]:
+              - generic [ref=e1479]: Voor
+              - generic [ref=e1480]: 😟
+              - generic [ref=e1481]: Gestresseerd of gespannen
+              - generic [ref=e1482]: 8/10
+            - generic [ref=e1483]:
+              - generic [ref=e1484]: "->"
+              - generic [ref=e1485]: "-2 pt"
+            - generic [ref=e1486]:
+              - generic [ref=e1487]: Na
+              - generic [ref=e1488]: 😟
+              - generic [ref=e1489]: Gestresseerd of gespannen
+              - generic [ref=e1490]: 6/10
+          - generic [ref=e1492]:
+            - generic [ref=e1493]: ~ minuten
+            - generic [ref=e1494]: sneller herstel dan jouw circadiane basislijn
+            - group [ref=e1495]:
+              - generic "Technische details" [ref=e1496] [cursor=pointer]
+          - emphasis [ref=e1392]: Dit zijn jouw werkelijke fysiologische gegevens. Niets is gesimuleerd of geinterpoleerd.
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e74]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e194]

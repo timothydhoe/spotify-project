@@ -1,0 +1,133 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Science" [ref=e8] [cursor=pointer]
+        - tab "Circadian" [ref=e9] [cursor=pointer]
+        - tab "Recommend" [ref=e10] [cursor=pointer]
+        - tab "Replay" [active] [selected] [ref=e11] [cursor=pointer]
+        - tab "Results" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e573]:
+    - generic [ref=e574]:
+      - generic [ref=e576]:
+        - generic [ref=e577]: "Select Session:"
+        - combobox [ref=e581]:
+          - option "bosbes" [selected]
+          - option "kiwi"
+          - option "kokosnoot"
+          - option "limoen"
+          - option "peer"
+          - option "watermeloen"
+        - combobox [ref=e585]:
+          - option "2026-03-10" [selected]
+          - option "2026-03-05"
+          - option "2026-03-03"
+          - option "2026-03-02"
+          - option "2026-02-23"
+          - option "2026-02-17"
+          - option "2026-02-03"
+          - option "2026-01-30"
+        - generic [ref=e587]: ENERGY
+      - generic [ref=e588]:
+        - generic [ref=e589]: PRE
+        - generic [ref=e590]: DURING SESSION
+        - generic [ref=e591]: POST
+      - generic [ref=e596]:
+        - img:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: −60
+                - generic:
+                  - generic: −40
+                - generic:
+                  - generic: −20
+                - generic:
+                  - generic: "0"
+                - generic:
+                  - generic: "20"
+                - generic:
+                  - generic: "40"
+                - generic:
+                  - generic: "60"
+                - generic:
+                  - generic: "80"
+              - generic:
+                - generic:
+                  - generic: "0"
+                - generic:
+                  - generic: "20"
+                - generic:
+                  - generic: "40"
+                - generic:
+                  - generic: "60"
+                - generic:
+                  - generic: "80"
+                - generic:
+                  - generic: "100"
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: "40"
+                  - generic:
+                    - generic: "60"
+                  - generic:
+                    - generic: "80"
+                  - generic:
+                    - generic: "100"
+                  - generic:
+                    - generic: "120"
+        - img:
+          - generic:
+            - generic [ref=e617]:
+              - generic [ref=e619]: Stress
+              - generic [ref=e622]: Heart Rate
+            - generic:
+              - generic: Minutes relative to session start
+            - generic:
+              - generic: Stress (0–100)
+            - generic:
+              - generic: Heart Rate (bpm)
+        - toolbar [ref=e624]:
+          - button "Download plot as a PNG" [ref=e626] [cursor=pointer]:
+            - img [ref=e627]
+          - generic [ref=e629]:
+            - button "Zoom" [ref=e630] [cursor=pointer]:
+              - img [ref=e631]
+            - button "Pan" [ref=e633] [cursor=pointer]:
+              - img [ref=e634]
+          - generic [ref=e636]:
+            - button "Zoom in" [ref=e637] [cursor=pointer]:
+              - img [ref=e638]
+            - button "Zoom out" [ref=e640] [cursor=pointer]:
+              - img [ref=e641]
+            - button "Autoscale" [ref=e643] [cursor=pointer]:
+              - img [ref=e644]
+            - button "Reset axes" [ref=e646] [cursor=pointer]:
+              - img [ref=e647]
+          - link "plotly-logomark" [ref=e650] [cursor=pointer]:
+            - /url: https://plotly.com/
+            - img "plotly-logomark" [ref=e651]
+        - img
+      - generic [ref=e665]:
+        - generic [ref=e666]:
+          - generic [ref=e667]: Before
+          - generic [ref=e668]: 😟
+          - generic [ref=e669]: Stressed 8/10
+        - generic [ref=e670]:
+          - generic [ref=e671]: →
+          - generic [ref=e672]: "-2 pts"
+        - generic [ref=e673]:
+          - generic [ref=e674]: After
+          - generic [ref=e675]: 😟
+          - generic [ref=e676]: Stressed 6/10
+      - generic [ref=e679]:
+        - generic [ref=e680]: +78 minutes
+        - generic [ref=e681]: faster recovery than your circadian baseline
+        - generic [ref=e682]: τ_expected = 98 min · τ_actual = 20 min · R² = 0.01
+      - emphasis [ref=e684]: This is your actual physiological data. Nothing is simulated or interpolated.
+  - img [ref=e186]

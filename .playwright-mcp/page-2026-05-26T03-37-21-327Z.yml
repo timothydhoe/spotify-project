@@ -1,0 +1,65 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e58]:
+      - generic [ref=e59]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e60] [cursor=pointer]
+      - button "Kiwi ○" [ref=e61] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e62] [cursor=pointer]
+      - button "Limoen ◑" [ref=e63] [cursor=pointer]
+      - button "Peer ◑" [ref=e64] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e65] [cursor=pointer]
+      - generic [ref=e66]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: PROJECT R.E.M.
+          - generic [ref=e19]: MoodTune
+          - paragraph [ref=e20]: Kies een willekeurig moment uit de wearables-data. Het ML-model berekent op basis van de biometrische staat op dat moment welk afspeellijsttype de beste stemmingsverbetering zou opleveren.
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Kies een moment
+            - paragraph [ref=e24]: Selecteer een datum en uur. Het model zoekt de werkelijke biometrische waarden op uit de wearables-data.
+            - generic [ref=e25]:
+              - generic [ref=e26]: Datum
+              - textbox "Datum" [ref=e27]: 2026-01-14
+            - generic [ref=e29]:
+              - generic [ref=e30]: Uur van de dag
+              - generic [ref=e68]:
+                - generic [ref=e70]: 0h
+                - generic [ref=e71]: 23h
+                - generic [ref=e72]: 18h
+              - textbox "Uur van de dag" [ref=e39]: "18"
+            - button "Willekeurig moment" [active] [ref=e41] [cursor=pointer]
+            - generic [ref=e75]:
+              - generic [ref=e76]: Staat van Bosbes op wo 14 jan. 2026 om 18:00
+              - generic [ref=e77]:
+                - generic [ref=e78]:
+                  - generic [ref=e79]: 18/100
+                  - generic [ref=e80]: Stress
+                - generic [ref=e81]:
+                  - generic [ref=e82]: 42%
+                  - generic [ref=e83]: Body Battery
+                - generic [ref=e84]:
+                  - generic [ref=e85]: "-8.3"
+                  - generic [ref=e86]: Circad. afwijking
+          - generic [ref=e87]:
+            - generic [ref=e88]: ML-aanbeveling (Ridge)
+            - generic [ref=e89]:
+              - generic [ref=e90]: ENERGIEK
+              - generic [ref=e91]: ISO — Stijgend BPM
+            - generic [ref=e92]: "Voorspelde stemmingswinst — Energiek: +0.4 pt · Kalm: -0.1 pt · Neutraal: -0.2 pt"
+        - button "Genereer afspeellijst" [ref=e46] [cursor=pointer]:
+          - generic [ref=e47]: Genereer afspeellijst
+    - generic [ref=e50]:
+      - generic [ref=e53]:
+        - generic [ref=e93]: Selecteer een afspeellijst
+        - generic [ref=e55]: MoodTune
+      - generic [ref=e57]: "- -"

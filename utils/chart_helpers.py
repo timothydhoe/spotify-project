@@ -1,22 +1,22 @@
 """Shared Plotly layout factories and color constants."""
 import plotly.graph_objects as go
 
-# Design system tokens
-BG_BASE     = "#0f0f0f"
-BG_CARD     = "#1e1e1e"
-BG_ELEVATED = "#2a2a2a"
-ACCENT      = "#22c55e"
-TEXT_PRIMARY   = "#f5f5f5"
-TEXT_SECONDARY = "rgba(255,255,255,0.65)"
-TEXT_TERTIARY  = "rgba(255,255,255,0.4)"
-STRESS_RED  = "#ef4444"
-GRID_COLOR  = "rgba(255,255,255,0.06)"
-ZERO_COLOR  = "rgba(255,255,255,0.1)"
+# Design system tokens — light mode
+BG_BASE     = "#f4f2ee"
+BG_CARD     = "#ffffff"
+BG_ELEVATED = "#ede9e3"
+ACCENT      = "#16a34a"
+TEXT_PRIMARY   = "#111827"
+TEXT_SECONDARY = "#6b7280"
+TEXT_TERTIARY  = "#9ca3af"
+STRESS_RED  = "#dc2626"
+GRID_COLOR  = "rgba(0,0,0,0.06)"
+ZERO_COLOR  = "rgba(0,0,0,0.10)"
 
 # Legacy aliases
 BG_PRIMARY   = BG_BASE
 ACCENT_GREEN = ACCENT
-BORDER       = "rgba(255,255,255,0.08)"
+BORDER       = "rgba(0,0,0,0.08)"
 
 PLAYLIST_COLORS = {
     "Calm":    "#3b82f6",
@@ -59,9 +59,9 @@ PLOTLY_LAYOUT = dict(
         borderwidth=0,
     ),
     hoverlabel=dict(
-        bgcolor=BG_ELEVATED,
+        bgcolor=BG_CARD,
         font_color=TEXT_PRIMARY,
-        bordercolor=GRID_COLOR,
+        bordercolor=BORDER,
     ),
     modebar=dict(
         remove=[

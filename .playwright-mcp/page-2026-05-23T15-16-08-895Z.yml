@@ -1,0 +1,118 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Science" [ref=e8] [cursor=pointer]
+        - tab "Circadian" [ref=e9] [cursor=pointer]
+        - tab "Recommend" [ref=e10] [cursor=pointer]
+        - tab "Replay" [active] [selected] [ref=e11] [cursor=pointer]
+        - tab "Results" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e390]:
+    - generic [ref=e391]:
+      - generic [ref=e393]:
+        - generic [ref=e394]: "Select Session:"
+        - combobox [ref=e398]:
+          - option "bosbes" [selected]
+          - option "kiwi"
+          - option "kokosnoot"
+          - option "limoen"
+          - option "peer"
+          - option "watermeloen"
+        - combobox [ref=e402]:
+          - option "2026-03-10" [selected]
+          - option "2026-03-05"
+          - option "2026-03-03"
+          - option "2026-03-02"
+          - option "2026-02-23"
+          - option "2026-02-17"
+          - option "2026-02-03"
+          - option "2026-01-30"
+        - generic [ref=e404]: ENERGY
+      - generic [ref=e405]:
+        - generic [ref=e406]: PRE
+        - generic [ref=e407]: DURING SESSION
+        - generic [ref=e408]: POST
+      - generic [ref=e413]:
+        - img:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic: −60
+                - generic:
+                  - generic: −40
+                - generic:
+                  - generic: −20
+                - generic:
+                  - generic: "0"
+                - generic:
+                  - generic: "20"
+                - generic:
+                  - generic: "40"
+                - generic:
+                  - generic: "60"
+                - generic:
+                  - generic: "80"
+              - generic:
+                - generic:
+                  - generic: "0"
+                - generic:
+                  - generic: "20"
+                - generic:
+                  - generic: "40"
+                - generic:
+                  - generic: "60"
+                - generic:
+                  - generic: "80"
+                - generic:
+                  - generic: "100"
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: "40"
+                  - generic:
+                    - generic: "60"
+                  - generic:
+                    - generic: "80"
+                  - generic:
+                    - generic: "100"
+                  - generic:
+                    - generic: "120"
+        - img:
+          - generic:
+            - generic [ref=e434]:
+              - generic [ref=e436]: Stress
+              - generic [ref=e439]: Heart Rate
+            - generic:
+              - generic: Minutes relative to session start
+            - generic:
+              - generic: Stress (0–100)
+            - generic:
+              - generic: Heart Rate (bpm)
+        - toolbar [ref=e441]:
+          - link "plotly-logomark" [ref=e443] [cursor=pointer]:
+            - /url: https://plotly.com/
+            - img "plotly-logomark" [ref=e444]
+        - img
+      - generic [ref=e458]:
+        - generic [ref=e459]:
+          - generic [ref=e460]: Before
+          - generic [ref=e461]: 😟
+          - generic [ref=e462]: Stressed 8/10
+        - generic [ref=e463]:
+          - generic [ref=e464]: →
+          - generic [ref=e465]: "-2 pts"
+        - generic [ref=e466]:
+          - generic [ref=e467]: After
+          - generic [ref=e468]: 😟
+          - generic [ref=e469]: Stressed 6/10
+      - generic [ref=e472]:
+        - generic [ref=e473]: +78 minutes
+        - generic [ref=e474]: faster recovery than your circadian baseline
+        - generic [ref=e475]: τ_expected = 98 min · τ_actual = 20 min · R² = 0.01
+        - generic [ref=e476]: Low R² — recovery curve is noisy; τ estimate is approximate.
+      - emphasis [ref=e478]: This is your actual physiological data. Nothing is simulated or interpolated.
+  - img [ref=e163]

@@ -47,6 +47,11 @@ VALENCE_MAP = {
     "happy": 1,
     "happy - gemotiveerd": 1,
     "goed gevoel": 1,
+    "relax": 1,
+    "positief": 1,
+    # Negative (-1) — additional variants observed in check-in data
+    "verdrietig": -1,
+    "overspannen - geen gevoelens": -1,
 }
 
 PLAYLIST_MAP = {"Calm": 0, "Neutral": 1, "Energy": 2}
@@ -94,7 +99,7 @@ def load_checkin_sessions() -> pd.DataFrame:
     # Try both known paths
     for checkin_path in [
         DATA_ROOT / "check_in" / "check_in.csv",
-        DATA_ROOT / "checkins" / "Check-in_formulier_REM.csv",
+        DATA_ROOT / "checkins" / "_old_Check-in_formulier_REM.csv",
     ]:
         if checkin_path.exists():
             break
@@ -135,11 +140,13 @@ def load_checkin_sessions() -> pd.DataFrame:
             "intensity_after": intensity_after,
             "mood_before_composite": composite_mood(emotion_before, intensity_before),
             "mood_after_composite": composite_mood(emotion_after, intensity_after),
+            # Use direct intensity delta (valence-label-independent) to avoid
+            # systematic bias from emotion_valence × intensity formula.
+            "mood_delta": intensity_after - intensity_before,
             "hour_of_day": hour,
         })
 
     df = pd.DataFrame(rows)
-    df["mood_delta"] = df["mood_after_composite"] - df["mood_before_composite"]
     return df
 
 
@@ -174,13 +181,12 @@ def build_model_data(participants_with_bio: list[str] | None = None) -> pd.DataF
                 ]
 
                 if not ci_match.empty:
-                    # Use check-in data (has emotion strings)
                     ci_row = ci_match.iloc[0]
                     mood_before_comp = ci_row["mood_before_composite"]
                     mood_after_comp = ci_row["mood_after_composite"]
-                    mood_delta = ci_row["mood_delta"]
+                    # Use direct intensity delta (valence-label-independent)
+                    mood_delta = ci_row["intensity_after"] - ci_row["intensity_before"]
                 else:
-                    # Fallback: use raw intensity scores from biometrics (assume neutral)
                     mood_before_comp = 0.0
                     mood_after_comp = 0.0
                     mood_delta = float(r["mood_after_score"]) - float(r["mood_before_score"])
@@ -287,8 +293,10 @@ def build_hierarchical_model(data: pd.DataFrame, participant_codes: list[str]):
         mu_alpha = pm.Normal("mu_alpha", mu=0, sigma=5)
         sigma_alpha = pm.HalfNormal("sigma_alpha", sigma=2)
 
-        # Group-level playlist effects -- one per playlist type
-        mu_playlist = pm.Normal("mu_playlist", mu=0, sigma=5, shape=n_playlists)
+        # Group-level playlist effects -- weakly informative prior (sigma=1
+        # instead of sigma=5) to prevent imbalanced session counts from
+        # overwhelming the group mean.
+        mu_playlist = pm.Normal("mu_playlist", mu=0, sigma=1, shape=n_playlists)
         sigma_playlist = pm.HalfNormal("sigma_playlist", sigma=2)
 
         # ── Participant-level (non-centered parameterization) ────────────
@@ -667,6 +675,47 @@ def main():
     # Save trace summary
     summary.to_csv(out_dir / "parameter_summary.csv")
     print(f"  -> parameter_summary.csv")
+
+    # Bayesian diagnostics: R-hat and trace plots
+    diag_dir = out_dir / "plots"
+    diag_dir.mkdir(parents=True, exist_ok=True)
+
+    try:
+        # R-hat convergence plot
+        fig, ax = plt.subplots(figsize=(8, 4))
+        rhat_vals = summary["r_hat"].dropna().sort_values(ascending=False).head(20)
+        colors = ["#ef4444" if v >= 1.01 else "#22c55e" for v in rhat_vals.values]
+        ax.barh(range(len(rhat_vals)), rhat_vals.values, color=colors)
+        ax.set_yticks(range(len(rhat_vals)))
+        ax.set_yticklabels([n[:40] for n in rhat_vals.index], fontsize=8)
+        ax.axvline(1.01, color="#f59e0b", linestyle="--", lw=1.5, label="R̂ = 1.01 drempel")
+        ax.axvline(1.0, color="white", linestyle=":", lw=1, alpha=0.4)
+        ax.set_xlabel("R̂ (Gelman-Rubin convergentiestatistiek)")
+        ax.set_title("Bayesiaanse diagnostiek — R̂ per parameter (top 20)")
+        ax.legend(fontsize=8)
+        fig.tight_layout()
+        rhat_path = diag_dir / "rhat_diagnostics.png"
+        fig.savefig(rhat_path, dpi=150, bbox_inches="tight", facecolor="#111827")
+        plt.close(fig)
+        print(f"  -> {rhat_path}")
+    except Exception as e:
+        print(f"  R-hat plot failed: {e}")
+
+    try:
+        # Trace plot for key population-level parameters
+        key_vars = [v for v in trace.posterior.data_vars
+                    if any(kw in v for kw in ("mu_", "sigma_", "alpha"))][:6]
+        if key_vars:
+            axes = az.plot_trace(trace, var_names=key_vars, combined=False, figsize=(12, 2 * len(key_vars)))
+            fig = axes.ravel()[0].get_figure()
+            fig.suptitle("MCMC trace — populatieniveau-parameters", fontsize=11, y=1.01)
+            fig.tight_layout()
+            trace_path = diag_dir / "mcmc_trace.png"
+            fig.savefig(trace_path, dpi=120, bbox_inches="tight", facecolor="#111827")
+            plt.close(fig)
+            print(f"  -> {trace_path}")
+    except Exception as e:
+        print(f"  Trace plot failed: {e}")
 
     # Per-participant recommendations and plots
     print(f"\n  Recommendations:")

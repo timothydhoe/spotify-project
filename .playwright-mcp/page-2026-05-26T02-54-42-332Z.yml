@@ -1,0 +1,25 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - tabpanel [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: PROJECT R.E.M.
+          - generic [ref=e19]: MoodTune
+          - paragraph [ref=e20]: Selecteer een sessie-moment. Het ML-model berekent op basis van de biometrische staat van dat moment welk afspeellijsttype de beste stemmingsverbetering zou hebben opgeleverd.
+        - generic [ref=e22]:
+          - generic [ref=e23]: Selecteer een moment
+          - paragraph [ref=e24]: Kies een sessie uit de historische data. De biometrische staat op dat moment wordt weergegeven.
+          - combobox [ref=e27]
+        - button "Genereer afspeellijst" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: Genereer afspeellijst
+    - generic [ref=e36]:
+      - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"

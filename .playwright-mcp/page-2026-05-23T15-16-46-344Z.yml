@@ -1,0 +1,122 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Science" [selected] [ref=e8] [cursor=pointer]
+        - tab "Circadian" [ref=e9] [cursor=pointer]
+        - tab "Recommend" [ref=e10] [cursor=pointer]
+        - tab "Replay" [ref=e11] [cursor=pointer]
+        - tab "Results" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e55]:
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]: The Science Behind MoodTune
+        - paragraph [ref=e59]: ISO principle from music therapy — don't jump to the target state, gradually transition toward it.
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]: The ISO Principle
+          - paragraph [ref=e64]: Music therapy uses gradual BPM and energy matching to lead the listener's arousal from their current state toward a target state. Rather than playing calming music when someone is stressed, the ISO principle starts where you are and steps you down gradually — the way a thermostat ramps, not switches.
+          - emphasis [ref=e66]: "\"Self-chosen music is significantly more effective at emotion regulation than unfamiliar selections\""
+        - generic [ref=e67]:
+          - generic [ref=e71]:
+            - img:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "5"
+                    - generic:
+                      - generic: "10"
+                    - generic:
+                      - generic: "15"
+                    - generic:
+                      - generic: "20"
+                    - generic:
+                      - generic: "25"
+                    - generic:
+                      - generic: "30"
+                  - generic:
+                    - generic:
+                      - generic: "40"
+                    - generic:
+                      - generic: "60"
+                    - generic:
+                      - generic: "80"
+                    - generic:
+                      - generic: "100"
+                    - generic:
+                      - generic: "120"
+                    - generic:
+                      - generic: "140"
+                    - generic:
+                      - generic: "160"
+                    - generic:
+                      - generic: "180"
+            - img:
+              - generic:
+                - generic [ref=e88]:
+                  - generic [ref=e90]: Calm
+                  - generic [ref=e93]: Neutral
+                  - generic [ref=e96]: Energy
+                - generic:
+                  - generic: Minutes
+                - generic:
+                  - generic: BPM
+            - toolbar [ref=e98]:
+              - link "plotly-logomark" [ref=e100] [cursor=pointer]:
+                - /url: https://plotly.com/
+                - img "plotly-logomark" [ref=e101]
+            - img
+          - generic [ref=e114]: Calm descends from ~95 → 55 BPM · Neutral holds steady at ~105 BPM · Energy ascends from ~120 → 165 BPM over 30 minutes.
+      - generic [ref=e116]:
+        - generic [ref=e117]: 6 Spotify Audio Features Used
+        - generic [ref=e118]:
+          - generic [ref=e119]:
+            - generic [ref=e120]: Tempo (BPM)
+            - generic [ref=e121]: Primary filter — defines playlist category boundary
+          - generic [ref=e122]:
+            - generic [ref=e123]: Energy (0–1)
+            - generic [ref=e124]: Perceptual intensity — how energetic it feels
+          - generic [ref=e125]:
+            - generic [ref=e126]: Valence (0–1)
+            - generic [ref=e127]: Musical positivity — minimum threshold on energy playlist
+          - generic [ref=e128]:
+            - generic [ref=e129]: Danceability (0–1)
+            - generic [ref=e130]: Beat regularity — used to reinforce energy playlist
+          - generic [ref=e131]:
+            - generic [ref=e132]: Acousticness (0–1)
+            - generic [ref=e133]: Acoustic vs electronic — tunable for calm
+          - generic [ref=e134]:
+            - generic [ref=e135]: Loudness (dB)
+            - generic [ref=e136]: Volume dynamics — min/max per playlist type
+      - generic [ref=e138]:
+        - generic [ref=e139]: Default Parameters
+        - table [ref=e140]:
+          - rowgroup [ref=e141]:
+            - row "Playlist Tempo Range Energy Range ISO Order" [ref=e142]:
+              - columnheader "Playlist" [ref=e143]
+              - columnheader "Tempo Range" [ref=e144]
+              - columnheader "Energy Range" [ref=e145]
+              - columnheader "ISO Order" [ref=e146]
+          - rowgroup [ref=e147]:
+            - row "Calm 50–95 BPM < 0.9 Descending BPM" [ref=e148]:
+              - cell "Calm" [ref=e149]
+              - cell "50–95 BPM" [ref=e150]
+              - cell "< 0.9" [ref=e151]
+              - cell "Descending BPM" [ref=e152]
+            - row "Neutral 95–115 BPM 0.2–0.8 Stable" [ref=e153]:
+              - cell "Neutral" [ref=e154]
+              - cell "95–115 BPM" [ref=e155]
+              - cell "0.2–0.8" [ref=e156]
+              - cell "Stable" [ref=e157]
+            - row "Energy 120–180 BPM > 0.7 Ascending BPM" [ref=e158]:
+              - cell "Energy" [ref=e159]
+              - cell "120–180 BPM" [ref=e160]
+              - cell "> 0.7" [ref=e161]
+              - cell "Ascending BPM" [ref=e162]
+  - img [ref=e163]

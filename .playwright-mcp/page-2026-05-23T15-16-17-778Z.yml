@@ -1,0 +1,102 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Science" [ref=e8] [cursor=pointer]
+        - tab "Circadian" [ref=e9] [cursor=pointer]
+        - tab "Recommend" [ref=e10] [cursor=pointer]
+        - tab "Replay" [ref=e11] [cursor=pointer]
+        - tab "Results" [active] [selected] [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e479]:
+    - generic [ref=e480]:
+      - generic [ref=e483]:
+        - button "Bosbes" [ref=e484] [cursor=pointer]
+        - generic "No session data collected for this participant" [ref=e485]:
+          - button "Kiwi"
+        - button "Kokosnoot" [ref=e486] [cursor=pointer]
+        - button "Limoen" [ref=e487] [cursor=pointer]
+        - button "Peer" [ref=e488] [cursor=pointer]
+        - generic "No session data collected for this participant" [ref=e489]:
+          - button "Watermeloen"
+      - generic [ref=e491]:
+        - generic [ref=e492]: Bosbes's R.E.M. Profile
+        - generic [ref=e493]: 8 sessions across 8 weeks · Project R.E.M.
+      - generic [ref=e496]:
+        - generic [ref=e497]:
+          - generic [ref=e498]:
+            - generic [ref=e499]: "8"
+            - generic [ref=e500]: Sessions Completed
+            - generic [ref=e501]: total sessions
+          - generic [ref=e502]:
+            - generic [ref=e503]: +0.2 pts
+            - generic [ref=e504]: Avg Mood Lift
+            - generic [ref=e505]: per session on average
+          - generic [ref=e506]:
+            - text: Energy
+            - generic [ref=e507]: Best Playlist
+            - generic [ref=e508]: 38% posterior confidence
+        - generic [ref=e509]:
+          - generic [ref=e510]:
+            - generic [ref=e511]: +50 min
+            - generic [ref=e512]: Recovery Advantage
+            - generic [ref=e513]: faster than your baseline
+          - generic [ref=e514]:
+            - generic [ref=e515]: 1:00
+            - generic [ref=e516]: Your Golden Hour
+            - generic [ref=e517]: Lowest stress, highest body battery
+          - generic [ref=e518]:
+            - generic [ref=e519]: 12–14:00
+            - generic [ref=e520]: Peak Stress Window
+            - generic [ref=e521]: Avoid heavy tasks
+      - generic [ref=e523]:
+        - generic [ref=e524]: Mood Lift by Playlist Type
+        - generic [ref=e528]:
+          - img:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: "-1.0"
+                          - generic:
+                            - generic: "+0.0"
+                          - generic:
+                            - generic: "+2.0"
+                - generic:
+                  - generic:
+                    - generic: −1
+                  - generic:
+                    - generic: −0.5
+                  - generic:
+                    - generic: "0"
+                  - generic:
+                    - generic: "0.5"
+                  - generic:
+                    - generic: "1"
+                  - generic:
+                    - generic: "1.5"
+                  - generic:
+                    - generic: "2"
+                - generic:
+                  - generic:
+                    - generic: Calm
+                  - generic:
+                    - generic: Energy
+                  - generic:
+                    - generic: Neutral
+          - img:
+            - generic:
+              - generic:
+                - generic: Avg mood lift (pts)
+          - toolbar [ref=e542]:
+            - link "plotly-logomark" [ref=e544] [cursor=pointer]:
+              - /url: https://plotly.com/
+              - img "plotly-logomark" [ref=e545]
+          - img
+  - img [ref=e163]

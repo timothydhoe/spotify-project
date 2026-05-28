@@ -1,0 +1,135 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Science" [ref=e8] [cursor=pointer]
+        - tab "Circadian" [ref=e9] [cursor=pointer]
+        - tab "Recommend" [selected] [ref=e10] [cursor=pointer]
+        - tab "Replay" [ref=e11] [cursor=pointer]
+        - tab "Results" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e55]:
+    - generic [ref=e56]:
+      - generic [ref=e57]:
+        - generic [ref=e58]: What Should You Listen To Right Now?
+        - paragraph [ref=e59]: Enter your current state and get a personalized ISO playlist recommendation.
+      - generic [ref=e61]:
+        - generic [ref=e62]:
+          - generic [ref=e63]: Your Current Context
+          - generic [ref=e64]: These inputs contextualize your recommendation — they don't change the Bayesian model, which is pre-sampled from your historical sessions.
+          - generic [ref=e65]:
+            - generic [ref=e66]:
+              - generic [ref=e67]: Stress Level
+              - generic [ref=e68]: "55"
+            - generic [ref=e69]:
+              - generic [ref=e71]:
+                - generic [ref=e73]: "0"
+                - generic [ref=e74]: "100"
+                - generic [ref=e75]: "55"
+              - textbox [ref=e78]: "55"
+            - generic [ref=e79]:
+              - generic [ref=e80]: 0 — Relaxed
+              - generic [ref=e81]: 100 — Highly Stressed
+          - generic [ref=e82]:
+            - generic [ref=e83]:
+              - generic [ref=e84]: Time of Day
+              - generic [ref=e85]: 17:00
+            - generic [ref=e86]:
+              - generic [ref=e88]:
+                - generic [ref=e90]: "0"
+                - generic [ref=e91]: "23"
+                - generic [ref=e92]: "17"
+              - textbox [ref=e95]: "17"
+            - generic [ref=e96]:
+              - generic [ref=e97]: 00:00
+              - generic [ref=e98]: 23:00
+          - generic [ref=e99]:
+            - generic [ref=e100]:
+              - generic [ref=e101]: Body Battery
+              - generic [ref=e102]: "40"
+            - generic [ref=e103]:
+              - generic [ref=e105]:
+                - generic [ref=e107]: "0"
+                - generic [ref=e108]: "100"
+                - generic [ref=e109]: "40"
+              - textbox [ref=e112]: "40"
+            - generic [ref=e113]: "Garmin Body Battery: 0 = fully depleted · 100 = fully rested"
+          - generic [ref=e114]:
+            - generic [ref=e115]: Activity State
+            - generic [ref=e117]:
+              - button "Sleep" [ref=e118] [cursor=pointer]
+              - button "Rest" [ref=e119] [cursor=pointer]
+              - button "Light" [ref=e120] [cursor=pointer]
+              - button "Medium" [ref=e121] [cursor=pointer]
+              - button "Heavy" [ref=e122] [cursor=pointer]
+          - generic [ref=e123]:
+            - generic [ref=e124]:
+              - generic [ref=e125]: Participant
+              - generic [ref=e126]: (Research Mode)
+            - combobox [ref=e129]:
+              - option "bosbes" [selected]
+              - option "kiwi"
+              - option "kokosnoot"
+              - option "limoen"
+              - option "peer"
+              - option "watermeloen"
+        - generic [ref=e130]:
+          - generic [ref=e131]: Recommendation
+          - generic [ref=e133]:
+            - generic [ref=e134]: ENERGY
+            - generic [ref=e135]: ISO Ascending
+          - generic [ref=e137]:
+            - generic [ref=e138]: Posterior Confidence
+            - generic [ref=e140]: 38%
+          - generic [ref=e147]:
+            - img:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: 38%
+                            - generic:
+                              - generic: 24%
+                            - generic:
+                              - generic: 38%
+                  - generic:
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "50"
+                    - generic:
+                      - generic: "100"
+                  - generic:
+                    - generic:
+                      - generic: Calm
+                    - generic:
+                      - generic: Neutral
+                    - generic:
+                      - generic: Energy
+            - img:
+              - generic:
+                - generic:
+                  - generic: Posterior probability (%)
+            - toolbar [ref=e161]:
+              - link "plotly-logomark" [ref=e163] [cursor=pointer]:
+                - /url: https://plotly.com/
+                - img "plotly-logomark" [ref=e164]
+            - img
+          - paragraph [ref=e177]: Posterior mean ± 89% credible interval
+          - generic [ref=e179]: At 17:00 with Medium activity, Energy is recommended (38% posterior probability for Bosbes). Your stress is +29 units above your 17:00 baseline.
+          - generic [ref=e180]:
+            - button "How was this calculated? ↓" [active] [ref=e181] [cursor=pointer]:
+              - generic [ref=e182]: How was this calculated? ↓
+            - generic [ref=e187]:
+              - generic [ref=e188]:
+                - generic [ref=e189]: "How your baseline deviation is calculated:"
+                - generic [ref=e190]: "Your stress input: 55 Expected at 17:00 (your historical baseline): 26"
+                - generic [ref=e191]: Deviation = 55 − 26 = +29 stress pts above baseline
+              - paragraph [ref=e192]: The Bayesian model uses Bosbes's historical session outcomes to estimate posterior probabilities for each playlist type via MCMC (2,000 samples). These posteriors are fixed — they don't update live. The deviation score explains why the recommendation makes sense given your current state.
+  - img [ref=e185]

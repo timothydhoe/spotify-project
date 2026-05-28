@@ -1,0 +1,69 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [active] [selected] [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e44]:
+      - generic [ref=e45]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e46] [cursor=pointer]
+      - button "Kiwi ○" [ref=e47] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e48] [cursor=pointer]
+      - button "Limoen ◑" [ref=e49] [cursor=pointer]
+      - button "Peer ◑" [ref=e50] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e51] [cursor=pointer]
+      - generic [ref=e52]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: PROJECT R.E.M.
+          - generic [ref=e19]: MoodTune
+          - paragraph [ref=e20]: Selecteer een sessie-moment. Het ML-model berekent op basis van de biometrische staat van dat moment welk afspeellijsttype de beste stemmingsverbetering zou hebben opgeleverd.
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Selecteer een moment
+            - paragraph [ref=e24]: Kies een sessie uit de historische data. De biometrische staat op dat moment wordt weergegeven.
+            - combobox [ref=e27]:
+              - option "di 10 mrt. 2026 Energiek"
+              - option "do 5 mrt. 2026 Energiek"
+              - option "di 3 mrt. 2026 Kalm"
+              - option "ma 23 feb. 2026 Energiek"
+              - option "di 17 feb. 2026 Neutraal"
+              - option "di 3 feb. 2026 Energiek"
+              - option "vr 30 jan. 2026 Kalm" [selected]
+              - option "wo 20 mei. 2026 Energiek (geen biometrie)"
+              - option "do 9 apr. 2026 Kalm (geen biometrie)"
+              - option "wo 25 mrt. 2026 Neutraal (geen biometrie)"
+            - generic [ref=e53]:
+              - generic [ref=e54]: Staat van Bosbes op di 10 mrt. 2026
+              - generic [ref=e55]:
+                - generic [ref=e56]:
+                  - generic [ref=e57]: 52/100
+                  - generic [ref=e58]: Stress voor sessie
+                - generic [ref=e59]:
+                  - generic [ref=e60]: 65 bpm
+                  - generic [ref=e61]: Hartslag voor
+                - generic [ref=e62]:
+                  - generic [ref=e63]: 68%
+                  - generic [ref=e64]: Body Battery
+                - generic [ref=e65]:
+                  - generic [ref=e66]: 08:00
+                  - generic [ref=e67]: Tijdstip
+          - generic [ref=e68]:
+            - generic [ref=e69]: ML-aanbeveling (Ridge)
+            - generic [ref=e70]:
+              - generic [ref=e71]: ENERGIEK
+              - generic [ref=e72]: ISO — Stijgend BPM
+            - generic [ref=e73]: "Voorspelde stemmingswinst — Energiek: -0.8 pt · Neutraal: -1.1 pt · Kalm: -1.1 pt"
+        - button "Genereer afspeellijst" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: Genereer afspeellijst
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e74]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e194]

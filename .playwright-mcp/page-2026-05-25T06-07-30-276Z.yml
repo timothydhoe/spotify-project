@@ -1,0 +1,122 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e8] [cursor=pointer]
+        - tab "Afspelen" [ref=e9] [cursor=pointer]
+        - tab "Resultaten" [ref=e10] [cursor=pointer]
+        - tab "Circadiaan" [ref=e11] [cursor=pointer]
+        - tab "Wetenschap" [ref=e12] [cursor=pointer]
+        - tab "Model" [active] [selected] [ref=e13] [cursor=pointer]
+        - tab "Pipeline" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e163]:
+      - generic [ref=e164]:
+        - generic [ref=e165]:
+          - generic [ref=e166]: Binnenin het Model
+          - paragraph [ref=e167]: Volledige transparantie over elk model, kenmerk en posterior die gebruikt worden om de aanbevelingen te genereren.
+        - generic [ref=e169]:
+          - generic [ref=e170]: Voorspellende modellen - Stemmingsdelta
+          - table [ref=e172]:
+            - rowgroup [ref=e173]:
+              - row "Model MAE RMSE R2 (LOO-KV) Overfittingverschil" [ref=e174]:
+                - columnheader "Model" [ref=e175]
+                - columnheader "MAE" [ref=e176]
+                - columnheader "RMSE" [ref=e177]
+                - columnheader "R2 (LOO-KV)" [ref=e178]
+                - columnheader "Overfittingverschil" [ref=e179]
+            - rowgroup [ref=e180]:
+              - row "Dummy basislijn 1.988 2.752 -0.052 0.052" [ref=e181]:
+                - cell "Dummy basislijn" [ref=e182]
+                - cell "1.988" [ref=e183]
+                - cell "2.752" [ref=e184]
+                - cell "-0.052" [ref=e185]
+                - cell "0.052" [ref=e186]
+              - row "Ridge regressie 1.711 2.150 0.358 0.378" [ref=e187]:
+                - cell "Ridge regressie" [ref=e188]
+                - cell "1.711" [ref=e189]
+                - cell "2.150" [ref=e190]
+                - cell "0.358" [ref=e191]
+                - cell "0.378" [ref=e192]
+              - row "Random Forest 1.444 2.097 0.389 0.455" [ref=e193]:
+                - cell "Random Forest" [ref=e194]
+                - cell "1.444" [ref=e195]
+                - cell "2.097" [ref=e196]
+                - cell "0.389" [ref=e197]
+                - cell "0.455" [ref=e198]
+              - row "Gradient Boosting 1.589 2.136 0.366 0.575" [ref=e199]:
+                - cell "Gradient Boosting" [ref=e200]
+                - cell "1.589" [ref=e201]
+                - cell "2.136" [ref=e202]
+                - cell "0.366" [ref=e203]
+                - cell "0.575" [ref=e204]
+          - paragraph [ref=e205]: LOO-KV = Leave-One-Out kruisvalidatie. Per deelnemer geevalueerd.
+        - generic [ref=e207]:
+          - generic [ref=e208]:
+            - generic [ref=e209]: Wat voorspelt de stemming?
+            - button "▲ Verberg SHAP" [ref=e210] [cursor=pointer]:
+              - generic [ref=e211]: ▲ Verberg SHAP
+          - generic [ref=e212]: SHAP-waarden · Random Forest op mood_delta · N=40 sessies, exploratief
+          - generic [ref=e213]: "baseline_deviation_entry is het sterkste kenmerk: hoe gestresseerd ben jij t.o.v. jouw normaal op dit uur van de dag?"
+          - generic [ref=e215]:
+            - generic [ref=e216]: Exploratief — N=40 sessies. Patronen zijn richtinggevend, geen inferentie.
+            - img "SHAP beeswarm plot — mood_delta RandomForest" [ref=e217]
+            - generic [ref=e218]: Elke stip is een sessie. Positieve SHAP-waarden verhogen de voorspelde stemmingsdelta. Rode stippen = hoge kenmerkswaarde, blauwe stippen = lage waarde.
+        - generic [ref=e220]:
+          - generic [ref=e221]: Bayesiaanse aanbeveler - Posterior-verdelingen
+          - generic [ref=e222]: 2.000 MCMC-samples via JAX/NumPyro - 89% geloofwaardigheidsintervallen
+          - generic [ref=e223]:
+            - generic [ref=e224]:
+              - generic [ref=e225]: Bosbes
+              - img [ref=e226]
+            - generic [ref=e227]:
+              - generic [ref=e228]: Kiwi
+              - img [ref=e229]
+            - generic [ref=e230]:
+              - generic [ref=e231]: Kokosnoot
+              - img [ref=e232]
+            - generic [ref=e233]:
+              - generic [ref=e234]: Limoen
+              - img [ref=e235]
+            - generic [ref=e236]:
+              - generic [ref=e237]: Peer
+              - img [ref=e238]
+            - generic [ref=e239]:
+              - generic [ref=e240]: Watermeloen
+              - img [ref=e241]
+        - generic [ref=e243]:
+          - generic [ref=e244]:
+            - generic [ref=e245]: Sessie-effecten - Statistische significantie
+            - button "▼ Toon tabel" [ref=e246] [cursor=pointer]:
+              - generic [ref=e247]: ▼ Toon tabel
+          - generic [ref=e248]: Wilcoxon signed-rank, tweezijdig - N>=5 vereist - Per deelnemer
+          - generic [ref=e249]:
+            - generic [ref=e250]:
+              - generic [ref=e251]: Deelnemer
+              - combobox "Deelnemer" [ref=e253]:
+                - option "Allemaal" [selected]
+                - option "bosbes"
+                - option "kiwi"
+                - option "kokosnoot"
+                - option "limoen"
+                - option "peer"
+                - option "watermeloen"
+            - generic [ref=e256] [cursor=pointer]:
+              - checkbox "Alleen significant" [checked] [ref=e257]
+              - text: Alleen significant
+        - generic [ref=e260]:
+          - generic [ref=e261]: Hoe alles samenhangt
+          - button "▼ Toon diagram" [ref=e262] [cursor=pointer]:
+            - generic [ref=e263]: ▼ Toon diagram
+        - generic [ref=e265]:
+          - generic [ref=e266]: Alle modelcode, ruwe data en MCMC-traces zijn beschikbaar in de open-source repository.
+          - link "Bekijk op GitHub ->" [ref=e267] [cursor=pointer]:
+            - /url: https://github.com/timothydhoe/spotify-project
+    - generic [ref=e30]:
+      - generic [ref=e33]:
+        - generic [ref=e160]: Selecteer een afspeellijst
+        - generic [ref=e35]: MoodTune
+      - generic [ref=e37]: "- -"
+  - img [ref=e161]

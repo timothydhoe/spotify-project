@@ -1,0 +1,206 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [active] [selected] [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e44]:
+      - generic [ref=e45]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e46] [cursor=pointer]
+      - button "Kiwi ○" [ref=e47] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e48] [cursor=pointer]
+      - button "Limoen ◑" [ref=e49] [cursor=pointer]
+      - button "Peer ◑" [ref=e50] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e51] [cursor=pointer]
+      - generic [ref=e52]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e196]:
+      - tablist [ref=e197]:
+        - tab "Wetenschap" [selected] [ref=e198] [cursor=pointer]
+        - tab "Model & Data" [ref=e199] [cursor=pointer]
+        - tab "Pipeline" [ref=e200] [cursor=pointer]
+      - tabpanel [ref=e202]:
+        - generic [ref=e203]:
+          - generic [ref=e204]:
+            - generic [ref=e205]: De Wetenschap Achter MoodTune
+            - paragraph [ref=e206]: Het ISO-principe uit muziektherapie - spring niet direct naar de doelstaat, maar begeleid de luisteraar er geleidelijk naartoe.
+          - generic [ref=e208]:
+            - generic [ref=e209]:
+              - generic [ref=e210]: Het ISO-principe
+              - paragraph [ref=e211]: Muziektherapie gebruikt geleidelijke BPM- en energie-afstemming om het arousal-niveau van de luisteraar van de huidige toestand naar de doeltoestand te leiden. In plaats van direct rustige muziek te spelen als iemand gestresseerd is, begint het ISO-principe waar je nu bent en brengt je stap voor stap omlaag - zoals een thermostaat geleidelijk regelt, niet bruusk schakelt.
+              - generic [ref=e212]:
+                - emphasis [ref=e213]: "\"Zelfgekozen muziek is significant effectiever bij emotieregulatie dan onbekende nummers.\""
+                - generic [ref=e214]: — Thoma et al. (2013), Psychoneuroendocrinology
+            - generic [ref=e215]:
+              - generic [ref=e216]:
+                - generic [ref=e217]:
+                  - generic [ref=e218]: "Kalm max. BPM:"
+                  - generic [ref=e219]: "95"
+                - generic [ref=e220]:
+                  - generic [ref=e222]:
+                    - generic [ref=e224]: "70"
+                    - generic [ref=e225]: "115"
+                    - generic [ref=e226]: "95"
+                  - textbox [ref=e229]: "95"
+              - generic [ref=e230]:
+                - generic [ref=e231]:
+                  - generic [ref=e232]: "Energiek min. BPM:"
+                  - generic [ref=e233]: "120"
+                - generic [ref=e234]:
+                  - generic [ref=e236]:
+                    - generic [ref=e238]: "110"
+                    - generic [ref=e239]: "145"
+                    - generic [ref=e240]: "120"
+                  - textbox [ref=e243]: "120"
+              - generic [ref=e247]:
+                - img:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: "0"
+                        - generic:
+                          - generic: "5"
+                        - generic:
+                          - generic: "10"
+                        - generic:
+                          - generic: "15"
+                        - generic:
+                          - generic: "20"
+                        - generic:
+                          - generic: "25"
+                        - generic:
+                          - generic: "30"
+                      - generic:
+                        - generic:
+                          - generic: "50"
+                        - generic:
+                          - generic: "100"
+                        - generic:
+                          - generic: "150"
+                - img:
+                  - generic:
+                    - generic [ref=e264]:
+                      - generic [ref=e266]: Kalm
+                      - generic [ref=e269]: Neutraal
+                      - generic [ref=e272]: Energiek
+                    - generic:
+                      - generic: Minuten
+                    - generic:
+                      - generic: BPM
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Ontmoeting
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: De-escalatie
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Regulatie
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: Landing
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: "Kalm max: 95 BPM"
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic: "Energiek min: 120 BPM"
+                - toolbar [ref=e274]:
+                  - link "plotly-logomark" [ref=e276] [cursor=pointer]:
+                    - /url: https://plotly.com/
+                    - img "plotly-logomark" [ref=e277]
+                - img
+              - generic [ref=e291]:
+                - generic [ref=e292]: "Drie afspeellijsten tonen het ISO-principe: elk begint bij de huidige toestand en beweegt geleidelijk naar het doelgevoel."
+                - generic [ref=e293]: Kalm daalt van ~95 → ~50 BPM · Neutraal stabiel · Energiek stijgt van ~120 → ~165 BPM over 30 minuten.
+                - generic [ref=e294]: ISO-fasen zijn theoretisch — werkelijke grenzen variëren per afspeellijst en deelnemer.
+          - generic [ref=e296]:
+            - generic [ref=e297]: De 4 Fasen van een Kalme Afspeellijst
+            - generic [ref=e298]:
+              - generic [ref=e299]:
+                - generic [ref=e300]: Ontmoeting
+                - generic [ref=e301]: Isochronous Meeting
+                - generic [ref=e302]: 0 - 7,5 min
+                - paragraph [ref=e303]: Start bij je huidige stressniveau. Muziek matcht je huidige arousal.
+              - generic [ref=e304]: "->"
+              - generic [ref=e305]:
+                - generic [ref=e306]: De-escalatie
+                - generic [ref=e307]: De-escalation
+                - generic [ref=e308]: 7,5 - 15 min
+                - paragraph [ref=e309]: BPM begint te dalen. Energie neemt geleidelijk af.
+              - generic [ref=e310]: "->"
+              - generic [ref=e311]:
+                - generic [ref=e312]: Regulatie
+                - generic [ref=e313]: Regulation
+                - generic [ref=e314]: 15 - 22,5 min
+                - paragraph [ref=e315]: Stressrespons stabiliseert. Nerveus systeem begint te herstellen.
+              - generic [ref=e316]: "->"
+              - generic [ref=e317]:
+                - generic [ref=e318]: Landing
+                - generic [ref=e319]: Arrival / Rest
+                - generic [ref=e320]: 22,5 - 30 min
+                - paragraph [ref=e321]: Doeltoestand bereikt. Lage BPM, hoge akoestisch, lage energie.
+          - generic [ref=e323]:
+            - generic [ref=e324]: 9 Spotify-audiokenmerken
+            - generic [ref=e325]: Gebaseerd op 2.269 nummers van 6 deelnemers
+            - generic [ref=e326]:
+              - generic [ref=e327]:
+                - generic [ref=e328]: Tempo (BPM)
+                - generic [ref=e329]: Primair filter - bepaalt de afspeellijstcategorie
+                - generic [ref=e330]:
+                  - generic [ref=e331]: "Kalm: 50-95"
+                  - generic [ref=e332]: "Neutraal: 95-115"
+                  - generic [ref=e333]: "Energiek: 120-180"
+              - generic [ref=e334]:
+                - generic [ref=e335]: Energie (0-1)
+                - generic [ref=e336]: Perceptuele intensiteit - hoe energiek het aanvoelt
+                - generic [ref=e337]:
+                  - generic [ref=e338]: "Kalm: < 0.9"
+                  - generic [ref=e339]: "Neutraal: 0.2-0.8"
+                  - generic [ref=e340]: "Energiek: > 0.7"
+              - generic [ref=e341]:
+                - generic [ref=e342]: Valentie (0-1)
+                - generic [ref=e343]: Muzikale positiviteit - minimumdrempel op energieke lijst
+                - generic [ref=e345]: "Energiek: > 0.3"
+              - generic [ref=e346]:
+                - generic [ref=e347]: Dansbaarheid (0-1)
+                - generic [ref=e348]: Ritmische regelmaat - versterkt energieke lijst
+                - generic [ref=e350]: "Energiek: > 0.5"
+              - generic [ref=e351]:
+                - generic [ref=e352]: Akoestiek (0-1)
+                - generic [ref=e353]: Akoestisch vs elektronisch - instelbaar voor kalme lijst
+                - generic [ref=e355]: "Kalm: bij voorkeur hoog"
+              - generic [ref=e356]:
+                - generic [ref=e357]: Luidheid (dB)
+                - generic [ref=e358]: Volumedynamiek - min/max per afspeellijsttype
+                - generic [ref=e359]:
+                  - generic [ref=e360]: "Kalm: > -20 dB"
+                  - generic [ref=e361]: "Energiek: > -12 dB"
+              - generic [ref=e362]:
+                - generic [ref=e363]: Instrumentalheid (0-1)
+                - generic [ref=e364]: Vocaal vs. instrumentaal — hoe dichter bij 1, hoe minder gezongen tekst
+                - generic [ref=e366]: "Kalm: verzameld"
+              - generic [ref=e367]:
+                - generic [ref=e368]: Levendigheid (0-1)
+                - generic [ref=e369]: Studio vs. live-opname — hoge waarden duiden op publieksgeluiden
+                - generic [ref=e371]: "Kalm: verzameld"
+              - generic [ref=e372]:
+                - generic [ref=e373]: Spraakheid (0-1)
+                - generic [ref=e374]: Aanwezigheid van gesproken woord — podcasts scoren hoog, muziek laag
+                - generic [ref=e376]: "Kalm: verzameld"
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e74]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e194]

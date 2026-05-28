@@ -1,0 +1,200 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [selected] [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e763]:
+      - generic [ref=e764]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e765] [cursor=pointer]
+      - button "Kiwi ○" [ref=e766] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e767] [cursor=pointer]
+      - button "Limoen ◑" [ref=e768] [cursor=pointer]
+      - button "Peer ◑" [ref=e769] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e770] [cursor=pointer]
+      - generic [ref=e771]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e814]:
+      - tablist [ref=e815]:
+        - tab "Resultaten" [ref=e816] [cursor=pointer]
+        - tab "Sessie-replay" [active] [selected] [ref=e817] [cursor=pointer]
+        - tab "Circadiaans ritme" [ref=e818] [cursor=pointer]
+      - tabpanel [ref=e1280]:
+        - generic [ref=e1281]:
+          - generic [ref=e1282]:
+            - generic [ref=e1283]: Selecteer sessie
+            - generic [ref=e1285]:
+              - button "< Vorige" [ref=e1287] [cursor=pointer]
+              - combobox [ref=e1290]:
+                - option "vr 8 mei. 2026 Kalm" [selected]
+                - option "do 7 mei. 2026 Energiek"
+                - option "wo 6 mei. 2026 Energiek"
+                - option "di 5 mei. 2026 Neutraal"
+                - option "zo 3 mei. 2026 Energiek"
+                - option "za 2 mei. 2026 Kalm"
+                - option "do 30 apr. 2026 Neutraal"
+                - option "wo 29 apr. 2026 Energiek"
+                - option "di 28 apr. 2026 Kalm"
+                - option "vr 24 apr. 2026 Kalm"
+                - option "wo 22 apr. 2026 Energiek"
+                - option "di 21 apr. 2026 Kalm"
+                - option "vr 17 apr. 2026 Energiek"
+                - option "di 14 apr. 2026 Kalm"
+                - option "ma 13 apr. 2026 Energiek"
+                - option "vr 3 apr. 2026 —"
+                - option "do 2 apr. 2026 —"
+                - option "wo 1 apr. 2026 Energiek"
+                - option "ma 30 mrt. 2026 Energiek"
+                - option "za 28 mrt. 2026 Kalm"
+                - option "vr 27 mrt. 2026 Neutraal"
+                - option "do 26 mrt. 2026 Energiek"
+                - option "wo 25 mrt. 2026 Kalm"
+                - option "vr 6 mrt. 2026 Energiek"
+                - option "do 5 mrt. 2026 —"
+                - option "wo 4 mrt. 2026 Energiek"
+                - option "di 3 mrt. 2026 Kalm"
+                - option "vr 27 feb. 2026 Energiek"
+                - option "wo 25 feb. 2026 Kalm"
+                - option "di 24 feb. 2026 Energiek"
+                - option "di 17 feb. 2026 Energiek"
+                - option "wo 11 feb. 2026 Energiek"
+                - option "di 10 feb. 2026 Kalm"
+                - option "wo 4 feb. 2026 Energiek"
+                - option "vr 30 jan. 2026 Kalm"
+                - option "do 29 jan. 2026 Kalm"
+                - option "wo 28 jan. 2026 Kalm"
+                - option "di 27 jan. 2026 Energiek"
+                - option "ma 26 jan. 2026 Energiek"
+              - generic [ref=e1291]:
+                - button "Volgende >"
+              - generic [ref=e1293]:
+                - generic [ref=e1294]: KALM
+                - generic [ref=e1295]: Sessie 39 van 39
+          - generic [ref=e1298]:
+            - generic [ref=e1299]:
+              - generic [ref=e1300]: vr 8 mei. 2026
+              - generic [ref=e1301]: Datum
+            - generic [ref=e1302]:
+              - generic [ref=e1303]: 10:59
+              - generic [ref=e1304]: Starttijd
+            - generic [ref=e1305]:
+              - generic [ref=e1306]: 31 min
+              - generic [ref=e1307]: Duur
+            - generic [ref=e1308]:
+              - text: KALM
+              - generic [ref=e1309]: Afspeellijst
+          - generic [ref=e1312]:
+            - generic [ref=e1313]: –
+            - generic [ref=e1314]: Stemming onveranderd
+          - generic [ref=e1317]:
+            - generic [ref=e1318]:
+              - generic [ref=e1319]: VOOR
+              - generic [ref=e1320]: 59 min
+            - generic [ref=e1321]:
+              - generic [ref=e1322]: TIJDENS SESSIE
+              - generic [ref=e1323]: 31 min
+            - generic [ref=e1324]:
+              - generic [ref=e1325]: NA
+              - generic [ref=e1326]: 59 min
+          - generic [ref=e1331]:
+            - img:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: −60
+                    - generic:
+                      - generic: −40
+                    - generic:
+                      - generic: −20
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "20"
+                    - generic:
+                      - generic: "40"
+                    - generic:
+                      - generic: "60"
+                    - generic:
+                      - generic: "80"
+                  - generic:
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "20"
+                    - generic:
+                      - generic: "40"
+                    - generic:
+                      - generic: "60"
+                    - generic:
+                      - generic: "80"
+                    - generic:
+                      - generic: "100"
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: "40"
+                      - generic:
+                        - generic: "60"
+                      - generic:
+                        - generic: "80"
+                      - generic:
+                        - generic: "100"
+                      - generic:
+                        - generic: "120"
+            - img:
+              - generic:
+                - generic [ref=e1352]:
+                  - generic [ref=e1354]: Stress
+                  - generic [ref=e1357]: Hartslag
+                - generic:
+                  - generic: Minuten t.o.v. sessiestart
+                - generic:
+                  - generic: Stress (0-100)
+                - generic:
+                  - generic: Hartslag (bpm)
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Ontmoeting
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: De-escalatie
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Regulatie
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: Landing
+            - toolbar [ref=e1359]:
+              - link "plotly-logomark" [ref=e1361] [cursor=pointer]:
+                - /url: https://plotly.com/
+                - img "plotly-logomark" [ref=e1362]
+            - img
+          - generic [ref=e1376]:
+            - generic [ref=e1377]:
+              - generic [ref=e1378]: Voor
+              - generic [ref=e1379]: 😐
+              - generic [ref=e1380]: Neutraal
+              - generic [ref=e1381]: 6/10
+            - generic [ref=e1382]:
+              - generic [ref=e1383]: "->"
+              - generic [ref=e1384]: +0 pt
+            - generic [ref=e1385]:
+              - generic [ref=e1386]: Na
+              - generic [ref=e1387]: 😟
+              - generic [ref=e1388]: Gestresseerd of gespannen
+              - generic [ref=e1389]: 6/10
+          - emphasis [ref=e1392]: Dit zijn jouw werkelijke fysiologische gegevens. Niets is gesimuleerd of geinterpoleerd.
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e74]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e194]

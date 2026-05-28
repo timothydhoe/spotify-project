@@ -1,0 +1,54 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Wetenschap" [ref=e8] [cursor=pointer]
+        - tab "Pipeline" [ref=e9] [cursor=pointer]
+        - tab "Circadiaan" [active] [selected] [ref=e10] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e11] [cursor=pointer]
+        - tab "Afspelen" [ref=e12] [cursor=pointer]
+        - tab "Resultaten" [ref=e13] [cursor=pointer]
+        - tab "Model" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e50]:
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53]: Jouw Circadiaans Ritme
+          - paragraph [ref=e54]: Hoe verhoudt jouw stressniveau zich tot jouw eigen basislijn op elk uur van de dag?
+        - generic [ref=e61]: Alleen niet-sessiedagen - +-1 sigma-band
+        - generic [ref=e65]:
+          - generic [ref=e66]: Bereken jouw circadiane afwijking
+          - paragraph [ref=e67]: Vul het huidige uur en jouw huidige stressniveau in. De app berekent dan hoeveel jij afwijkt van jouw normale stressniveau op dat uur.
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - generic [ref=e71]: "Huidig uur:"
+              - generic [ref=e73]:
+                - generic [ref=e75]:
+                  - generic [ref=e77]: "0"
+                  - generic [ref=e78]: "23"
+                  - generic [ref=e79]: "17"
+                - textbox [ref=e82]: "17"
+            - generic [ref=e83]:
+              - generic [ref=e85]: "Huidig stressniveau:"
+              - generic [ref=e87]:
+                - generic [ref=e89]:
+                  - generic [ref=e91]: "0"
+                  - generic [ref=e92]: "100"
+                  - generic [ref=e93]: "55"
+                - textbox [ref=e96]: "55"
+        - generic [ref=e99]:
+          - generic [ref=e100]: Wat is Circadiane Basislijnsafwijking?
+          - paragraph [ref=e101]: In plaats van jouw sessie-stress te vergelijken met een vast getal, vergelijken we die met JOUW typische stress op datzelfde uur op niet-sessiedagen. Dit corrigeert voor het natuurlijke circadiane ritme.
+          - generic [ref=e102]: afwijking = pre_stress_gemiddelde - verwachte_stress_op_dat_uur
+          - generic [ref=e103]: Een positieve afwijking betekent dat je meer gestresseerd was dan normaal voor dat uur.
+        - generic [ref=e105]:
+          - generic [ref=e106]: Wat voorspelt de Stemming?
+          - generic [ref=e107]: SHAP-waarden - gradient boosting op mood_delta
+          - generic [ref=e110]:
+            - generic [ref=e111]: Drie ML-modellen vergeleken
+            - paragraph [ref=e112]: Ridge Regressie levert lineaire interpreteerbare gewichten. Random Forest vangt niet-lineariteiten. Gradient Boosting (GBR) presteert het best. Alle drie worden geevalueerd via LOO-kruisvalidatie per deelnemer.
+    - generic [ref=e42]:
+      - generic [ref=e47]: MoodTune
+      - generic [ref=e49]: "- -"

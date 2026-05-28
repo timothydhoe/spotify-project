@@ -1,0 +1,137 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Wetenschap" [ref=e8] [cursor=pointer]
+        - tab "Pipeline" [ref=e9] [cursor=pointer]
+        - tab "Circadiaan" [active] [selected] [ref=e10] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e11] [cursor=pointer]
+        - tab "Afspelen" [ref=e12] [cursor=pointer]
+        - tab "Resultaten" [ref=e13] [cursor=pointer]
+        - tab "Model" [ref=e14] [cursor=pointer]
+  - tabpanel [ref=e291]:
+    - generic [ref=e292]:
+      - generic [ref=e293]:
+        - generic [ref=e294]: Jouw Circadiaans Ritme
+        - paragraph [ref=e295]: Hoe verhoudt jouw stressniveau zich tot jouw eigen basislijn op elk uur van de dag?
+      - generic [ref=e298]:
+        - button "Bosbes" [ref=e299] [cursor=pointer]
+        - generic "Geen circadiane data voor deze deelnemer" [ref=e300]:
+          - button "Kiwi"
+        - button "Kokosnoot" [ref=e301] [cursor=pointer]
+        - button "Limoen" [ref=e302] [cursor=pointer]
+        - button "Peer" [ref=e303] [cursor=pointer]
+        - generic "Geen circadiane data voor deze deelnemer" [ref=e304]:
+          - button "Watermeloen"
+      - generic [ref=e306]:
+        - generic [ref=e308]: Uurlijkse stressbasislijn - Bosbes
+        - generic [ref=e309]: Alleen niet-sessiedagen - +-1 sigma-band
+        - generic [ref=e313]:
+          - img:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: 0:00
+                  - generic:
+                    - generic: 3:00
+                  - generic:
+                    - generic: 6:00
+                  - generic:
+                    - generic: 9:00
+                  - generic:
+                    - generic: 12:00
+                  - generic:
+                    - generic: 15:00
+                  - generic:
+                    - generic: 18:00
+                  - generic:
+                    - generic: 21:00
+                - generic:
+                  - generic:
+                    - generic: "0"
+                  - generic:
+                    - generic: "20"
+                  - generic:
+                    - generic: "40"
+                  - generic:
+                    - generic: "60"
+                  - generic:
+                    - generic: "80"
+                  - generic:
+                    - generic: "100"
+          - img:
+            - generic:
+              - generic [ref=e330]:
+                - generic [ref=e332]: Jouw gemiddelde stress
+                - generic [ref=e335]: Calm-sessie
+                - generic [ref=e342]: Neutral-sessie
+                - generic [ref=e349]: Energy-sessie
+              - generic:
+                - generic: Uur van de dag
+              - generic:
+                - generic: Stress (0-100)
+          - toolbar [ref=e355]:
+            - link "plotly-logomark" [ref=e357] [cursor=pointer]:
+              - /url: https://plotly.com/
+              - img "plotly-logomark" [ref=e358]
+          - img
+      - generic [ref=e372]:
+        - generic [ref=e373]:
+          - generic [ref=e374]: 1:00
+          - generic [ref=e375]: Rustste uur
+        - generic [ref=e376]:
+          - generic [ref=e377]: 12-14:00
+          - generic [ref=e378]: Piekstressvenster
+        - generic [ref=e379]:
+          - generic [ref=e380]: "+9.1"
+          - generic [ref=e381]: Pre-sessie afwijking (gem., stresspunten 0-100)
+      - generic [ref=e383]:
+        - generic [ref=e384]: Bereken jouw circadiane afwijking
+        - paragraph [ref=e385]: Vul het huidige uur en jouw huidige stressniveau in. De app berekent dan hoeveel jij afwijkt van jouw normale stressniveau op dat uur.
+        - generic [ref=e386]:
+          - generic [ref=e387]:
+            - generic [ref=e388]:
+              - generic [ref=e389]: "Huidig uur:"
+              - generic [ref=e390]: 17:00
+            - generic [ref=e391]:
+              - generic [ref=e393]:
+                - generic [ref=e395]: "0"
+                - generic [ref=e396]: "23"
+                - generic [ref=e397]: "17"
+              - textbox [ref=e400]: "17"
+          - generic [ref=e401]:
+            - generic [ref=e402]:
+              - generic [ref=e403]: "Huidig stressniveau:"
+              - generic [ref=e404]: "55"
+            - generic [ref=e405]:
+              - generic [ref=e407]:
+                - generic [ref=e409]: "0"
+                - generic [ref=e410]: "100"
+                - generic [ref=e411]: "55"
+              - textbox [ref=e414]: "55"
+          - generic [ref=e416]:
+            - generic [ref=e417]:
+              - generic [ref=e418]: "Verwachte stress op dit uur:"
+              - generic [ref=e419]: "26.4 stresspunten (sigma: +-13.9)"
+            - generic [ref=e420]:
+              - generic [ref=e421]: "Jouw afwijking:"
+              - generic [ref=e422]: +28.6 punten boven basislijn
+            - generic [ref=e423]: afwijking = 55 (huidig) - 26.4 (verwacht op 17:00) = +28.6
+      - generic [ref=e425]:
+        - generic [ref=e426]: Wat is Circadiane Basislijnsafwijking?
+        - paragraph [ref=e427]: In plaats van jouw sessie-stress te vergelijken met een vast getal, vergelijken we die met JOUW typische stress op datzelfde uur op niet-sessiedagen. Dit corrigeert voor het natuurlijke circadiane ritme.
+        - generic [ref=e428]: afwijking = pre_stress_gemiddelde - verwachte_stress_op_dat_uur
+        - generic [ref=e429]: Een positieve afwijking betekent dat je meer gestresseerd was dan normaal voor dat uur.
+      - generic [ref=e431]:
+        - generic [ref=e432]: Wat voorspelt de Stemming?
+        - generic [ref=e433]: SHAP-waarden - gradient boosting op mood_delta
+        - generic [ref=e435]:
+          - img [ref=e436]
+          - generic [ref=e437]: "SHAP beeswarm-grafiek: elke stip is een sessie. Positieve SHAP-waarden verhogen de voorspelde mood_delta. baseline_deviation_entry is het sterkste kenmerk."
+        - generic [ref=e439]:
+          - generic [ref=e440]: Drie ML-modellen vergeleken
+          - paragraph [ref=e441]: Ridge Regressie levert lineaire interpreteerbare gewichten. Random Forest vangt niet-lineariteiten. Gradient Boosting (GBR) presteert het best. Alle drie worden geevalueerd via LOO-kruisvalidatie per deelnemer.
+  - img [ref=e238]

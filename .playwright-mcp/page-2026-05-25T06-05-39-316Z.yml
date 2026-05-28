@@ -1,0 +1,115 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e8] [cursor=pointer]
+        - tab "Afspelen" [ref=e9] [cursor=pointer]
+        - tab "Resultaten" [active] [selected] [ref=e10] [cursor=pointer]
+        - tab "Circadiaan" [ref=e11] [cursor=pointer]
+        - tab "Wetenschap" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+        - tab "Pipeline" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e210]:
+      - generic [ref=e211]:
+        - generic [ref=e214]:
+          - button "Bosbes" [ref=e215] [cursor=pointer]
+          - generic "Geen sessiedata voor deze deelnemer" [ref=e216]:
+            - button "Kiwi"
+          - button "Kokosnoot" [ref=e217] [cursor=pointer]
+          - button "Limoen" [ref=e218] [cursor=pointer]
+          - button "Peer" [ref=e219] [cursor=pointer]
+          - generic "Geen sessiedata voor deze deelnemer" [ref=e220]:
+            - button "Watermeloen"
+        - generic [ref=e222]:
+          - generic [ref=e223]: R.E.M.-profiel van Bosbes
+          - generic [ref=e224]: 8 sessies - Project R.E.M.
+        - generic [ref=e227]:
+          - generic [ref=e228]:
+            - generic [ref=e229]:
+              - generic [ref=e230]: ENERGIEK
+              - generic [ref=e231]: Aanbevolen afspeellijst
+              - generic [ref=e232]: 38% posterior
+            - generic [ref=e233]:
+              - generic [ref=e234]: +0.2 pt
+              - generic [ref=e235]: Gem. stemmingsverbetering
+              - generic [ref=e236]: per sessie gemiddeld
+            - generic [ref=e237]:
+              - generic [ref=e238]: "8"
+              - generic [ref=e239]: Voltooide sessies
+              - generic [ref=e240]: totaal
+          - generic [ref=e241]:
+            - generic [ref=e242]:
+              - generic [ref=e243]: +50 min
+              - generic [ref=e244]: Herstelvoordeel
+              - generic [ref=e245]: sneller dan jouw basislijn
+            - generic [ref=e246]:
+              - generic [ref=e247]: 1:00
+              - generic [ref=e248]: Jouw gouden uur
+              - generic [ref=e249]: laagste stress
+            - generic [ref=e250]:
+              - generic [ref=e251]: 12-14:00
+              - generic [ref=e252]: Piekstressvenster
+              - generic [ref=e253]: vermijd zware taken
+        - generic [ref=e255]:
+          - generic [ref=e256]: Stemmingsverbetering per afspeellijsttype
+          - generic [ref=e257]: Gemiddelde stemmingsdelta (na − voor) per type · hover voor N sessies
+          - generic [ref=e258]: Positieve waarden = stemming verbeterd na sessie. Negatieve waarden bij kleine N (≤3 sessies) zijn weinig betrouwbaar.
+          - generic [ref=e262]:
+            - img:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: "-1.0"
+                            - generic:
+                              - generic: "+0.0"
+                            - generic:
+                              - generic: "+2.0"
+                  - generic:
+                    - generic:
+                      - generic: −1
+                    - generic:
+                      - generic: −0.5
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "0.5"
+                    - generic:
+                      - generic: "1"
+                    - generic:
+                      - generic: "1.5"
+                    - generic:
+                      - generic: "2"
+                  - generic:
+                    - generic:
+                      - generic: Kalm
+                    - generic:
+                      - generic: Energiek
+                    - generic:
+                      - generic: Neutraal
+            - img:
+              - generic:
+                - generic:
+                  - generic: Gem. stemmingsverbetering (pt)
+            - toolbar [ref=e276]:
+              - link "plotly-logomark" [ref=e278] [cursor=pointer]:
+                - /url: https://plotly.com/
+                - img "plotly-logomark" [ref=e279]
+            - img
+          - generic [ref=e293]:
+            - generic [ref=e294]: "⚠ Kalm: N=2 — kleine steekproef, zorgvuldig interpreteren."
+            - generic [ref=e295]: "⚠ Neutraal: N=2 — kleine steekproef, zorgvuldig interpreteren."
+        - generic [ref=e296]: "\"Jouw muziek is jouw medicijn.\""
+    - generic [ref=e30]:
+      - generic [ref=e33]:
+        - generic [ref=e67]: Selecteer een afspeellijst
+        - generic [ref=e35]: MoodTune
+      - generic [ref=e37]: "- -"
+  - img [ref=e208]

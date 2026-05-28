@@ -1,0 +1,561 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [active] [selected] [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e763]:
+      - generic [ref=e764]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e765] [cursor=pointer]
+      - button "Kiwi ○" [ref=e766] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e767] [cursor=pointer]
+      - button "Limoen ◑" [ref=e768] [cursor=pointer]
+      - button "Peer ◑" [ref=e769] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e770] [cursor=pointer]
+      - generic [ref=e771]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e814]:
+      - tablist [ref=e815]:
+        - tab "Resultaten" [selected] [ref=e816] [cursor=pointer]
+        - tab "Sessie-replay" [ref=e817] [cursor=pointer]
+        - tab "Circadiaans ritme" [ref=e818] [cursor=pointer]
+      - tabpanel [ref=e820]:
+        - generic [ref=e821]:
+          - generic [ref=e823]:
+            - generic [ref=e824]: R.E.M.-profiel van Kokosnoot
+            - generic [ref=e825]: 42 sessies - Project R.E.M.
+          - generic [ref=e828]:
+            - generic [ref=e829]:
+              - generic [ref=e830]: ENERGIEK
+              - generic [ref=e831]: Aanbevolen afspeellijst
+              - generic [ref=e832]: 96% relatieve voorkeur
+            - generic [ref=e833]:
+              - generic [ref=e834]: +0.4 pt
+              - generic [ref=e835]: Gem. stemmingsverbetering
+              - generic [ref=e836]: per sessie gemiddeld
+            - generic [ref=e837]:
+              - generic [ref=e838]: "42"
+              - generic [ref=e839]: Voltooide sessies
+              - generic [ref=e840]: totaal
+            - generic [ref=e841]:
+              - generic [ref=e842]: 17 wk
+              - generic [ref=e843]: Studieduur
+              - generic [ref=e844]: weken actief
+          - generic [ref=e846]:
+            - generic [ref=e847]: Stemmingsverbetering per afspeellijsttype
+            - generic [ref=e848]: Gemiddelde stemmingsdelta (na − voor) per afspeellijsttype
+            - generic [ref=e852]:
+              - img:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic: +0.3 pt (N=21) ⚠ CI omvat 0
+                              - generic:
+                                - generic: +0.4 pt (N=16) ⚠ CI omvat 0
+                              - generic:
+                                - generic: +0.4 pt (N=5) ⚠ CI omvat 0
+                    - generic:
+                      - generic:
+                        - generic: −0.5
+                      - generic:
+                        - generic: "0"
+                      - generic:
+                        - generic: "0.5"
+                      - generic:
+                        - generic: "1"
+                      - generic:
+                        - generic: "1.5"
+                    - generic:
+                      - generic:
+                        - generic: Energiek
+                      - generic:
+                        - generic: Kalm
+                      - generic:
+                        - generic: Neutraal
+              - img:
+                - generic:
+                  - generic:
+                    - generic: Gem. stemmingsverbetering (pt)
+              - toolbar [ref=e866]:
+                - link "plotly-logomark" [ref=e868] [cursor=pointer]:
+                  - /url: https://plotly.com/
+                  - img "plotly-logomark" [ref=e869]
+              - img
+            - generic [ref=e882]: Foutbalken = 95% betrouwbaarheidsinterval (1.96 × SEM). ⚠ CI omvat 0 = onvoldoende data voor positief effect. Hover voor N sessies.
+          - generic [ref=e884]:
+            - generic [ref=e885]: Stressontwikkeling over de studieperiode
+            - generic [ref=e886]: Stressafwijking t.o.v. pre-studie basislijn per sessie · kleur = afspeellijsttype (blauw=kalm, paars=neutraal, oranje=energiek)
+            - generic [ref=e890]:
+              - img:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic: −1
+                      - generic:
+                        - generic: "0"
+                      - generic:
+                        - generic: "1"
+                      - generic:
+                        - generic: "2"
+                      - generic:
+                        - generic: "3"
+                      - generic:
+                        - generic: "4"
+                      - generic:
+                        - generic: "5"
+                      - generic:
+                        - generic: "6"
+                      - generic:
+                        - generic: "7"
+                      - generic:
+                        - generic: "8"
+                      - generic:
+                        - generic: "9"
+                      - generic:
+                        - generic: "10"
+                      - generic:
+                        - generic: "11"
+                      - generic:
+                        - generic: "12"
+                      - generic:
+                        - generic: "13"
+                      - generic:
+                        - generic: "14"
+                      - generic:
+                        - generic: "15"
+                      - generic:
+                        - generic: "16"
+                      - generic:
+                        - generic: "17"
+                      - generic:
+                        - generic: "18"
+                      - generic:
+                        - generic: "19"
+                      - generic:
+                        - generic: "20"
+                      - generic:
+                        - generic: "21"
+                      - generic:
+                        - generic: "22"
+                      - generic:
+                        - generic: "23"
+                      - generic:
+                        - generic: "24"
+                      - generic:
+                        - generic: "25"
+                      - generic:
+                        - generic: "26"
+                      - generic:
+                        - generic: "27"
+                      - generic:
+                        - generic: "28"
+                      - generic:
+                        - generic: "29"
+                      - generic:
+                        - generic: "30"
+                      - generic:
+                        - generic: "31"
+                      - generic:
+                        - generic: "32"
+                      - generic:
+                        - generic: "33"
+                      - generic:
+                        - generic: "34"
+                      - generic:
+                        - generic: "35"
+                      - generic:
+                        - generic: "36"
+                      - generic:
+                        - generic: "37"
+                      - generic:
+                        - generic: "38"
+                      - generic:
+                        - generic: "39"
+                    - generic:
+                      - generic:
+                        - generic: −20
+                      - generic:
+                        - generic: "0"
+                      - generic:
+                        - generic: "20"
+              - img:
+                - generic:
+                  - generic:
+                    - generic: Sessienummer
+                  - generic:
+                    - generic: Stressafwijking (stresspunten)
+              - toolbar [ref=e904]:
+                - link "plotly-logomark" [ref=e906] [cursor=pointer]:
+                  - /url: https://plotly.com/
+                  - img "plotly-logomark" [ref=e907]
+              - img
+            - generic [ref=e920]: Een dalende trend suggereert dat herhaald gebruik de stressregulatie verbetert. Hoge variatie of een stijgende trend duidt op grote dag-tot-dag fluctuatie.
+          - generic [ref=e923]:
+            - generic [ref=e924]: Sessieoverzicht
+            - generic [ref=e925]: Elke sessie · stemming voor en na · delta = na − voor
+            - table [ref=e927]:
+              - rowgroup [ref=e928]:
+                - row "Datum Afspeellijst Stemming voor Stemming na Delta Pre-stress Resultaat" [ref=e929]:
+                  - columnheader "Datum" [ref=e930]
+                  - columnheader "Afspeellijst" [ref=e931]
+                  - columnheader "Stemming voor" [ref=e932]
+                  - columnheader "Stemming na" [ref=e933]
+                  - columnheader "Delta" [ref=e934]
+                  - columnheader "Pre-stress" [ref=e935]
+                  - columnheader "Resultaat" [ref=e936]
+              - rowgroup [ref=e937]:
+                - row "2026-01-26 Energiek 5 7 +2.0 24 ✓ Verbeterd" [ref=e938]:
+                  - cell "2026-01-26" [ref=e939]
+                  - cell "Energiek" [ref=e940]
+                  - cell "5" [ref=e941]
+                  - cell "7" [ref=e942]
+                  - cell "+2.0" [ref=e943]
+                  - cell "24" [ref=e944]
+                  - cell "✓ Verbeterd" [ref=e945]
+                - row "2026-01-27 Energiek 5 5 +0.0 28 – Gelijk" [ref=e946]:
+                  - cell "2026-01-27" [ref=e947]
+                  - cell "Energiek" [ref=e948]
+                  - cell "5" [ref=e949]
+                  - cell "5" [ref=e950]
+                  - cell "+0.0" [ref=e951]
+                  - cell "28" [ref=e952]
+                  - cell "– Gelijk" [ref=e953]
+                - row "2026-01-28 Kalm 6 8 +2.0 34 ✓ Verbeterd" [ref=e954]:
+                  - cell "2026-01-28" [ref=e955]
+                  - cell "Kalm" [ref=e956]
+                  - cell "6" [ref=e957]
+                  - cell "8" [ref=e958]
+                  - cell "+2.0" [ref=e959]
+                  - cell "34" [ref=e960]
+                  - cell "✓ Verbeterd" [ref=e961]
+                - row "2026-01-29 Kalm 5 7 +2.0 42 ✓ Verbeterd" [ref=e962]:
+                  - cell "2026-01-29" [ref=e963]
+                  - cell "Kalm" [ref=e964]
+                  - cell "5" [ref=e965]
+                  - cell "7" [ref=e966]
+                  - cell "+2.0" [ref=e967]
+                  - cell "42" [ref=e968]
+                  - cell "✓ Verbeterd" [ref=e969]
+                - row "2026-01-30 Kalm 4 8 +4.0 — ✓ Verbeterd" [ref=e970]:
+                  - cell "2026-01-30" [ref=e971]
+                  - cell "Kalm" [ref=e972]
+                  - cell "4" [ref=e973]
+                  - cell "8" [ref=e974]
+                  - cell "+4.0" [ref=e975]
+                  - cell "—" [ref=e976]
+                  - cell "✓ Verbeterd" [ref=e977]
+                - row "2026-02-04 Energiek 7 7 +0.0 35 – Gelijk" [ref=e978]:
+                  - cell "2026-02-04" [ref=e979]
+                  - cell "Energiek" [ref=e980]
+                  - cell "7" [ref=e981]
+                  - cell "7" [ref=e982]
+                  - cell "+0.0" [ref=e983]
+                  - cell "35" [ref=e984]
+                  - cell "– Gelijk" [ref=e985]
+                - row "2026-02-10 Kalm 7 6 -1.0 37 ✗ Gedaald" [ref=e986]:
+                  - cell "2026-02-10" [ref=e987]
+                  - cell "Kalm" [ref=e988]
+                  - cell "7" [ref=e989]
+                  - cell "6" [ref=e990]
+                  - cell "-1.0" [ref=e991]
+                  - cell "37" [ref=e992]
+                  - cell "✗ Gedaald" [ref=e993]
+                - row "2026-02-11 Energiek 6 7 +1.0 46 ✓ Verbeterd" [ref=e994]:
+                  - cell "2026-02-11" [ref=e995]
+                  - cell "Energiek" [ref=e996]
+                  - cell "6" [ref=e997]
+                  - cell "7" [ref=e998]
+                  - cell "+1.0" [ref=e999]
+                  - cell "46" [ref=e1000]
+                  - cell "✓ Verbeterd" [ref=e1001]
+                - row "2026-02-17 Energiek 8 6 -2.0 24 ✗ Gedaald" [ref=e1002]:
+                  - cell "2026-02-17" [ref=e1003]
+                  - cell "Energiek" [ref=e1004]
+                  - cell "8" [ref=e1005]
+                  - cell "6" [ref=e1006]
+                  - cell "-2.0" [ref=e1007]
+                  - cell "24" [ref=e1008]
+                  - cell "✗ Gedaald" [ref=e1009]
+                - row "2026-02-24 Energiek 7 5 -2.0 47 ✗ Gedaald" [ref=e1010]:
+                  - cell "2026-02-24" [ref=e1011]
+                  - cell "Energiek" [ref=e1012]
+                  - cell "7" [ref=e1013]
+                  - cell "5" [ref=e1014]
+                  - cell "-2.0" [ref=e1015]
+                  - cell "47" [ref=e1016]
+                  - cell "✗ Gedaald" [ref=e1017]
+                - row "2026-02-25 Kalm 6 9 +3.0 49 ✓ Verbeterd" [ref=e1018]:
+                  - cell "2026-02-25" [ref=e1019]
+                  - cell "Kalm" [ref=e1020]
+                  - cell "6" [ref=e1021]
+                  - cell "9" [ref=e1022]
+                  - cell "+3.0" [ref=e1023]
+                  - cell "49" [ref=e1024]
+                  - cell "✓ Verbeterd" [ref=e1025]
+                - row "2026-02-27 Energiek 5 6 +1.0 28 ✓ Verbeterd" [ref=e1026]:
+                  - cell "2026-02-27" [ref=e1027]
+                  - cell "Energiek" [ref=e1028]
+                  - cell "5" [ref=e1029]
+                  - cell "6" [ref=e1030]
+                  - cell "+1.0" [ref=e1031]
+                  - cell "28" [ref=e1032]
+                  - cell "✓ Verbeterd" [ref=e1033]
+                - row "2026-03-03 Kalm 7 7 +0.0 36 – Gelijk" [ref=e1034]:
+                  - cell "2026-03-03" [ref=e1035]
+                  - cell "Kalm" [ref=e1036]
+                  - cell "7" [ref=e1037]
+                  - cell "7" [ref=e1038]
+                  - cell "+0.0" [ref=e1039]
+                  - cell "36" [ref=e1040]
+                  - cell "– Gelijk" [ref=e1041]
+                - row "2026-03-04 Energiek 9 8 -1.0 41 ✗ Gedaald" [ref=e1042]:
+                  - cell "2026-03-04" [ref=e1043]
+                  - cell "Energiek" [ref=e1044]
+                  - cell "9" [ref=e1045]
+                  - cell "8" [ref=e1046]
+                  - cell "-1.0" [ref=e1047]
+                  - cell "41" [ref=e1048]
+                  - cell "✗ Gedaald" [ref=e1049]
+                - row "2026-03-06 Energiek 9 8 -1.0 64 ✗ Gedaald" [ref=e1050]:
+                  - cell "2026-03-06" [ref=e1051]
+                  - cell "Energiek" [ref=e1052]
+                  - cell "9" [ref=e1053]
+                  - cell "8" [ref=e1054]
+                  - cell "-1.0" [ref=e1055]
+                  - cell "64" [ref=e1056]
+                  - cell "✗ Gedaald" [ref=e1057]
+                - row "2026-03-25 Kalm 7 7 +0.0 24 – Gelijk" [ref=e1058]:
+                  - cell "2026-03-25" [ref=e1059]
+                  - cell "Kalm" [ref=e1060]
+                  - cell "7" [ref=e1061]
+                  - cell "7" [ref=e1062]
+                  - cell "+0.0" [ref=e1063]
+                  - cell "24" [ref=e1064]
+                  - cell "– Gelijk" [ref=e1065]
+                - row "2026-03-26 Energiek 5 8 +3.0 22 ✓ Verbeterd" [ref=e1066]:
+                  - cell "2026-03-26" [ref=e1067]
+                  - cell "Energiek" [ref=e1068]
+                  - cell "5" [ref=e1069]
+                  - cell "8" [ref=e1070]
+                  - cell "+3.0" [ref=e1071]
+                  - cell "22" [ref=e1072]
+                  - cell "✓ Verbeterd" [ref=e1073]
+                - row "2026-03-27 Neutraal 6 6 +0.0 22 – Gelijk" [ref=e1074]:
+                  - cell "2026-03-27" [ref=e1075]
+                  - cell "Neutraal" [ref=e1076]
+                  - cell "6" [ref=e1077]
+                  - cell "6" [ref=e1078]
+                  - cell "+0.0" [ref=e1079]
+                  - cell "22" [ref=e1080]
+                  - cell "– Gelijk" [ref=e1081]
+                - row "2026-03-28 Kalm 7 8 +1.0 38 ✓ Verbeterd" [ref=e1082]:
+                  - cell "2026-03-28" [ref=e1083]
+                  - cell "Kalm" [ref=e1084]
+                  - cell "7" [ref=e1085]
+                  - cell "8" [ref=e1086]
+                  - cell "+1.0" [ref=e1087]
+                  - cell "38" [ref=e1088]
+                  - cell "✓ Verbeterd" [ref=e1089]
+                - row "2026-03-30 Energiek 6 4 -2.0 58 ✗ Gedaald" [ref=e1090]:
+                  - cell "2026-03-30" [ref=e1091]
+                  - cell "Energiek" [ref=e1092]
+                  - cell "6" [ref=e1093]
+                  - cell "4" [ref=e1094]
+                  - cell "-2.0" [ref=e1095]
+                  - cell "58" [ref=e1096]
+                  - cell "✗ Gedaald" [ref=e1097]
+                - row "2026-04-01 Energiek 9 4 -5.0 20 ✗ Gedaald" [ref=e1098]:
+                  - cell "2026-04-01" [ref=e1099]
+                  - cell "Energiek" [ref=e1100]
+                  - cell "9" [ref=e1101]
+                  - cell "4" [ref=e1102]
+                  - cell "-5.0" [ref=e1103]
+                  - cell "20" [ref=e1104]
+                  - cell "✗ Gedaald" [ref=e1105]
+                - row "2026-04-13 Energiek 7 10 +3.0 25 ✓ Verbeterd" [ref=e1106]:
+                  - cell "2026-04-13" [ref=e1107]
+                  - cell "Energiek" [ref=e1108]
+                  - cell "7" [ref=e1109]
+                  - cell "10" [ref=e1110]
+                  - cell "+3.0" [ref=e1111]
+                  - cell "25" [ref=e1112]
+                  - cell "✓ Verbeterd" [ref=e1113]
+                - row "2026-04-14 Kalm 4 9 +5.0 33 ✓ Verbeterd" [ref=e1114]:
+                  - cell "2026-04-14" [ref=e1115]
+                  - cell "Kalm" [ref=e1116]
+                  - cell "4" [ref=e1117]
+                  - cell "9" [ref=e1118]
+                  - cell "+5.0" [ref=e1119]
+                  - cell "33" [ref=e1120]
+                  - cell "✓ Verbeterd" [ref=e1121]
+                - row "2026-04-14 Kalm 6 4 -2.0 33 ✗ Gedaald" [ref=e1122]:
+                  - cell "2026-04-14" [ref=e1123]
+                  - cell "Kalm" [ref=e1124]
+                  - cell "6" [ref=e1125]
+                  - cell "4" [ref=e1126]
+                  - cell "-2.0" [ref=e1127]
+                  - cell "33" [ref=e1128]
+                  - cell "✗ Gedaald" [ref=e1129]
+                - row "2026-04-17 Energiek 5 8 +3.0 26 ✓ Verbeterd" [ref=e1130]:
+                  - cell "2026-04-17" [ref=e1131]
+                  - cell "Energiek" [ref=e1132]
+                  - cell "5" [ref=e1133]
+                  - cell "8" [ref=e1134]
+                  - cell "+3.0" [ref=e1135]
+                  - cell "26" [ref=e1136]
+                  - cell "✓ Verbeterd" [ref=e1137]
+                - row "2026-04-21 Kalm 6 4 -2.0 26 ✗ Gedaald" [ref=e1138]:
+                  - cell "2026-04-21" [ref=e1139]
+                  - cell "Kalm" [ref=e1140]
+                  - cell "6" [ref=e1141]
+                  - cell "4" [ref=e1142]
+                  - cell "-2.0" [ref=e1143]
+                  - cell "26" [ref=e1144]
+                  - cell "✗ Gedaald" [ref=e1145]
+                - row "2026-04-22 Energiek 6 7 +1.0 37 ✓ Verbeterd" [ref=e1146]:
+                  - cell "2026-04-22" [ref=e1147]
+                  - cell "Energiek" [ref=e1148]
+                  - cell "6" [ref=e1149]
+                  - cell "7" [ref=e1150]
+                  - cell "+1.0" [ref=e1151]
+                  - cell "37" [ref=e1152]
+                  - cell "✓ Verbeterd" [ref=e1153]
+                - row "2026-04-24 Kalm 7 4 -3.0 22 ✗ Gedaald" [ref=e1154]:
+                  - cell "2026-04-24" [ref=e1155]
+                  - cell "Kalm" [ref=e1156]
+                  - cell "7" [ref=e1157]
+                  - cell "4" [ref=e1158]
+                  - cell "-3.0" [ref=e1159]
+                  - cell "22" [ref=e1160]
+                  - cell "✗ Gedaald" [ref=e1161]
+                - row "2026-04-28 Kalm 6 5 -1.0 36 ✗ Gedaald" [ref=e1162]:
+                  - cell "2026-04-28" [ref=e1163]
+                  - cell "Kalm" [ref=e1164]
+                  - cell "6" [ref=e1165]
+                  - cell "5" [ref=e1166]
+                  - cell "-1.0" [ref=e1167]
+                  - cell "36" [ref=e1168]
+                  - cell "✗ Gedaald" [ref=e1169]
+                - row "2026-04-29 Energiek 6 9 +3.0 39 ✓ Verbeterd" [ref=e1170]:
+                  - cell "2026-04-29" [ref=e1171]
+                  - cell "Energiek" [ref=e1172]
+                  - cell "6" [ref=e1173]
+                  - cell "9" [ref=e1174]
+                  - cell "+3.0" [ref=e1175]
+                  - cell "39" [ref=e1176]
+                  - cell "✓ Verbeterd" [ref=e1177]
+                - row "2026-04-30 Neutraal 6 5 -1.0 27 ✗ Gedaald" [ref=e1178]:
+                  - cell "2026-04-30" [ref=e1179]
+                  - cell "Neutraal" [ref=e1180]
+                  - cell "6" [ref=e1181]
+                  - cell "5" [ref=e1182]
+                  - cell "-1.0" [ref=e1183]
+                  - cell "27" [ref=e1184]
+                  - cell "✗ Gedaald" [ref=e1185]
+                - row "2026-05-02 Kalm 7 5 -2.0 14 ✗ Gedaald" [ref=e1186]:
+                  - cell "2026-05-02" [ref=e1187]
+                  - cell "Kalm" [ref=e1188]
+                  - cell "7" [ref=e1189]
+                  - cell "5" [ref=e1190]
+                  - cell "-2.0" [ref=e1191]
+                  - cell "14" [ref=e1192]
+                  - cell "✗ Gedaald" [ref=e1193]
+                - row "2026-05-03 Energiek 5 8 +3.0 28 ✓ Verbeterd" [ref=e1194]:
+                  - cell "2026-05-03" [ref=e1195]
+                  - cell "Energiek" [ref=e1196]
+                  - cell "5" [ref=e1197]
+                  - cell "8" [ref=e1198]
+                  - cell "+3.0" [ref=e1199]
+                  - cell "28" [ref=e1200]
+                  - cell "✓ Verbeterd" [ref=e1201]
+                - row "2026-05-05 Neutraal 5 6 +1.0 13 ✓ Verbeterd" [ref=e1202]:
+                  - cell "2026-05-05" [ref=e1203]
+                  - cell "Neutraal" [ref=e1204]
+                  - cell "5" [ref=e1205]
+                  - cell "6" [ref=e1206]
+                  - cell "+1.0" [ref=e1207]
+                  - cell "13" [ref=e1208]
+                  - cell "✓ Verbeterd" [ref=e1209]
+                - row "2026-05-06 Energiek 6 6 +0.0 28 – Gelijk" [ref=e1210]:
+                  - cell "2026-05-06" [ref=e1211]
+                  - cell "Energiek" [ref=e1212]
+                  - cell "6" [ref=e1213]
+                  - cell "6" [ref=e1214]
+                  - cell "+0.0" [ref=e1215]
+                  - cell "28" [ref=e1216]
+                  - cell "– Gelijk" [ref=e1217]
+                - row "2026-05-07 Energiek 5 7 +2.0 41 ✓ Verbeterd" [ref=e1218]:
+                  - cell "2026-05-07" [ref=e1219]
+                  - cell "Energiek" [ref=e1220]
+                  - cell "5" [ref=e1221]
+                  - cell "7" [ref=e1222]
+                  - cell "+2.0" [ref=e1223]
+                  - cell "41" [ref=e1224]
+                  - cell "✓ Verbeterd" [ref=e1225]
+                - row "2026-05-08 Kalm 6 6 +0.0 15 – Gelijk" [ref=e1226]:
+                  - cell "2026-05-08" [ref=e1227]
+                  - cell "Kalm" [ref=e1228]
+                  - cell "6" [ref=e1229]
+                  - cell "6" [ref=e1230]
+                  - cell "+0.0" [ref=e1231]
+                  - cell "15" [ref=e1232]
+                  - cell "– Gelijk" [ref=e1233]
+                - row "2026-05-11 Kalm 7 7 +0.0 — – Gelijk" [ref=e1234]:
+                  - cell "2026-05-11" [ref=e1235]
+                  - cell "Kalm" [ref=e1236]
+                  - cell "7" [ref=e1237]
+                  - cell "7" [ref=e1238]
+                  - cell "+0.0" [ref=e1239]
+                  - cell "—" [ref=e1240]
+                  - cell "– Gelijk" [ref=e1241]
+                - row "2026-05-19 Energiek 6 5 -1.0 — ✗ Gedaald" [ref=e1242]:
+                  - cell "2026-05-19" [ref=e1243]
+                  - cell "Energiek" [ref=e1244]
+                  - cell "6" [ref=e1245]
+                  - cell "5" [ref=e1246]
+                  - cell "-1.0" [ref=e1247]
+                  - cell "—" [ref=e1248]
+                  - cell "✗ Gedaald" [ref=e1249]
+                - row "2026-05-20 Neutraal 5 6 +1.0 — ✓ Verbeterd" [ref=e1250]:
+                  - cell "2026-05-20" [ref=e1251]
+                  - cell "Neutraal" [ref=e1252]
+                  - cell "5" [ref=e1253]
+                  - cell "6" [ref=e1254]
+                  - cell "+1.0" [ref=e1255]
+                  - cell "—" [ref=e1256]
+                  - cell "✓ Verbeterd" [ref=e1257]
+                - row "2026-05-22 Energiek 8 7 -1.0 — ✗ Gedaald" [ref=e1258]:
+                  - cell "2026-05-22" [ref=e1259]
+                  - cell "Energiek" [ref=e1260]
+                  - cell "8" [ref=e1261]
+                  - cell "7" [ref=e1262]
+                  - cell "-1.0" [ref=e1263]
+                  - cell "—" [ref=e1264]
+                  - cell "✗ Gedaald" [ref=e1265]
+                - row "2026-05-23 Neutraal 4 5 +1.0 — ✓ Verbeterd" [ref=e1266]:
+                  - cell "2026-05-23" [ref=e1267]
+                  - cell "Neutraal" [ref=e1268]
+                  - cell "4" [ref=e1269]
+                  - cell "5" [ref=e1270]
+                  - cell "+1.0" [ref=e1271]
+                  - cell "—" [ref=e1272]
+                  - cell "✓ Verbeterd" [ref=e1273]
+          - generic [ref=e1276]:
+            - generic [ref=e1277]: Wat betekent dit?
+            - generic [ref=e1278]: "Over 42 sessies gemiddeld: +0.4 pt ± 2.1. Hoogste gemiddelde stemmingswinst voor Kokosnoot: Neutraal (+0.4 pt)."
+            - generic [ref=e1279]: Het beste ML-model (Gradient Boosting, R²=0.41 op groepsniveau, N=40 sessies totaal) verklaart een deel van de stemmingsvariatie — maar N=40 is exploratief. Patronen zijn richtinggevend, geen bewijs.
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e74]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e194]

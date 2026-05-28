@@ -1,0 +1,159 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [selected] [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e45]:
+      - generic [ref=e46]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e47] [cursor=pointer]
+      - button "Kiwi ○" [ref=e48] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e49] [cursor=pointer]
+      - button "Limoen ◑" [ref=e50] [cursor=pointer]
+      - button "Peer ◑" [ref=e51] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e52] [cursor=pointer]
+      - generic [ref=e53]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e54]:
+      - tablist [ref=e55]:
+        - tab "Wetenschap" [ref=e56] [cursor=pointer]
+        - tab "Model & Data" [active] [selected] [ref=e57] [cursor=pointer]
+        - tab "Pipeline" [ref=e58] [cursor=pointer]
+      - tabpanel [ref=e238]:
+        - generic [ref=e239]:
+          - generic [ref=e240]:
+            - generic [ref=e241]: Binnenin het Model
+            - paragraph [ref=e242]: Volledige transparantie over elk model, kenmerk en posterior die gebruikt worden om de aanbevelingen te genereren.
+          - generic [ref=e244]:
+            - generic [ref=e245]: Voorspellende modellen - Stemmingsdelta
+            - table [ref=e247]:
+              - rowgroup [ref=e248]:
+                - row "Model MAE RMSE R2 (LOO-KV) Overfittingverschil" [ref=e249]:
+                  - columnheader "Model" [ref=e250]
+                  - columnheader "MAE" [ref=e251]
+                  - columnheader "RMSE" [ref=e252]
+                  - columnheader "R2 (LOO-KV)" [ref=e253]
+                  - columnheader "Overfittingverschil" [ref=e254]
+              - rowgroup [ref=e255]:
+                - row "Dummy basislijn 1.988 2.752 -0.052 0.052" [ref=e256]:
+                  - cell "Dummy basislijn" [ref=e257]
+                  - cell "1.988" [ref=e258]
+                  - cell "2.752" [ref=e259]
+                  - cell "-0.052" [ref=e260]
+                  - cell "0.052" [ref=e261]
+                - row "Ridge regressie 1.737 2.338 0.241 0.270" [ref=e262]:
+                  - cell "Ridge regressie" [ref=e263]
+                  - cell "1.737" [ref=e264]
+                  - cell "2.338" [ref=e265]
+                  - cell "0.241" [ref=e266]
+                  - cell "0.270" [ref=e267]
+                - row "Random Forest 1.438 2.093 0.391 0.345" [ref=e268]:
+                  - cell "Random Forest" [ref=e269]
+                  - cell "1.438" [ref=e270]
+                  - cell "2.093" [ref=e271]
+                  - cell "0.391" [ref=e272]
+                  - cell "0.345" [ref=e273]
+                - row "Gradient Boosting 1.473 2.068 0.406 0.348" [ref=e274]:
+                  - cell "Gradient Boosting" [ref=e275]
+                  - cell "1.473" [ref=e276]
+                  - cell "2.068" [ref=e277]
+                  - cell "0.406" [ref=e278]
+                  - cell "0.348" [ref=e279]
+                - row "Gemengd-effecten model (LME) 1.960 2.443 0.171 nan" [ref=e280]:
+                  - cell "Gemengd-effecten model (LME)" [ref=e281]
+                  - cell "1.960" [ref=e282]
+                  - cell "2.443" [ref=e283]
+                  - cell "0.171" [ref=e284]
+                  - cell "nan" [ref=e285]
+            - paragraph [ref=e286]: LOO-KV = Leave-One-Out kruisvalidatie. Per deelnemer geevalueerd.
+            - generic [ref=e287]:
+              - generic [ref=e288]: ⚠ Vermogenanalyse
+              - text: Voor Cohen's d = 0.23 (Kalm vs Energiek) is N ≈ 608 sessies nodig voor 80% vermogen (α=0.05, tweezijdig) — 304 per conditie. De huidige N=40 biedt slechts ~12% vermogen voor dit effect. Alle ML-resultaten zijn daarom uitsluitend exploratief — geen conclusies trekken.
+          - generic [ref=e290]:
+            - generic [ref=e291]:
+              - generic [ref=e292]: Wat voorspelt de stemming?
+              - button "▲ Verberg SHAP" [ref=e293] [cursor=pointer]:
+                - generic [ref=e294]: ▲ Verberg SHAP
+            - generic [ref=e295]: SHAP-waarden · Random Forest op mood_delta · N=40 sessies, exploratief
+            - generic [ref=e296]: "baseline_deviation_entry is het sterkste kenmerk: hoe gestresseerd ben jij t.o.v. jouw normaal op dit uur van de dag?"
+            - generic [ref=e298]:
+              - generic [ref=e299]:
+                - generic [ref=e300]: Exploratief — N=40 sessies. Patronen zijn richtinggevend, geen inferentie.
+                - img "SHAP beeswarm plot — mood_delta RandomForest" [ref=e302]
+                - generic [ref=e303]: Elke stip is een sessie. Positieve SHAP-waarden verhogen de voorspelde stemmingsdelta. Rode stippen = hoge kenmerkswaarde, blauwe stippen = lage waarde.
+              - generic [ref=e304]:
+                - generic [ref=e305]: Aanvullende modeldiagnostiek
+                - generic [ref=e306]:
+                  - generic [ref=e307]:
+                    - generic [ref=e308]: Modelcomparisatie — MAE/RMSE/R² per model
+                    - img "Modelcomparisatie — MAE/RMSE/R² per model" [ref=e310]
+                  - generic [ref=e311]:
+                    - generic [ref=e312]: Voorspeld vs. werkelijk (LOO-KV)
+                    - img "Voorspeld vs. werkelijk (LOO-KV)" [ref=e314]
+                  - generic [ref=e315]:
+                    - generic [ref=e316]: MAE per deelnemer
+                    - img "MAE per deelnemer" [ref=e318]
+                  - generic [ref=e319]:
+                    - generic [ref=e320]: Ridge-regressiecoëfficiënten
+                    - img "Ridge-regressiecoëfficiënten" [ref=e322]
+          - generic [ref=e324]:
+            - generic [ref=e325]: Bayesiaanse aanbeveler - Posterior-verdelingen
+            - generic [ref=e326]: 2.000 MCMC-samples via JAX/NumPyro - 89% geloofwaardigheidsintervallen
+            - generic [ref=e327]: "Populatieniveau: de HDI voor alle afspeellijsteffecten omvat nul — de data zijn onvoldoende om een betrouwbaar populatiegemiddeld effect aan te tonen. Per-deelnemer posteriors (hieronder) tonen de individuele variatie."
+            - generic [ref=e328]:
+              - generic [ref=e329]:
+                - generic [ref=e330]: Bosbes
+                - img [ref=e331]
+              - generic [ref=e332]:
+                - generic [ref=e333]: Kiwi
+                - img [ref=e334]
+              - generic [ref=e335]:
+                - generic [ref=e336]: Kokosnoot
+                - img [ref=e337]
+              - generic [ref=e338]:
+                - generic [ref=e339]: Limoen
+                - img [ref=e340]
+              - generic [ref=e341]:
+                - generic [ref=e342]: Peer
+                - img [ref=e343]
+              - generic [ref=e344]:
+                - generic [ref=e345]: Watermeloen
+                - img [ref=e346]
+          - generic [ref=e348]:
+            - generic [ref=e349]:
+              - generic [ref=e350]: Sessie-effecten - Statistische significantie
+              - button "▼ Toon tabel" [ref=e351] [cursor=pointer]:
+                - generic [ref=e352]: ▼ Toon tabel
+            - generic [ref=e353]: Wilcoxon signed-rank, tweezijdig - N>=5 vereist - Per deelnemer
+            - generic [ref=e354]: ⚠ Geen tests bereiken significantie na FDR-correctie (27 tests, α=0.05). Effect sizes zijn aanwezig maar de steekproef (N=40) is onvoldoende om ze te bevestigen.
+            - generic [ref=e355]:
+              - generic [ref=e356]:
+                - generic [ref=e357]: Deelnemer
+                - combobox "Deelnemer" [ref=e359]:
+                  - option "Allemaal" [selected]
+                  - option "bosbes"
+                  - option "kiwi"
+                  - option "kokosnoot"
+                  - option "limoen"
+                  - option "peer"
+                  - option "watermeloen"
+              - generic [ref=e362] [cursor=pointer]:
+                - checkbox "Alleen significant" [checked] [ref=e363]
+                - text: Alleen significant
+          - generic [ref=e366]:
+            - generic [ref=e367]: Hoe alles samenhangt
+            - button "▼ Toon diagram" [ref=e368] [cursor=pointer]:
+              - generic [ref=e369]: ▼ Toon diagram
+          - generic [ref=e371]:
+            - generic [ref=e372]: Alle modelcode, ruwe data en MCMC-traces zijn beschikbaar in de open-source repository.
+            - link "Bekijk op GitHub ->" [ref=e373] [cursor=pointer]:
+              - /url: https://github.com/timothydhoe/spotify-project
+    - generic [ref=e37]:
+      - generic [ref=e40]:
+        - generic [ref=e235]: Selecteer een afspeellijst
+        - generic [ref=e42]: MoodTune
+      - generic [ref=e44]: "- -"
+  - img [ref=e236]

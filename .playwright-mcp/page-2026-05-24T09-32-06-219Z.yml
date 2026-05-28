@@ -1,0 +1,57 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Wetenschap" [ref=e8] [cursor=pointer]
+        - tab "Pipeline" [ref=e9] [cursor=pointer]
+        - tab "Circadiaan" [ref=e10] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e11] [cursor=pointer]
+        - tab "Afspelen" [ref=e12] [cursor=pointer]
+        - tab "Resultaten" [ref=e13] [cursor=pointer]
+        - tab "Model" [ref=e14] [cursor=pointer]
+  - tabpanel [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - generic [ref=e20]: PROJECT R.E.M.
+        - generic [ref=e21]: Wat als muziek je stress kon reguleren?
+        - paragraph [ref=e22]: We onderzochten of ISO-geordende, gepersonaliseerde Spotify-afspeellijsten de fysiologische stress meetbaar kunnen verlagen -- en volgden elke hartslag om het uit te vinden.
+        - link "Ontdek de wetenschap ->" [ref=e24] [cursor=pointer]:
+          - /url: "#"
+      - generic [ref=e25]:
+        - generic [ref=e26]: HOE HET WERKT
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: 💓
+            - generic [ref=e30]: Stress Gedetecteerd
+            - generic [ref=e31]: Smartwatch meet je HRV en stressniveau
+          - generic [ref=e32]: "->"
+          - generic [ref=e33]:
+            - generic [ref=e34]: 🎵
+            - generic [ref=e35]: ISO-afspeellijst Aangemaakt
+            - generic [ref=e36]: Nummers geordend om je arousal geleidelijk naar kalmte te begeleiden
+          - generic [ref=e37]: "->"
+          - generic [ref=e38]:
+            - generic [ref=e39]: 📉
+            - generic [ref=e40]: Herstel Gemeten
+            - generic [ref=e41]: Biometrie gevolgd gedurende 60 min na de sessie
+      - generic [ref=e42]:
+        - generic [ref=e43]:
+          - generic [ref=e44]: "6"
+          - generic [ref=e45]: Deelnemers
+        - generic [ref=e46]:
+          - generic [ref=e47]: "47"
+          - generic [ref=e48]: Sessies
+        - generic [ref=e49]:
+          - generic [ref=e50]: "8"
+          - generic [ref=e51]: Weken
+        - generic [ref=e52]:
+          - generic [ref=e53]: "3"
+          - generic [ref=e54]: Afspeellijsttypes
+      - generic [ref=e56]:
+        - generic [ref=e57]: Jouw Persoonlijke Afspeellijst
+        - paragraph [ref=e58]: Kies een deelnemer en genereer de afspeellijst die het Bayesiaanse model het best vindt passen bij zijn of haar historische sessiepatroon.
+        - button "Genereer afspeellijst" [ref=e61] [cursor=pointer]:
+          - generic [ref=e62]: Genereer afspeellijst
+      - generic [ref=e65]: Alle analyse is open-source. Data geanonimiseerd met fruitcodenamen.

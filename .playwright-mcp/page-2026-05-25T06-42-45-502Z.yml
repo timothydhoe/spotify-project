@@ -1,0 +1,147 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Aanbevelen" [active] [selected] [ref=e8] [cursor=pointer]
+        - tab "Afspelen" [ref=e9] [cursor=pointer]
+        - tab "Resultaten" [ref=e10] [cursor=pointer]
+        - tab "Circadiaan" [ref=e11] [cursor=pointer]
+        - tab "Wetenschap" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+        - tab "Pipeline" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e68]:
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - generic [ref=e71]: Wat moet je nu luisteren?
+          - paragraph [ref=e72]: Voer jouw huidige toestand in en ontvang een gepersonaliseerde ISO-afspeellijstaanbeveling.
+        - generic [ref=e74]:
+          - generic [ref=e75]:
+            - generic [ref=e76]: Jouw huidige situatie
+            - generic [ref=e77]:
+              - generic [ref=e78]:
+                - generic [ref=e79]: Deelnemer
+                - generic [ref=e80]: Onderzoeksmodus
+              - combobox [ref=e83]:
+                - option "bosbes" [selected]
+                - option "kiwi"
+                - option "kokosnoot"
+                - option "limoen"
+                - option "peer"
+                - option "watermeloen"
+            - generic [ref=e84]:
+              - generic [ref=e85]:
+                - generic [ref=e86]: Kies je stressniveau
+                - generic [ref=e88]: "55"
+              - generic [ref=e89]:
+                - generic [ref=e91]:
+                  - generic [ref=e93]: "0"
+                  - generic [ref=e94]: "100"
+                  - generic [ref=e95]: "55"
+                - textbox [ref=e98]: "55"
+              - generic [ref=e99]:
+                - generic [ref=e100]: 0 — ontspannen
+                - generic [ref=e101]: 100 — zeer gestresseerd
+            - generic [ref=e102]:
+              - generic [ref=e103]:
+                - generic [ref=e104]: Huidig tijdstip
+                - generic [ref=e106]: 17:00
+              - generic [ref=e107]:
+                - generic [ref=e109]:
+                  - generic [ref=e111]: "0"
+                  - generic [ref=e112]: "23"
+                  - generic [ref=e113]: "17"
+                - textbox [ref=e116]: "17"
+              - generic [ref=e117]:
+                - generic [ref=e118]: 00:00
+                - generic [ref=e119]: 23:00
+            - generic [ref=e120]:
+              - generic [ref=e121]:
+                - generic [ref=e122]: Body Battery
+                - generic [ref=e124]: "40"
+              - generic [ref=e125]:
+                - generic [ref=e127]:
+                  - generic [ref=e129]: "0"
+                  - generic [ref=e130]: "100"
+                  - generic [ref=e131]: "40"
+                - textbox [ref=e134]: "40"
+              - generic [ref=e135]: Garmin Body Battery — lager = meer vermoeid
+            - generic [ref=e136]:
+              - generic [ref=e137]: Activiteitstoestand
+              - generic [ref=e139]:
+                - button "Slaap" [ref=e140] [cursor=pointer]
+                - button "Rust" [ref=e141] [cursor=pointer]
+                - button "Licht" [ref=e142] [cursor=pointer]
+                - button "Matig" [ref=e143] [cursor=pointer]
+                - button "Zwaar" [ref=e144] [cursor=pointer]
+            - group [ref=e145]:
+              - generic "ℹ Over de schuifregelaars" [ref=e146] [cursor=pointer]
+          - generic [ref=e147]:
+            - generic [ref=e149]:
+              - generic [ref=e150]: Aanbeveling
+              - generic [ref=e151]: ENERGIEK
+              - generic [ref=e152]: ISO - Opstijging
+            - generic [ref=e154]:
+              - generic [ref=e155]: Posterior-zekerheid
+              - generic [ref=e157]: 38%
+            - generic [ref=e161]:
+              - generic [ref=e162]: Posterior per afspeellijsttype
+              - generic [ref=e163]: Pre-berekend per deelnemer · foutenbalken = 89% CI
+              - generic [ref=e167]:
+                - img:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic: 38%
+                                - generic:
+                                  - generic: 24%
+                                - generic:
+                                  - generic: 38%
+                      - generic:
+                        - generic:
+                          - generic: "0"
+                        - generic:
+                          - generic: "20"
+                        - generic:
+                          - generic: "40"
+                        - generic:
+                          - generic: "60"
+                        - generic:
+                          - generic: "80"
+                        - generic:
+                          - generic: "100"
+                        - generic:
+                          - generic: "120"
+                      - generic:
+                        - generic:
+                          - generic: Kalm
+                        - generic:
+                          - generic: Neutraal
+                        - generic:
+                          - generic: Energiek
+                - img:
+                  - generic:
+                    - generic:
+                      - generic: Posterior kans (%)
+                - toolbar [ref=e181]:
+                  - link "plotly-logomark" [ref=e183] [cursor=pointer]:
+                    - /url: https://plotly.com/
+                    - img "plotly-logomark" [ref=e184]
+                - img
+              - paragraph [ref=e199]: N=8 sessies voor Bosbes. Posterior breedte neemt af naarmate meer sessies beschikbaar zijn.
+            - generic [ref=e201]: Op 17:00 met activiteitstoestand 'Matig' wordt Energiek aanbevolen (38% posterior-kans voor Bosbes). Jouw stress is +29 punten boven jouw basislijn op 17:00.
+            - button "Hoe is dit berekend? ↓" [ref=e203] [cursor=pointer]:
+              - generic [ref=e204]: Hoe is dit berekend? ↓
+    - generic [ref=e59]:
+      - generic [ref=e62]:
+        - generic [ref=e64]: Selecteer een afspeellijst
+        - generic [ref=e65]: MoodTune
+      - generic [ref=e67]: "- -"
+  - img [ref=e207]

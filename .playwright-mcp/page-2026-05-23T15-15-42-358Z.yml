@@ -1,0 +1,95 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Science" [ref=e8] [cursor=pointer]
+        - tab "Circadian" [active] [selected] [ref=e9] [cursor=pointer]
+        - tab "Recommend" [ref=e10] [cursor=pointer]
+        - tab "Replay" [ref=e11] [cursor=pointer]
+        - tab "Results" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e165]:
+    - generic [ref=e166]:
+      - generic [ref=e167]:
+        - generic [ref=e168]: Your Circadian Signature
+        - paragraph [ref=e169]: How does your stress level compare to your own baseline at each hour of the day?
+      - generic [ref=e172]:
+        - button "Bosbes" [ref=e173] [cursor=pointer]
+        - generic "No circadian baseline data collected for this participant" [ref=e174]:
+          - button "Kiwi"
+        - button "Kokosnoot" [ref=e175] [cursor=pointer]
+        - button "Limoen" [ref=e176] [cursor=pointer]
+        - button "Peer" [ref=e177] [cursor=pointer]
+        - generic "No circadian baseline data collected for this participant" [ref=e178]:
+          - button "Watermeloen"
+      - generic [ref=e180]:
+        - generic [ref=e182]: Hourly Stress Baseline — Bosbes
+        - generic [ref=e183]: Non-session days only · ±1σ band
+        - generic [ref=e187]:
+          - img:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: 0:00
+                  - generic:
+                    - generic: 3:00
+                  - generic:
+                    - generic: 6:00
+                  - generic:
+                    - generic: 9:00
+                  - generic:
+                    - generic: 12:00
+                  - generic:
+                    - generic: 15:00
+                  - generic:
+                    - generic: 18:00
+                  - generic:
+                    - generic: 21:00
+                - generic:
+                  - generic:
+                    - generic: "0"
+                  - generic:
+                    - generic: "20"
+                  - generic:
+                    - generic: "40"
+                  - generic:
+                    - generic: "60"
+                  - generic:
+                    - generic: "80"
+                  - generic:
+                    - generic: "100"
+          - img:
+            - generic:
+              - generic [ref=e204]:
+                - generic [ref=e206]: Your mean stress
+                - generic [ref=e209]: Calm session
+                - generic [ref=e216]: Neutral session
+                - generic [ref=e223]: Energy session
+              - generic:
+                - generic: Hour of day
+              - generic:
+                - generic: Stress (0–100)
+          - toolbar [ref=e229]:
+            - link "plotly-logomark" [ref=e231] [cursor=pointer]:
+              - /url: https://plotly.com/
+              - img "plotly-logomark" [ref=e232]
+          - img
+      - generic [ref=e246]:
+        - generic [ref=e247]:
+          - generic [ref=e248]: 1:00
+          - generic [ref=e249]: Calmest hour
+        - generic [ref=e250]:
+          - generic [ref=e251]: 12–14:00
+          - generic [ref=e252]: Peak stress window
+        - generic [ref=e253]:
+          - generic [ref=e254]: "+9.1"
+          - generic [ref=e255]: Pre-session deviation (mean, stress pts 0–100)
+      - generic [ref=e257]:
+        - generic [ref=e258]: What is Circadian Baseline Deviation?
+        - paragraph [ref=e259]: Rather than comparing your session stress to a fixed number, we compare it to YOUR typical stress at that same hour on non-session days. This controls for natural circadian rhythm.
+        - generic [ref=e260]: deviation = pre_stress_mean − expected_stress_at_hour
+        - generic [ref=e261]: A positive deviation means you were more stressed than usual for that time of day
+  - img [ref=e163]

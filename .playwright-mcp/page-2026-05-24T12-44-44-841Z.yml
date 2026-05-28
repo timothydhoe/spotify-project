@@ -1,0 +1,153 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Wetenschap" [ref=e8] [cursor=pointer]
+        - tab "Pipeline" [ref=e9] [cursor=pointer]
+        - tab "Circadiaan" [ref=e10] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e11] [cursor=pointer]
+        - tab "Afspelen" [active] [selected] [ref=e12] [cursor=pointer]
+        - tab "Resultaten" [ref=e13] [cursor=pointer]
+        - tab "Model" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e520]:
+      - generic [ref=e521]:
+        - generic [ref=e522]:
+          - generic [ref=e523]: Selecteer sessie
+          - generic [ref=e526]:
+            - button "Bosbes" [ref=e527] [cursor=pointer]
+            - generic "Geen sessie-traces voor deze deelnemer" [ref=e528]:
+              - button "Kiwi"
+            - button "Kokosnoot" [ref=e529] [cursor=pointer]
+            - button "Limoen" [ref=e530] [cursor=pointer]
+            - button "Peer" [ref=e531] [cursor=pointer]
+            - generic "Geen sessie-traces voor deze deelnemer" [ref=e532]:
+              - button "Watermeloen"
+          - generic [ref=e534]:
+            - button "< Vorige" [ref=e535] [cursor=pointer]
+            - combobox [ref=e538]:
+              - option "di 10 mrt. 2026 Energiek" [selected]
+              - option "do 5 mrt. 2026 Energiek"
+              - option "di 3 mrt. 2026 Kalm"
+              - option "ma 2 mrt. 2026 —"
+              - option "ma 23 feb. 2026 Energiek"
+              - option "di 17 feb. 2026 Neutraal"
+              - option "di 3 feb. 2026 Energiek"
+              - option "vr 30 jan. 2026 Kalm"
+            - button "Volgende >" [ref=e539] [cursor=pointer]
+            - generic [ref=e541]:
+              - generic [ref=e542]: ENERGIEK
+              - generic [ref=e543]: Sessie 8 van 8
+        - generic [ref=e546]:
+          - generic [ref=e547]:
+            - generic [ref=e548]: di 10 mrt. 2026
+            - generic [ref=e549]: Datum
+          - generic [ref=e550]:
+            - generic [ref=e551]: 08:03
+            - generic [ref=e552]: Starttijd
+          - generic [ref=e553]:
+            - generic [ref=e554]: 37 min
+            - generic [ref=e555]: Duur
+          - generic [ref=e556]:
+            - text: ENERGIEK
+            - generic [ref=e557]: Afspeellijst
+        - generic [ref=e560]:
+          - generic [ref=e561]:
+            - generic [ref=e562]: VOOR
+            - generic [ref=e563]: 59 min
+          - generic [ref=e564]:
+            - generic [ref=e565]: TIJDENS SESSIE
+            - generic [ref=e566]: 37 min
+          - generic [ref=e567]:
+            - generic [ref=e568]: NA
+            - generic [ref=e569]: 59 min
+        - generic [ref=e574]:
+          - img:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: −60
+                  - generic:
+                    - generic: −40
+                  - generic:
+                    - generic: −20
+                  - generic:
+                    - generic: "0"
+                  - generic:
+                    - generic: "20"
+                  - generic:
+                    - generic: "40"
+                  - generic:
+                    - generic: "60"
+                  - generic:
+                    - generic: "80"
+                - generic:
+                  - generic:
+                    - generic: "0"
+                  - generic:
+                    - generic: "20"
+                  - generic:
+                    - generic: "40"
+                  - generic:
+                    - generic: "60"
+                  - generic:
+                    - generic: "80"
+                  - generic:
+                    - generic: "100"
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic: "40"
+                    - generic:
+                      - generic: "60"
+                    - generic:
+                      - generic: "80"
+                    - generic:
+                      - generic: "100"
+                    - generic:
+                      - generic: "120"
+          - img:
+            - generic:
+              - generic [ref=e595]:
+                - generic [ref=e597]: Stress
+                - generic [ref=e600]: Hartslag
+              - generic:
+                - generic: Minuten t.o.v. sessiestart
+              - generic:
+                - generic: Stress (0-100)
+              - generic:
+                - generic: Hartslag (bpm)
+          - toolbar [ref=e602]:
+            - link "plotly-logomark" [ref=e604] [cursor=pointer]:
+              - /url: https://plotly.com/
+              - img "plotly-logomark" [ref=e605]
+          - img
+        - generic [ref=e619]:
+          - generic [ref=e620]:
+            - generic [ref=e621]: Voor
+            - generic [ref=e622]: 😟
+            - generic [ref=e623]: Gestresseerd of gespannen
+            - generic [ref=e624]: 8/10
+          - generic [ref=e625]:
+            - generic [ref=e626]: "->"
+            - generic [ref=e627]: "-2 pt"
+          - generic [ref=e628]:
+            - generic [ref=e629]: Na
+            - generic [ref=e630]: 😟
+            - generic [ref=e631]: Gestresseerd of gespannen
+            - generic [ref=e632]: 6/10
+        - generic [ref=e635]:
+          - generic [ref=e636]: +78 minuten
+          - generic [ref=e637]: sneller herstel dan jouw circadiane basislijn
+          - generic [ref=e638]: tau_verwacht = 98 min - tau_werkelijk = 20 min - R2 = 0.01
+          - generic [ref=e639]: Lage R2 - herstelcurve is ruis. Schatting van tau is benaderend.
+        - emphasis [ref=e641]: Dit zijn jouw werkelijke fysiologische gegevens. Niets is gesimuleerd of geinterpoleerd.
+    - generic [ref=e47]:
+      - generic [ref=e50]:
+        - generic [ref=e52]: Selecteer een afspeellijst
+        - generic [ref=e53]: MoodTune
+      - generic [ref=e55]: "- -"
+  - img [ref=e384]

@@ -1,0 +1,192 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e94]:
+      - generic [ref=e95]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e96] [cursor=pointer]
+      - button "Kiwi ○" [ref=e97] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e98] [cursor=pointer]
+      - button "Limoen ◑" [ref=e99] [cursor=pointer]
+      - button "Peer ◑" [ref=e100] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e101] [cursor=pointer]
+      - generic [ref=e102]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: PROJECT R.E.M.
+          - generic [ref=e19]: MoodTune
+          - paragraph [ref=e20]: Kies een willekeurig moment uit de wearables-data. Het ML-model berekent op basis van de biometrische staat op dat moment welk afspeellijsttype de beste stemmingsverbetering zou opleveren.
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Kies een moment
+            - paragraph [ref=e24]: Selecteer een datum en uur. Het model zoekt de werkelijke biometrische waarden op uit de wearables-data.
+            - generic [ref=e25]:
+              - generic [ref=e26]: Datum
+              - textbox "Datum" [ref=e27]: 2026-05-08
+            - generic [ref=e29]:
+              - generic [ref=e30]: Uur van de dag
+              - generic [ref=e68]:
+                - generic [ref=e70]: 0h
+                - generic [ref=e71]: 23h
+                - generic [ref=e72]: 18h
+              - textbox "Uur van de dag" [ref=e39]: "18"
+            - button "Willekeurig moment" [ref=e41] [cursor=pointer]
+            - generic [ref=e103]:
+              - generic [ref=e104]: Staat van Kokosnoot op vr 8 mei. 2026 om 18:00
+              - generic [ref=e106]:
+                - generic [ref=e107]: 77 bpm
+                - generic [ref=e108]: Hartslag
+          - generic [ref=e109]:
+            - generic [ref=e110]: ML-aanbeveling (Ridge)
+            - generic [ref=e111]:
+              - generic [ref=e112]: ENERGIEK
+              - generic [ref=e113]: ISO — Stijgend BPM
+            - generic [ref=e114]: "Voorspelde stemmingswinst — Energiek: +0.9 pt · Neutraal: +0.6 pt · Kalm: +0.5 pt"
+        - button "Genereer afspeellijst" [active] [ref=e46] [cursor=pointer]:
+          - generic [ref=e47]: Genereer afspeellijst
+        - generic [ref=e115]:
+          - generic [ref=e116]:
+            - generic [ref=e117]:
+              - generic [ref=e118]: 🎵
+              - generic [ref=e119]:
+                - generic [ref=e120]: Gegenereerd voor Kokosnoot
+                - heading "Energieke Afspeellijst" [level=1] [ref=e121]
+                - paragraph [ref=e122]: ISO-geordende nummers om je arousal geleidelijk te begeleiden. Gebaseerd op jouw biometrische staat op vr 8 mei. 2026.
+                - generic [ref=e123]:
+                  - generic [ref=e124]: ENERGY
+                  - generic [ref=e125]:
+                    - strong [ref=e126]: "12"
+                    - text: nummers
+                  - strong [ref=e128]: 44 min
+                  - generic [ref=e129]: "ISO-richting: Stijgend BPM"
+                  - img [ref=e131]
+            - generic [ref=e135]:
+              - generic [ref=e136]:
+                - generic [ref=e137]: "#"
+                - generic [ref=e138]: Titel
+                - generic [ref=e139]: BPM
+                - generic [ref=e140]: Energie
+                - generic [ref=e141]: Duur
+              - generic [ref=e142] [cursor=pointer]:
+                - generic [ref=e143]: ♪
+                - generic [ref=e145]:
+                  - generic [ref=e146]: Daisy
+                  - generic [ref=e147]: Red Rum Club
+                  - generic [ref=e148]: ♦ 0% akoestisch♡ 72% valentie
+                - generic [ref=e149]: 122 BPM
+                - generic [ref=e152]: 3:13
+              - generic [ref=e153] [cursor=pointer]:
+                - generic [ref=e154]: "2"
+                - generic [ref=e156]:
+                  - generic [ref=e157]: Anyone’s Ghost
+                  - generic [ref=e158]: The National
+                  - generic [ref=e159]: ♦ 28% akoestisch♡ 74% valentie
+                - generic [ref=e160]: 120 BPM
+                - generic [ref=e163]: 2:54
+              - generic [ref=e164] [cursor=pointer]:
+                - generic [ref=e165]: "3"
+                - generic [ref=e167]:
+                  - generic [ref=e168]: The Rabbi
+                  - generic [ref=e169]: Blur
+                  - generic [ref=e170]: ♦ 5% akoestisch♡ 82% valentie
+                - generic [ref=e171]: 120 BPM
+                - generic [ref=e174]: 2:43
+              - generic [ref=e175] [cursor=pointer]:
+                - generic [ref=e176]: "4"
+                - generic [ref=e178]:
+                  - generic [ref=e179]: Star Treatment
+                  - generic [ref=e180]: Arctic Monkeys
+                  - generic [ref=e181]: ♦ 24% akoestisch♡ 66% valentie
+                - generic [ref=e182]: 120 BPM
+                - generic [ref=e185]: 5:54
+              - generic [ref=e186] [cursor=pointer]:
+                - generic [ref=e187]: "5"
+                - generic [ref=e189]:
+                  - generic [ref=e190]: Supermassive Black Hole
+                  - generic [ref=e191]: Muse
+                  - generic [ref=e192]: ♦ 4% akoestisch♡ 78% valentie
+                - generic [ref=e193]: 120 BPM
+                - generic [ref=e196]: 3:32
+              - generic [ref=e197] [cursor=pointer]:
+                - generic [ref=e198]: "6"
+                - generic [ref=e200]:
+                  - generic [ref=e201]: Undertaker
+                  - generic [ref=e202]: Red Rum Club
+                  - generic [ref=e203]: ♦ 0% akoestisch♡ 72% valentie
+                - generic [ref=e204]: 121 BPM
+                - generic [ref=e207]: 3:00
+              - generic [ref=e208] [cursor=pointer]:
+                - generic [ref=e209]: "7"
+                - generic [ref=e211]:
+                  - generic [ref=e212]: Blow
+                  - generic [ref=e213]: Blossoms
+                  - generic [ref=e214]: ♦ 0% akoestisch♡ 67% valentie
+                - generic [ref=e215]: 120 BPM
+                - generic [ref=e218]: 3:38
+              - generic [ref=e219] [cursor=pointer]:
+                - generic [ref=e220]: "8"
+                - generic [ref=e222]:
+                  - generic [ref=e223]: Sunkissed
+                  - generic [ref=e224]: The Vaccines
+                  - generic [ref=e225]: ♦ 2% akoestisch♡ 88% valentie
+                - generic [ref=e226]: 123 BPM
+                - generic [ref=e229]: 3:01
+              - generic [ref=e230] [cursor=pointer]:
+                - generic [ref=e231]: "9"
+                - generic [ref=e233]:
+                  - generic [ref=e234]: A Lack of Understanding
+                  - generic [ref=e235]: The Vaccines
+                  - generic [ref=e236]: ♦ 0% akoestisch♡ 61% valentie
+                - generic [ref=e237]: 123 BPM
+                - generic [ref=e240]: 2:58
+              - generic [ref=e241] [cursor=pointer]:
+                - generic [ref=e242]: "10"
+                - generic [ref=e244]:
+                  - generic [ref=e245]: Papillon
+                  - generic [ref=e246]: Editors
+                  - generic [ref=e247]: ♦ 0% akoestisch♡ 65% valentie
+                - generic [ref=e248]: 126 BPM
+                - generic [ref=e251]: 5:24
+              - generic [ref=e252] [cursor=pointer]:
+                - generic [ref=e253]: "11"
+                - generic [ref=e255]:
+                  - generic [ref=e256]: Billy Goodbye
+                  - generic [ref=e257]: Franz Ferdinand
+                  - generic [ref=e258]: ♦ 0% akoestisch♡ 76% valentie
+                - generic [ref=e259]: 124 BPM
+                - generic [ref=e262]: 3:41
+              - generic [ref=e263] [cursor=pointer]:
+                - generic [ref=e264]: "12"
+                - generic [ref=e266]:
+                  - generic [ref=e267]: My Number
+                  - generic [ref=e268]: Foals
+                  - generic [ref=e269]: ♦ 2% akoestisch♡ 81% valentie
+                - generic [ref=e270]: 128 BPM
+                - generic [ref=e273]: 3:58
+              - generic [ref=e274]:
+                - generic [ref=e275]: ISO-richting
+                - generic [ref=e280]: "- stijgend bpm"
+          - generic [ref=e281]: Aanbevolen voor Kokosnoot op basis van de biometrische staat op het geselecteerde moment.
+          - generic [ref=e283]:
+            - generic [ref=e284]: Wat nu?
+            - generic [ref=e285]:
+              - generic [ref=e286]:
+                - generic [ref=e287]: Bekijk een echte sessie
+                - generic [ref=e288]: Biometrische boog + herstelcurve →
+                - generic [ref=e289]: Navigeer naar Sessie-replay
+              - generic [ref=e290]:
+                - generic [ref=e291]: Persoonlijke aanbeveling
+                - generic [ref=e292]: Bayesiaans model + circadiane context →
+                - generic [ref=e293]: Navigeer naar Aanbevelingen
+    - generic [ref=e50]:
+      - generic [ref=e53]:
+        - generic [ref=e294]: Energieke afspeellijst — Kokosnoot
+        - generic [ref=e55]: MoodTune
+      - generic [ref=e57]: "- -"

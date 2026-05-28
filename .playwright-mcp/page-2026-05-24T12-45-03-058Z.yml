@@ -1,0 +1,85 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Wetenschap" [ref=e8] [cursor=pointer]
+        - tab "Pipeline" [ref=e9] [cursor=pointer]
+        - tab "Circadiaan" [ref=e10] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e11] [cursor=pointer]
+        - tab "Afspelen" [ref=e12] [cursor=pointer]
+        - tab "Resultaten" [active] [selected] [ref=e13] [cursor=pointer]
+        - tab "Model" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e642]:
+      - generic [ref=e643]:
+        - generic [ref=e646]:
+          - button "Bosbes" [ref=e647] [cursor=pointer]
+          - generic "Geen sessiedata voor deze deelnemer" [ref=e648]:
+            - button "Kiwi"
+          - button "Kokosnoot" [ref=e649] [cursor=pointer]
+          - button "Limoen" [ref=e650] [cursor=pointer]
+          - button "Peer" [ref=e651] [cursor=pointer]
+          - generic "Geen sessiedata voor deze deelnemer" [ref=e652]:
+            - button "Watermeloen"
+        - generic [ref=e654]:
+          - generic [ref=e655]: R.E.M.-profiel van Bosbes
+          - generic [ref=e656]: 8 sessies - Project R.E.M.
+        - generic [ref=e658]: "Error: name 'ACCENT_GREEN' is not defined"
+        - generic [ref=e660]:
+          - generic [ref=e661]: Stemmingsverbetering per afspeellijsttype
+          - generic [ref=e662]: Gemiddelde stemmingsdelta (na - voor) per type - hover voor N sessies
+          - generic [ref=e666]:
+            - img:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: "-1.0"
+                            - generic:
+                              - generic: "+0.0"
+                            - generic:
+                              - generic: "+2.0"
+                  - generic:
+                    - generic:
+                      - generic: −1
+                    - generic:
+                      - generic: −0.5
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "0.5"
+                    - generic:
+                      - generic: "1"
+                    - generic:
+                      - generic: "1.5"
+                    - generic:
+                      - generic: "2"
+                  - generic:
+                    - generic:
+                      - generic: Kalm
+                    - generic:
+                      - generic: Energiek
+                    - generic:
+                      - generic: Neutraal
+            - img:
+              - generic:
+                - generic:
+                  - generic: Gem. stemmingsverbetering (pt)
+            - toolbar [ref=e680]:
+              - link "plotly-logomark" [ref=e682] [cursor=pointer]:
+                - /url: https://plotly.com/
+                - img "plotly-logomark" [ref=e683]
+            - img
+        - generic [ref=e696]: "\"Jouw muziek is jouw medicijn.\""
+    - generic [ref=e47]:
+      - generic [ref=e50]:
+        - generic [ref=e52]: Selecteer een afspeellijst
+        - generic [ref=e53]: MoodTune
+      - generic [ref=e55]: "- -"
+  - img [ref=e384]

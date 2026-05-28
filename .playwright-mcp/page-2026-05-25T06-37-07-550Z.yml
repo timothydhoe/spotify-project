@@ -1,0 +1,56 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [active] [selected] [ref=e7] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e8] [cursor=pointer]
+        - tab "Afspelen" [ref=e9] [cursor=pointer]
+        - tab "Resultaten" [ref=e10] [cursor=pointer]
+        - tab "Circadiaan" [ref=e11] [cursor=pointer]
+        - tab "Wetenschap" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+        - tab "Pipeline" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]: PROJECT R.E.M.
+          - generic [ref=e21]: MoodTune
+          - paragraph [ref=e22]: Genereer jouw gepersonaliseerde ISO-afspeellijst op basis van Bayesiaanse analyse van historische sessies.
+          - generic [ref=e38]:
+            - button "Bosbes ●" [ref=e39] [cursor=pointer]
+            - button "Kiwi ○" [ref=e40] [cursor=pointer]
+            - button "Kokosnoot ●" [ref=e41] [cursor=pointer]
+            - button "Limoen ◑" [ref=e42] [cursor=pointer]
+            - button "Peer ◑" [ref=e43] [cursor=pointer]
+            - button "Watermeloen ○" [ref=e44] [cursor=pointer]
+            - generic [ref=e45]: ● vol ◑ gedeeltelijk ○ geen biometrie
+          - button "Genereer afspeellijst" [ref=e25] [cursor=pointer]:
+            - generic [ref=e26]: Genereer afspeellijst
+        - generic [ref=e46]:
+          - generic [ref=e47]:
+            - generic [ref=e48]: "6"
+            - generic [ref=e49]: Deelnemers
+          - generic [ref=e50]:
+            - generic [ref=e51]: "40"
+            - generic [ref=e52]: Sessies
+          - generic [ref=e53]:
+            - generic [ref=e54]: "8"
+            - generic [ref=e55]: Weken
+          - generic [ref=e56]:
+            - generic [ref=e57]: "3"
+            - generic [ref=e58]: Afspeellijsttypes
+        - generic [ref=e60]:
+          - generic [ref=e61]: Bayesiaanse aanbeveling voor Bosbes
+          - generic [ref=e62]:
+            - generic [ref=e63]: ENERGIEK
+            - generic [ref=e64]: ISO — Stijgend BPM
+          - generic [ref=e65]: 8 sessies geanalyseerd · 38% posterior-kans
+          - generic [ref=e66]: Klik 'Genereer afspeellijst' om de volledige tracklist te laden
+    - generic [ref=e30]:
+      - generic [ref=e33]:
+        - generic [ref=e67]: Selecteer een afspeellijst
+        - generic [ref=e35]: MoodTune
+      - generic [ref=e37]: "- -"
+  - img [ref=e207]

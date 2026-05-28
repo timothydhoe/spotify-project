@@ -19,7 +19,20 @@
       "Bash(uv run *)",
       "Bash(python3 -m py_compile scripts/wearables/garmin_pipeline.py)",
       "Bash(python3 *)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(jupyter nbconvert *)",
+      "Bash(git checkout *)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_snapshot",
+      "Bash(pkill -f \"shiny run app.py\")",
+      "mcp__playwright__browser_wait_for",
+      "Read(//tmp/**)",
+      "mcp__playwright__browser_evaluate",
+      "Bash(pkill -f \"shiny run\")",
+      "Bash(echo \"PID: $!\")",
+      "mcp__playwright__browser_resize"
     ],
     "ask": [
       "Bash(git commit*)"

@@ -1,0 +1,91 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [selected] [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e45]:
+      - generic [ref=e46]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e47] [cursor=pointer]
+      - button "Kiwi ○" [ref=e48] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e49] [cursor=pointer]
+      - button "Limoen ◑" [ref=e50] [cursor=pointer]
+      - button "Peer ◑" [ref=e51] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e52] [cursor=pointer]
+      - generic [ref=e53]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e54]:
+      - tablist [ref=e55]:
+        - tab "Wetenschap" [ref=e56] [cursor=pointer]
+        - tab "Model & Data" [ref=e57] [cursor=pointer]
+        - tab "Pipeline" [active] [selected] [ref=e58] [cursor=pointer]
+      - tabpanel [ref=e238]:
+        - generic [ref=e239]:
+          - generic [ref=e240]:
+            - generic [ref=e241]: De Datapipeline
+            - paragraph [ref=e242]: Hoe ruwe Spotify- en Garmin-gegevens worden omgezet naar gepersonaliseerde afspeellijstaanbevelingen.
+          - generic [ref=e244]:
+            - generic [ref=e247]:
+              - button "Diagram" [ref=e248] [cursor=pointer]
+              - button "Gegevens" [ref=e249] [cursor=pointer]
+            - generic [ref=e251]:
+              - generic [ref=e252]:
+                - generic [ref=e253]: 🎵 Muziektrack
+                - generic [ref=e254]:
+                  - generic [ref=e255]:
+                    - button "🎵 Exportify CSV" [ref=e256] [cursor=pointer]
+                    - generic [ref=e257]: N≈2,793 nummers
+                  - generic [ref=e258]: "->"
+                  - button "🔧 prepare.py" [ref=e260] [cursor=pointer]
+                  - generic [ref=e261]: "->"
+                  - generic [ref=e262]:
+                    - button "⚙️ generate.py" [ref=e263] [cursor=pointer]
+                    - generic [ref=e264]: N≈2,972 nummers
+                  - generic [ref=e265]: "->"
+                  - generic [ref=e266]:
+                    - button "📋 Afspeellijsten" [ref=e267] [cursor=pointer]
+                    - generic [ref=e268]: N≈2,972 nummers
+              - generic [ref=e270]:
+                - generic [ref=e271]: ⌚ Biometrietrack
+                - generic [ref=e272]:
+                  - button "⌚ Garmin FIT" [ref=e274] [cursor=pointer]
+                  - generic [ref=e275]: "->"
+                  - generic [ref=e276]:
+                    - button "🔄 garmin_pipeline.py" [ref=e277] [cursor=pointer]
+                    - generic [ref=e278]: N=40 sessies
+                  - generic [ref=e279]: "->"
+                  - generic [ref=e280]:
+                    - button "📊 Biometrische CSV's" [ref=e281] [cursor=pointer]
+                    - generic [ref=e282]: N=40 sessies
+              - generic [ref=e284]:
+                - generic [ref=e285]: 🤖 Analysetrack
+                - generic [ref=e286]:
+                  - generic [ref=e287]:
+                    - button "📝 Check-ins" [ref=e288] [cursor=pointer]
+                    - generic [ref=e289]: N=46 check-ins
+                  - generic [ref=e290]: "->"
+                  - generic [ref=e291]:
+                    - button "🧮 circadian_baseline.py" [ref=e292] [cursor=pointer]
+                    - generic [ref=e293]: N=40 sessies
+                  - generic [ref=e294]: "->"
+                  - generic [ref=e295]:
+                    - button "🤖 circadian_ml.py" [ref=e296] [cursor=pointer]
+                    - generic [ref=e297]: N=40 sessies
+                  - generic [ref=e298]: "->"
+                  - generic [ref=e299]:
+                    - button "📐 bayesian_recommender.py" [ref=e300] [cursor=pointer]
+                    - generic [ref=e301]: N=18 posteriors
+              - generic [ref=e302]: Klik op een stap voor uitleg en een voorbeeld.
+          - generic [ref=e304]:
+            - generic [ref=e305]: Waarom twee aparte tracks?
+            - paragraph [ref=e306]: Muziek wordt gegenereerd op basis van audiokenmerken, niet op basis van biometrische data. Pas in de analysetrack worden beide samengevoegd via de feature-matrix -- zodat we de effecten van elk afspeellijsttype op biometrie zuiver kunnen meten.
+            - generic [ref=e308]: Klik op een stap in het diagram om de details te bekijken.
+    - generic [ref=e37]:
+      - generic [ref=e40]:
+        - generic [ref=e235]: Selecteer een afspeellijst
+        - generic [ref=e42]: MoodTune
+      - generic [ref=e44]: "- -"
+  - img [ref=e236]

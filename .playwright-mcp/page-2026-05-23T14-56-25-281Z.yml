@@ -1,0 +1,113 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Science" [ref=e8] [cursor=pointer]
+        - tab "Circadian" [active] [selected] [ref=e9] [cursor=pointer]
+        - tab "Recommend" [ref=e10] [cursor=pointer]
+        - tab "Replay" [ref=e11] [cursor=pointer]
+        - tab "Results" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e188]:
+    - generic [ref=e189]:
+      - generic [ref=e190]:
+        - generic [ref=e191]: Your Circadian Signature
+        - paragraph [ref=e192]: How does your stress level compare to your own baseline at each hour of the day?
+      - generic [ref=e195]:
+        - button "Bosbes" [ref=e196] [cursor=pointer]
+        - button "Kiwi"
+        - button "Kokosnoot" [ref=e197] [cursor=pointer]
+        - button "Limoen" [ref=e198] [cursor=pointer]
+        - button "Peer" [ref=e199] [cursor=pointer]
+        - button "Watermeloen"
+      - generic [ref=e201]:
+        - generic [ref=e203]: Hourly Stress Baseline — Bosbes
+        - generic [ref=e204]: Non-session days only · ±1σ band
+        - generic [ref=e208]:
+          - img:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: 0:00
+                  - generic:
+                    - generic: 3:00
+                  - generic:
+                    - generic: 6:00
+                  - generic:
+                    - generic: 9:00
+                  - generic:
+                    - generic: 12:00
+                  - generic:
+                    - generic: 15:00
+                  - generic:
+                    - generic: 18:00
+                  - generic:
+                    - generic: 21:00
+                - generic:
+                  - generic:
+                    - generic: "0"
+                  - generic:
+                    - generic: "20"
+                  - generic:
+                    - generic: "40"
+                  - generic:
+                    - generic: "60"
+                  - generic:
+                    - generic: "80"
+                  - generic:
+                    - generic: "100"
+          - img:
+            - generic:
+              - generic [ref=e225]:
+                - generic [ref=e227]: Your mean stress
+                - generic [ref=e230]: Calm session
+                - generic [ref=e237]: Neutral session
+                - generic [ref=e244]: Energy session
+              - generic:
+                - generic: Hour of day
+              - generic:
+                - generic: Stress (0–100)
+          - toolbar [ref=e250]:
+            - button "Download plot as a PNG" [ref=e252] [cursor=pointer]:
+              - img [ref=e253]
+            - generic [ref=e255]:
+              - button "Zoom" [ref=e256] [cursor=pointer]:
+                - img [ref=e257]
+              - button "Pan" [ref=e259] [cursor=pointer]:
+                - img [ref=e260]
+              - button "Box Select" [ref=e262] [cursor=pointer]:
+                - img [ref=e263]
+              - button "Lasso Select" [ref=e265] [cursor=pointer]:
+                - img [ref=e266]
+            - generic [ref=e268]:
+              - button "Zoom in" [ref=e269] [cursor=pointer]:
+                - img [ref=e270]
+              - button "Zoom out" [ref=e272] [cursor=pointer]:
+                - img [ref=e273]
+              - button "Autoscale" [ref=e275] [cursor=pointer]:
+                - img [ref=e276]
+              - button "Reset axes" [ref=e278] [cursor=pointer]:
+                - img [ref=e279]
+            - link "plotly-logomark" [ref=e282] [cursor=pointer]:
+              - /url: https://plotly.com/
+              - img "plotly-logomark" [ref=e283]
+          - img
+      - generic [ref=e297]:
+        - generic [ref=e298]:
+          - generic [ref=e299]: 1:00
+          - generic [ref=e300]: Calmest hour
+        - generic [ref=e301]:
+          - generic [ref=e302]: 12–14:00
+          - generic [ref=e303]: Peak stress window
+        - generic [ref=e304]:
+          - generic [ref=e305]: "+9.1"
+          - generic [ref=e306]: Pre-session deviation (mean)
+      - generic [ref=e308]:
+        - generic [ref=e309]: What is Circadian Baseline Deviation?
+        - paragraph [ref=e310]: Rather than comparing your session stress to a fixed number, we compare it to YOUR typical stress at that same hour on non-session days. This controls for natural circadian rhythm.
+        - generic [ref=e311]: deviation = pre_stress_mean − expected_stress_at_hour
+        - generic [ref=e312]: A positive deviation means you were more stressed than usual for that time of day
+  - img [ref=e186]

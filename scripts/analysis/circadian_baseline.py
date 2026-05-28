@@ -353,7 +353,7 @@ def build_feature_matrix(
         sessions["hour_of_day"] = sessions["start_local"].str.split(":").str[0].astype(int)
         sessions["day_of_week"] = sessions["date"].dt.dayofweek
 
-        # Sort by date for days_since_last_session
+        # Sort by date for days_since_last_session and session_number
         sessions = sessions.sort_values("date").reset_index(drop=True)
 
         for i, row in sessions.iterrows():
@@ -415,6 +415,7 @@ def build_feature_matrix(
                 "participant": participant,
                 "date": row["date"],
                 "playlist": row["playlist"],
+                "session_number": i + 1,  # 1-indexed, per participant
                 "baseline_deviation_entry": baseline_deviation,
                 "hr_baseline_deviation": hr_baseline_deviation,
                 "hour_of_day": hour,

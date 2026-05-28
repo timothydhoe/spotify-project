@@ -1,0 +1,24 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e8] [cursor=pointer]
+        - tab "Afspelen" [ref=e9] [cursor=pointer]
+        - tab "Resultaten" [ref=e10] [cursor=pointer]
+        - tab "Circadiaan" [ref=e11] [cursor=pointer]
+        - tab "Wetenschap" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+        - tab "Pipeline" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e17]:
+      - generic [ref=e19]:
+        - generic [ref=e20]: PROJECT R.E.M.
+        - generic [ref=e21]: MoodTune
+        - paragraph [ref=e22]: Genereer jouw gepersonaliseerde ISO-afspeellijst op basis van Bayesiaanse analyse van historische sessies.
+        - button "Genereer afspeellijst" [ref=e25] [cursor=pointer]:
+          - generic [ref=e26]: Genereer afspeellijst
+    - generic [ref=e30]:
+      - generic [ref=e35]: MoodTune
+      - generic [ref=e37]: "- -"

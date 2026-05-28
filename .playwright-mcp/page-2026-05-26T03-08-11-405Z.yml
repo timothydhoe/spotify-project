@@ -1,0 +1,100 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e763]:
+      - generic [ref=e764]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e765] [cursor=pointer]
+      - button "Kiwi ○" [ref=e766] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e767] [cursor=pointer]
+      - button "Limoen ◑" [ref=e768] [cursor=pointer]
+      - button "Peer ◑" [ref=e769] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e770] [cursor=pointer]
+      - generic [ref=e771]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e15]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - generic [ref=e18]: PROJECT R.E.M.
+          - generic [ref=e19]: MoodTune
+          - paragraph [ref=e20]: Selecteer een sessie-moment. Het ML-model berekent op basis van de biometrische staat van dat moment welk afspeellijsttype de beste stemmingsverbetering zou hebben opgeleverd.
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e23]: Selecteer een moment
+            - paragraph [ref=e24]: Kies een sessie uit de historische data. De biometrische staat op dat moment wordt weergegeven.
+            - combobox [ref=e27]:
+              - option "vr 8 mei. 2026 Kalm"
+              - option "do 7 mei. 2026 Energiek"
+              - option "wo 6 mei. 2026 Energiek"
+              - option "di 5 mei. 2026 Neutraal"
+              - option "zo 3 mei. 2026 Energiek"
+              - option "za 2 mei. 2026 Kalm"
+              - option "do 30 apr. 2026 Neutraal"
+              - option "wo 29 apr. 2026 Energiek"
+              - option "di 28 apr. 2026 Kalm"
+              - option "vr 24 apr. 2026 Kalm"
+              - option "wo 22 apr. 2026 Energiek"
+              - option "di 21 apr. 2026 Kalm"
+              - option "vr 17 apr. 2026 Energiek"
+              - option "di 14 apr. 2026 Kalm"
+              - option "ma 13 apr. 2026 Energiek"
+              - option "wo 1 apr. 2026 Energiek"
+              - option "ma 30 mrt. 2026 Energiek"
+              - option "za 28 mrt. 2026 Kalm"
+              - option "vr 27 mrt. 2026 Neutraal"
+              - option "do 26 mrt. 2026 Energiek"
+              - option "wo 25 mrt. 2026 Kalm"
+              - option "vr 6 mrt. 2026 Energiek"
+              - option "wo 4 mrt. 2026 Energiek"
+              - option "di 3 mrt. 2026 Kalm"
+              - option "vr 27 feb. 2026 Energiek"
+              - option "wo 25 feb. 2026 Kalm"
+              - option "di 24 feb. 2026 Energiek"
+              - option "di 17 feb. 2026 Energiek"
+              - option "wo 11 feb. 2026 Energiek"
+              - option "di 10 feb. 2026 Kalm"
+              - option "wo 4 feb. 2026 Energiek"
+              - option "do 29 jan. 2026 Kalm" [selected]
+              - option "wo 28 jan. 2026 Kalm"
+              - option "di 27 jan. 2026 Energiek"
+              - option "ma 26 jan. 2026 Energiek"
+              - option "za 23 mei. 2026 Neutraal (geen biometrie)"
+              - option "vr 22 mei. 2026 Energiek (geen biometrie)"
+              - option "wo 20 mei. 2026 Neutraal (geen biometrie)"
+              - option "di 19 mei. 2026 Energiek (geen biometrie)"
+              - option "ma 11 mei. 2026 Kalm (geen biometrie)"
+              - option "vr 30 jan. 2026 Kalm (geen biometrie)"
+            - generic [ref=e772]:
+              - generic [ref=e773]: Staat van Kokosnoot op vr 8 mei. 2026
+              - generic [ref=e774]:
+                - generic [ref=e775]:
+                  - generic [ref=e776]: 15/100
+                  - generic [ref=e777]: Stress voor sessie
+                - generic [ref=e778]:
+                  - generic [ref=e779]: 72 bpm
+                  - generic [ref=e780]: Hartslag voor
+                - generic [ref=e781]:
+                  - generic [ref=e782]: 66%
+                  - generic [ref=e783]: Body Battery
+                - generic [ref=e784]:
+                  - generic [ref=e785]: 10:00
+                  - generic [ref=e786]: Tijdstip
+          - generic [ref=e787]:
+            - generic [ref=e788]: ML-aanbeveling (Ridge)
+            - generic [ref=e789]:
+              - generic [ref=e790]: ENERGIEK
+              - generic [ref=e791]: ISO — Stijgend BPM
+            - generic [ref=e792]: "Voorspelde stemmingswinst — Energiek: +0.9 pt · Neutraal: +0.6 pt · Kalm: +0.5 pt"
+        - button "Genereer afspeellijst" [ref=e32] [cursor=pointer]:
+          - generic [ref=e33]: Genereer afspeellijst
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e74]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e194]

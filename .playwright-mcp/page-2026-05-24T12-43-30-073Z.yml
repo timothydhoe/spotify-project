@@ -1,0 +1,47 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [selected] [ref=e7] [cursor=pointer]
+        - tab "Wetenschap" [ref=e8] [cursor=pointer]
+        - tab "Pipeline" [ref=e9] [cursor=pointer]
+        - tab "Circadiaan" [ref=e10] [cursor=pointer]
+        - tab "Aanbevelen" [ref=e11] [cursor=pointer]
+        - tab "Afspelen" [ref=e12] [cursor=pointer]
+        - tab "Resultaten" [ref=e13] [cursor=pointer]
+        - tab "Model" [ref=e14] [cursor=pointer]
+  - generic [ref=e15]:
+    - tabpanel [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - generic [ref=e20]: PROJECT R.E.M.
+          - generic [ref=e21]: MoodTune
+          - paragraph [ref=e22]: Genereer jouw gepersonaliseerde ISO-afspeellijst op basis van Bayesiaanse analyse van historische sessies.
+          - generic [ref=e25]:
+            - button "Bosbes" [ref=e26] [cursor=pointer]
+            - button "Kiwi" [ref=e27] [cursor=pointer]
+            - button "Kokosnoot" [ref=e28] [cursor=pointer]
+            - button "Limoen" [ref=e29] [cursor=pointer]
+            - button "Peer" [ref=e30] [cursor=pointer]
+            - button "Watermeloen" [ref=e31] [cursor=pointer]
+          - button "Genereer afspeellijst" [ref=e32] [cursor=pointer]:
+            - generic [ref=e33]: Genereer afspeellijst
+        - generic [ref=e34]:
+          - generic [ref=e35]:
+            - generic [ref=e36]: "6"
+            - generic [ref=e37]: Deelnemers
+          - generic [ref=e38]:
+            - generic [ref=e39]: "47"
+            - generic [ref=e40]: Sessies
+          - generic [ref=e41]:
+            - generic [ref=e42]: "8"
+            - generic [ref=e43]: Weken
+          - generic [ref=e44]:
+            - generic [ref=e45]: "3"
+            - generic [ref=e46]: Afspeellijsttypes
+    - generic [ref=e47]:
+      - generic [ref=e50]:
+        - generic [ref=e52]: Selecteer een afspeellijst
+        - generic [ref=e53]: MoodTune
+      - generic [ref=e55]: "- -"

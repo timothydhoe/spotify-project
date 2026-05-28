@@ -1,0 +1,144 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [active] [selected] [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e45]:
+      - generic [ref=e46]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e47] [cursor=pointer]
+      - button "Kiwi ○" [ref=e48] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e49] [cursor=pointer]
+      - button "Limoen ◑" [ref=e50] [cursor=pointer]
+      - button "Peer ◑" [ref=e51] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e52] [cursor=pointer]
+      - generic [ref=e53]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e54]:
+      - tablist [ref=e55]:
+        - tab "Resultaten" [selected] [ref=e56] [cursor=pointer]
+        - tab "Sessie-replay" [ref=e57] [cursor=pointer]
+        - tab "Circadiaans ritme" [ref=e58] [cursor=pointer]
+      - tabpanel [ref=e60]:
+        - generic [ref=e61]:
+          - generic [ref=e63]:
+            - generic [ref=e64]: R.E.M.-profiel van Bosbes
+            - generic [ref=e65]: 8 sessies - Project R.E.M.
+          - generic [ref=e68]:
+            - generic [ref=e69]:
+              - generic [ref=e70]: ENERGIEK
+              - generic [ref=e71]: Aanbevolen afspeellijst
+              - generic [ref=e72]: 38% relatieve voorkeur
+            - generic [ref=e73]:
+              - generic [ref=e74]: +0.2 pt
+              - generic [ref=e75]: Gem. stemmingsverbetering
+              - generic [ref=e76]: per sessie gemiddeld
+            - generic [ref=e77]:
+              - generic [ref=e78]: "8"
+              - generic [ref=e79]: Voltooide sessies
+              - generic [ref=e80]: totaal
+          - generic [ref=e82]:
+            - generic [ref=e83]: Stemmingsverbetering per afspeellijsttype
+            - generic [ref=e84]: Gemiddelde stemmingsdelta (na − voor) per type · hover voor N sessies
+            - generic [ref=e85]: Positieve waarden = stemming verbeterd na sessie. Negatieve waarden bij kleine N (≤3 sessies) zijn weinig betrouwbaar.
+            - generic [ref=e120]:
+              - generic [ref=e121]: "⚠ Kalm: N=2 — kleine steekproef, zorgvuldig interpreteren."
+              - generic [ref=e122]: "⚠ Neutraal: N=2 — kleine steekproef, zorgvuldig interpreteren."
+          - generic [ref=e124]:
+            - generic [ref=e125]: Stressontwikkeling over de studieperiode
+            - generic [ref=e126]: Stressafwijking t.o.v. pre-studie basislijn per sessie · kleur = afspeellijsttype (blauw=kalm, paars=neutraal, oranje=energiek)
+            - generic [ref=e160]: Een dalende trend suggereert dat herhaald gebruik de stressregulatie verbetert. Hoge variatie of een stijgende trend duidt op grote dag-tot-dag fluctuatie.
+          - generic [ref=e163]:
+            - generic [ref=e164]: Sessieoverzicht
+            - generic [ref=e165]: Elke sessie · stemming voor en na · delta = na − voor
+            - table [ref=e167]:
+              - rowgroup [ref=e168]:
+                - row "Datum Afspeellijst Stemming voor Stemming na Delta Pre-stress Resultaat" [ref=e169]:
+                  - columnheader "Datum" [ref=e170]
+                  - columnheader "Afspeellijst" [ref=e171]
+                  - columnheader "Stemming voor" [ref=e172]
+                  - columnheader "Stemming na" [ref=e173]
+                  - columnheader "Delta" [ref=e174]
+                  - columnheader "Pre-stress" [ref=e175]
+                  - columnheader "Resultaat" [ref=e176]
+              - rowgroup [ref=e177]:
+                - row "2026-01-30 Kalm 8 7 -1.0 19 ✗ Gedaald" [ref=e178]:
+                  - cell "2026-01-30" [ref=e179]
+                  - cell "Kalm" [ref=e180]
+                  - cell "8" [ref=e181]
+                  - cell "7" [ref=e182]
+                  - cell "-1.0" [ref=e183]
+                  - cell "19" [ref=e184]
+                  - cell "✗ Gedaald" [ref=e185]
+                - row "2026-02-03 Energiek 6 8 +2.0 43 ✓ Verbeterd" [ref=e186]:
+                  - cell "2026-02-03" [ref=e187]
+                  - cell "Energiek" [ref=e188]
+                  - cell "6" [ref=e189]
+                  - cell "8" [ref=e190]
+                  - cell "+2.0" [ref=e191]
+                  - cell "43" [ref=e192]
+                  - cell "✓ Verbeterd" [ref=e193]
+                - row "2026-02-17 Neutraal 5 7 +2.0 30 ✓ Verbeterd" [ref=e194]:
+                  - cell "2026-02-17" [ref=e195]
+                  - cell "Neutraal" [ref=e196]
+                  - cell "5" [ref=e197]
+                  - cell "7" [ref=e198]
+                  - cell "+2.0" [ref=e199]
+                  - cell "30" [ref=e200]
+                  - cell "✓ Verbeterd" [ref=e201]
+                - row "2026-02-23 Energiek 8 7 -1.0 36 ✗ Gedaald" [ref=e202]:
+                  - cell "2026-02-23" [ref=e203]
+                  - cell "Energiek" [ref=e204]
+                  - cell "8" [ref=e205]
+                  - cell "7" [ref=e206]
+                  - cell "-1.0" [ref=e207]
+                  - cell "36" [ref=e208]
+                  - cell "✗ Gedaald" [ref=e209]
+                - row "2026-03-03 Kalm 8 7 -1.0 58 ✗ Gedaald" [ref=e210]:
+                  - cell "2026-03-03" [ref=e211]
+                  - cell "Kalm" [ref=e212]
+                  - cell "8" [ref=e213]
+                  - cell "7" [ref=e214]
+                  - cell "-1.0" [ref=e215]
+                  - cell "58" [ref=e216]
+                  - cell "✗ Gedaald" [ref=e217]
+                - row "2026-03-05 Energiek 8 9 +1.0 39 ✓ Verbeterd" [ref=e218]:
+                  - cell "2026-03-05" [ref=e219]
+                  - cell "Energiek" [ref=e220]
+                  - cell "8" [ref=e221]
+                  - cell "9" [ref=e222]
+                  - cell "+1.0" [ref=e223]
+                  - cell "39" [ref=e224]
+                  - cell "✓ Verbeterd" [ref=e225]
+                - row "2026-03-10 Energiek 8 6 -2.0 52 ✗ Gedaald" [ref=e226]:
+                  - cell "2026-03-10" [ref=e227]
+                  - cell "Energiek" [ref=e228]
+                  - cell "8" [ref=e229]
+                  - cell "6" [ref=e230]
+                  - cell "-2.0" [ref=e231]
+                  - cell "52" [ref=e232]
+                  - cell "✗ Gedaald" [ref=e233]
+                - row "2026-03-25 Neutraal 5 7 +2.0 — ✓ Verbeterd" [ref=e234]:
+                  - cell "2026-03-25" [ref=e235]
+                  - cell "Neutraal" [ref=e236]
+                  - cell "5" [ref=e237]
+                  - cell "7" [ref=e238]
+                  - cell "+2.0" [ref=e239]
+                  - cell "—" [ref=e240]
+                  - cell "✓ Verbeterd" [ref=e241]
+          - generic [ref=e244]:
+            - generic [ref=e245]: Wat betekent dit?
+            - generic [ref=e246]: "Gemiddelde stemmingsverandering voor Bosbes: +0.25 pt ± 1.67 (N=8 sessies)."
+            - generic [ref=e247]: "Een gemiddelde dicht bij nul is eerlijk: de effecten variëren sterk per sessie en per dag. Dit is geen mislukking — het weerspiegelt de werkelijke complexiteit van stemmingsregulatie. Individuele sessies tonen soms duidelijke verbeteringen, ook al is het groepsgemiddelde klein."
+          - generic [ref=e248]:
+            - generic [ref=e249]: "\"Jouw muziek is jouw medicijn.\""
+            - generic [ref=e250]: 8 Weken in Muziektherapie
+    - generic [ref=e37]:
+      - generic [ref=e40]:
+        - generic [ref=e251]: Selecteer een afspeellijst
+        - generic [ref=e42]: MoodTune
+      - generic [ref=e44]: "- -"
+  - img [ref=e252]

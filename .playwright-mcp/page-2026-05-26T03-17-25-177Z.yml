@@ -1,0 +1,115 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Jouw Profiel" [ref=e8] [cursor=pointer]
+        - tab "Aanbevelingen" [selected] [ref=e9] [cursor=pointer]
+        - tab "Achtergrond" [ref=e10] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e176]:
+      - generic [ref=e177]: "Deelnemer:"
+      - button "Bosbes ●" [ref=e178] [cursor=pointer]
+      - button "Kiwi ○" [ref=e179] [cursor=pointer]
+      - button "Kokosnoot ●" [ref=e180] [cursor=pointer]
+      - button "Limoen ◑" [ref=e181] [cursor=pointer]
+      - button "Peer ◑" [ref=e182] [cursor=pointer]
+      - button "Watermeloen ○" [ref=e183] [cursor=pointer]
+      - generic [ref=e184]: ● vol ◑ gedeeltelijk ○ geen biometrie ⓘ
+    - tabpanel [ref=e53]:
+      - generic [ref=e54]:
+        - generic [ref=e55]:
+          - generic [ref=e56]: Bayesiaanse Aanbevelingsmotor
+          - paragraph [ref=e57]: Verken hoe het hiërarchische Bayesiaanse model playlist-aanbevelingen maakt per deelnemer. De schuifregelaars geven context — de aanbeveling zelf is pre-berekend op historische sessies.
+        - generic [ref=e59]:
+          - generic [ref=e60]:
+            - generic [ref=e61]: Jouw huidige situatie
+            - generic [ref=e62]:
+              - generic [ref=e63]:
+                - generic [ref=e64]: Kies je stressniveau
+                - generic [ref=e66]: "55"
+              - generic [ref=e67]:
+                - generic [ref=e69]:
+                  - generic [ref=e71]: "0"
+                  - generic [ref=e72]: "100"
+                  - generic [ref=e73]: "55"
+                - textbox [ref=e76]: "55"
+              - generic [ref=e77]:
+                - generic [ref=e78]: 0 — ontspannen
+                - generic [ref=e79]: 100 — zeer gestresseerd
+            - generic [ref=e80]:
+              - generic [ref=e81]:
+                - generic [ref=e82]: Huidig tijdstip
+                - generic [ref=e84]: 17:00
+              - generic [ref=e85]:
+                - generic [ref=e87]:
+                  - generic [ref=e89]: "0"
+                  - generic [ref=e90]: "23"
+                  - generic [ref=e91]: "17"
+                - textbox [ref=e94]: "17"
+              - generic [ref=e95]:
+                - generic [ref=e96]: 00:00
+                - generic [ref=e97]: 23:00
+            - generic [ref=e98]:
+              - generic [ref=e99]:
+                - generic [ref=e100]: Body Battery
+                - generic [ref=e102]: "40"
+              - generic [ref=e103]:
+                - generic [ref=e105]:
+                  - generic [ref=e107]: "0"
+                  - generic [ref=e108]: "100"
+                  - generic [ref=e109]: "40"
+                - textbox [ref=e112]: "40"
+              - generic [ref=e113]: Garmin Body Battery — lager = meer vermoeid
+            - generic [ref=e114]:
+              - generic [ref=e115]: Activiteitstoestand
+              - generic [ref=e117]:
+                - button "Slaap" [ref=e118] [cursor=pointer]
+                - button "Rust" [ref=e119] [cursor=pointer]
+                - button "Licht" [ref=e120] [cursor=pointer]
+                - button "Matig" [ref=e121] [cursor=pointer]
+                - button "Zwaar" [ref=e122] [cursor=pointer]
+          - generic [ref=e123]:
+            - generic [ref=e124]: Historische aanbeveling — gebaseerd op alle sessies van deze deelnemer. De schuifregelaars tonen context; ze veranderen de aanbeveling niet.
+            - generic [ref=e185]:
+              - generic [ref=e186]: Aanbeveling
+              - generic [ref=e187]: ENERGIEK
+              - generic [ref=e188]: ISO - Opstijging
+            - generic [ref=e130]:
+              - generic [ref=e131]:
+                - generic [ref=e132]: Verwacht effect aandeel
+                - generic [ref=e189]: 45%
+              - generic [ref=e138]: Aandeel van de totale voorspelde stemmingswinst — niet een kans
+            - generic [ref=e139]:
+              - generic [ref=e140]: Posterior ranglijst — verwacht effect aandeel
+              - generic [ref=e141]: 89% CI via MCMC (4000 samples) · % = aandeel van totaal verwacht effect, geen kans
+              - generic [ref=e192]:
+                - generic [ref=e193]:
+                  - generic [ref=e194]: "1."
+                  - generic [ref=e195]: Energiek
+                  - generic [ref=e196]: 45%
+                  - generic [ref=e197]: "89% CI: [1.89, 2.12]"
+                - generic [ref=e198]:
+                  - generic [ref=e199]: "2."
+                  - generic [ref=e200]: Kalm
+                  - generic [ref=e201]: 45%
+                  - generic [ref=e202]: "89% CI: [1.86, 2.14]"
+                - generic [ref=e203]:
+                  - generic [ref=e204]: "3."
+                  - generic [ref=e205]: Neutraal
+                  - generic [ref=e206]: 10%
+                  - generic [ref=e207]: "89% CI: [0.18, 0.67]"
+              - generic [ref=e160]: Grijs = 89% CI omvat nul (onvoldoende bewijs voor positief effect)
+              - paragraph [ref=e209]: N=42 sessies voor Kokosnoot. Posterior breedte neemt af naarmate meer sessies beschikbaar zijn.
+            - group [ref=e164]:
+              - generic "Posterior details (foutenbalken)" [ref=e165] [cursor=pointer]
+            - generic [ref=e210]: Op 17:00 met activiteitstoestand 'Matig' is Energiek historisch het meest effectief (45% relatieve voorkeur voor Kokosnoot). Jouw stress is +21 punten boven jouw basislijn op 17:00.
+            - button "Hoe is dit berekend? ↓" [ref=e169] [cursor=pointer]:
+              - generic [ref=e170]: Hoe is dit berekend? ↓
+    - generic [ref=e36]:
+      - generic [ref=e39]:
+        - generic [ref=e173]: Selecteer een afspeellijst
+        - generic [ref=e41]: MoodTune
+      - generic [ref=e43]: "- -"
+  - img [ref=e174]

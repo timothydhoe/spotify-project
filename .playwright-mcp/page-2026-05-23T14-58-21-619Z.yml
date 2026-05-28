@@ -1,0 +1,146 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - generic [ref=e4]: ● MoodTune
+      - tablist [ref=e6]:
+        - tab "Home" [ref=e7] [cursor=pointer]
+        - tab "Science" [ref=e8] [cursor=pointer]
+        - tab "Circadian" [ref=e9] [cursor=pointer]
+        - tab "Recommend" [selected] [ref=e10] [cursor=pointer]
+        - tab "Replay" [ref=e11] [cursor=pointer]
+        - tab "Results" [ref=e12] [cursor=pointer]
+        - tab "Model" [ref=e13] [cursor=pointer]
+  - tabpanel [ref=e417]:
+    - generic [ref=e418]:
+      - generic [ref=e419]:
+        - generic [ref=e420]: What Should You Listen To Right Now?
+        - paragraph [ref=e421]: Enter your current state and get a personalized ISO playlist recommendation.
+      - generic [ref=e423]:
+        - generic [ref=e424]:
+          - generic [ref=e425]: Your Current State
+          - generic [ref=e426]:
+            - generic [ref=e427]:
+              - generic [ref=e428]: Stress Level
+              - generic [ref=e429]: "55"
+            - generic [ref=e430]:
+              - generic [ref=e432]:
+                - generic [ref=e434]: "0"
+                - generic [ref=e435]: "100"
+                - generic [ref=e436]: "55"
+              - textbox [ref=e439]: "55"
+            - generic [ref=e440]:
+              - generic [ref=e441]: 0 — Relaxed
+              - generic [ref=e442]: 100 — Highly Stressed
+          - generic [ref=e443]:
+            - generic [ref=e444]:
+              - generic [ref=e445]: Time of Day
+              - generic [ref=e446]: 17:00
+            - generic [ref=e447]:
+              - generic [ref=e449]:
+                - generic [ref=e451]: "0"
+                - generic [ref=e452]: "23"
+                - generic [ref=e453]: "17"
+              - textbox [ref=e456]: "17"
+            - generic [ref=e457]:
+              - generic [ref=e458]: 00:00
+              - generic [ref=e459]: 23:00
+          - generic [ref=e460]:
+            - generic [ref=e461]:
+              - generic [ref=e462]: Body Battery
+              - generic [ref=e463]: "40"
+            - generic [ref=e464]:
+              - generic [ref=e466]:
+                - generic [ref=e468]: "0"
+                - generic [ref=e469]: "100"
+                - generic [ref=e470]: "40"
+              - textbox [ref=e473]: "40"
+          - generic [ref=e474]:
+            - generic [ref=e475]: Activity State
+            - generic [ref=e477]:
+              - button "Sleep" [ref=e478] [cursor=pointer]
+              - button "Rest" [ref=e479] [cursor=pointer]
+              - button "Light" [ref=e480] [cursor=pointer]
+              - button "Medium" [ref=e481] [cursor=pointer]
+              - button "Heavy" [ref=e482] [cursor=pointer]
+          - generic [ref=e483]:
+            - generic [ref=e484]:
+              - generic [ref=e485]: Participant
+              - generic [ref=e486]: (Research Mode)
+            - combobox [ref=e489]:
+              - option "bosbes" [selected]
+              - option "kiwi"
+              - option "kokosnoot"
+              - option "limoen"
+              - option "peer"
+              - option "watermeloen"
+        - generic [ref=e490]:
+          - generic [ref=e491]: Recommendation
+          - generic [ref=e493]:
+            - generic [ref=e494]: ENERGY
+            - generic [ref=e495]: ISO Ascending
+          - generic [ref=e497]:
+            - generic [ref=e498]: Posterior Confidence
+            - generic [ref=e500]: 38%
+          - generic [ref=e507]:
+            - img:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: 38%
+                            - generic:
+                              - generic: 24%
+                            - generic:
+                              - generic: 38%
+                  - generic:
+                    - generic:
+                      - generic: "0"
+                    - generic:
+                      - generic: "50"
+                    - generic:
+                      - generic: "100"
+                  - generic:
+                    - generic:
+                      - generic: Calm
+                    - generic:
+                      - generic: Neutral
+                    - generic:
+                      - generic: Energy
+            - img:
+              - generic:
+                - generic:
+                  - generic: Posterior probability (%)
+            - toolbar [ref=e521]:
+              - button "Download plot as a PNG" [ref=e523] [cursor=pointer]:
+                - img [ref=e524]
+              - generic [ref=e526]:
+                - button "Zoom" [ref=e527] [cursor=pointer]:
+                  - img [ref=e528]
+                - button "Pan" [ref=e530] [cursor=pointer]:
+                  - img [ref=e531]
+                - button "Box Select" [ref=e533] [cursor=pointer]:
+                  - img [ref=e534]
+                - button "Lasso Select" [ref=e536] [cursor=pointer]:
+                  - img [ref=e537]
+              - generic [ref=e539]:
+                - button "Zoom in" [ref=e540] [cursor=pointer]:
+                  - img [ref=e541]
+                - button "Zoom out" [ref=e543] [cursor=pointer]:
+                  - img [ref=e544]
+                - button "Autoscale" [ref=e546] [cursor=pointer]:
+                  - img [ref=e547]
+                - button "Reset axes" [ref=e549] [cursor=pointer]:
+                  - img [ref=e550]
+              - link "plotly-logomark" [ref=e553] [cursor=pointer]:
+                - /url: https://plotly.com/
+                - img "plotly-logomark" [ref=e554]
+            - img
+          - paragraph [ref=e567]: Posterior mean ± 89% credible interval
+          - generic [ref=e569]: At 17:00 with Medium activity, Energy is recommended (38% posterior probability for Bosbes). Your stress is +29 units above your 17:00 baseline.
+          - button "How was this calculated? ↓" [active] [ref=e571] [cursor=pointer]:
+            - generic [ref=e572]: How was this calculated? ↓
+  - img [ref=e186]

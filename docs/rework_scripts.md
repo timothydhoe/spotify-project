@@ -4,10 +4,10 @@
 - [x] Pipeline 1 — extraction/
 - [x] Pipeline 2 — baseline/
 - [x] Pipeline 3 — sessions/
-- [ ] Master pipeline (main.py)
+- [x] Master pipeline (main.py)
 - [ ] Notebooks (ML scripts converted)
 
-**Currently working on:** Master pipeline (main.py)
+**Currently working on:** Notebooks (ML scripts converted)
 
 ---
 

@@ -2,11 +2,24 @@
 
 ## Working conventions
 
+### Tempo & volgorde
 - Tackle one notebook at a time, in execution order
-- Ask clarifying questions before each notebook to understand requirements
-- Always state what will change and why before making any file changes
+- For the visuals rework phase: one notebook at a time, ask questions per visual to decide what to keep/change/add before touching any code
+
+### Vragen stellen
+- Ask one clarifying question at a time — never a list
+- Wait for the answer before asking the next
+- If unsure what the user wants, ask "What would you do?" to get direction before proposing anything
+
+### Wijzigingen
+- Always explain what will change and why before making any file changes
 - Always ask for permission before executing changes
-- Leave room for feedback at each step
+- Never repeat an idea that was already rejected
+
+### Visuals (rework fase)
+- Every visual gets: a clear title, annotation explaining what you're looking at, and a plain-language interpretation — no jargon
+- Ask the user which visuals to keep, change, or replace before touching the notebook
+- Propose chart type + what it shows before building it
 
 ---
 
@@ -233,8 +246,26 @@ Current contents: `config.json`, `scaler.pkl` (from `music_classification.py`).
 
 ## STATUS
 
+### Bouwen
+
 - [x] `ml/bayesian_recommender.ipynb`
 - [x] `visualisation/bayesian_recommender_viz.ipynb`
+- [x] `ml/circadian_ml.ipynb`
+- [x] `visualisation/circadian_ml_viz.ipynb`
+- [ ] `ml/music_class_thresholds.ipynb`
+- [ ] `visualisation/music_class_thresholds_viz.ipynb`
+- [ ] `ml/music_class_unsupervised.ipynb`
+- [ ] `visualisation/music_class_unsupervised_viz.ipynb`
+- [ ] `visualisation/recovery_analysis.ipynb`
+- [ ] `visualisation/extraction_pipeline.ipynb`
+- [ ] `visualisation/baseline_pipeline.ipynb`
+- [ ] `visualisation/sessions_pipeline.ipynb`
+
+### Visuals rework (na bouwen — per notebook, één voor één)
+
+Elk visueel krijgt: heldere titel, annotaties die uitleggen wat je ziet, interpretatie zonder jargon.
+
+- [ ] `visualisation/bayesian_recommender_viz.ipynb`
 - [ ] `ml/circadian_ml.ipynb`
 - [ ] `visualisation/circadian_ml_viz.ipynb`
 - [ ] `ml/music_class_thresholds.ipynb`
@@ -245,5 +276,8 @@ Current contents: `config.json`, `scaler.pkl` (from `music_classification.py`).
 - [ ] `visualisation/extraction_pipeline.ipynb`
 - [ ] `visualisation/baseline_pipeline.ipynb`
 - [ ] `visualisation/sessions_pipeline.ipynb`
+
+### Opruimen
+
 - [ ] Delete replaced scripts from `scripts/analysis/`
 - [ ] Delete `scripts/pipeline/` stub

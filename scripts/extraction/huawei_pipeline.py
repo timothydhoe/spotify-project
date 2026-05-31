@@ -6,10 +6,10 @@ Cross-references minute-level biometrics with R.E.M. study check-in sessions.
 Tested with: Huawei GT3 (Watch GT 3). Should work with any Huawei Health export.
 
 Usage:
-    python huawei_pipeline.py limoen
+    python huawei_pipeline.py <participant_code> [options]
 
 Dependencies:
-    Required:  pandas, numpy, openpyxl
+    Required:  pandas, numpy
     Optional:  matplotlib (for PDF report)
 """
 
@@ -21,31 +21,38 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from checkin_utils import fix_checkin_dates
+# Allow direct execution from any working directory
+sys.path.insert(0, str(Path(__file__).parent))
+
+from utils import (
+    get_date_range_from_checkins,
+    crossref_sessions,
+    write_session_traces,
+)
 
 
 # ── Extract: Health detail data (HR, Stress, SpO2) ─────────────────────────
 
-# Huawei health type codes (from field description)
 HEALTH_TYPES = {
     3: "sleep", 7: "heart_rate", 9: "sleep_analyzed",
     11: "stress", 12: "exercise_intensity", 16: "spo2",
 }
 
-# samplePoint keys we care about
 HR_KEYS = {"DATA_POINT_DYNAMIC_HEARTRATE", "HEARTRATE_RATE"}
 RESTING_HR_KEYS = {"DATA_POINT_REST_HEARTRATE", "DATA_POINT_NEW_REST_HEARTRATE"}
 
 
 def _ms_to_datetime(ms):
-    """Convert millisecond epoch to datetime."""
-    return pd.Timestamp(ms, unit="ms", tz="UTC")
+    """Convert millisecond epoch (UTC) to timezone-naive datetime."""
+    return pd.Timestamp(ms, unit="ms", tz="UTC").tz_localize(None)
 
 
 def extract_health_detail(json_files: list[Path], date_range=None):
     """Parse all health detail JSONs into HR and stress DataFrames.
 
-    Returns (hr_df, stress_df) indexed by UTC timestamp.
+    Huawei stores millisecond timestamps in UTC.
+
+    Returns (hr_df, stress_df, rhr_df), all indexed by UTC timestamp.
     """
     hr_rows = []
     resting_hr_rows = []
@@ -65,7 +72,6 @@ def extract_health_detail(json_files: list[Path], date_range=None):
             rec_type = rec.get("type")
             start_ms = rec.get("startTime", 0)
 
-            # Quick date filter
             if date_range and start_ms:
                 ts = pd.Timestamp(start_ms, unit="ms")
                 if ts < date_range[0] or ts > date_range[1]:
@@ -77,11 +83,10 @@ def extract_health_detail(json_files: list[Path], date_range=None):
                 sp_start = sp.get("startTime", start_ms)
 
                 try:
-                    ts = _ms_to_datetime(sp_start).tz_localize(None)
+                    ts = _ms_to_datetime(sp_start)
                 except Exception:
                     continue
 
-                # Heart rate
                 if key in HR_KEYS:
                     try:
                         hr = float(val_str)
@@ -98,7 +103,6 @@ def extract_health_detail(json_files: list[Path], date_range=None):
                     except (ValueError, TypeError):
                         pass
 
-                # Stress — value is a JSON string containing "score"
                 elif rec_type == 11 and key == "STRESS_DATA":
                     try:
                         payload = json.loads(val_str)
@@ -108,7 +112,6 @@ def extract_health_detail(json_files: list[Path], date_range=None):
                     except (ValueError, TypeError, KeyError, json.JSONDecodeError):
                         pass
 
-    # Build DataFrames
     hr_df = pd.DataFrame(hr_rows or [], columns=["timestamp", "heart_rate"])
     if not hr_df.empty:
         hr_df = hr_df.drop_duplicates("timestamp").sort_values("timestamp").set_index("timestamp")
@@ -124,7 +127,7 @@ def extract_health_detail(json_files: list[Path], date_range=None):
     return hr_df, stress_df, rhr_df
 
 
-# ── Extract: Sport per minute merged data (steps, calories) ─────────────────
+# ── Extract: Sport per minute merged data ───────────────────────────────────
 
 def extract_sport_per_minute(json_files: list[Path], date_range=None):
     """Parse sport per minute JSONs into a daily summary DataFrame."""
@@ -141,37 +144,33 @@ def extract_sport_per_minute(json_files: list[Path], date_range=None):
             continue
 
         for day_rec in days:
-            record_day = day_rec.get("recordDay")  # format: YYYYMMDD
+            record_day = day_rec.get("recordDay")
             if not record_day:
                 continue
 
             date_str = str(record_day)
             date = pd.Timestamp(f"{date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}")
 
-            if date_range:
-                if date < date_range[0] or date > date_range[1]:
-                    continue
+            if date_range and (date < date_range[0] or date > date_range[1]):
+                continue
 
-            day_steps = 0
-            day_distance = 0
-            day_calories = 0
-
+            day_steps = day_distance = day_calories = 0
             for entry in day_rec.get("sportDataUserData", []):
                 for info in entry.get("sportBasicInfos", []):
-                    day_steps += info.get("steps", 0)
+                    day_steps    += info.get("steps", 0)
                     day_distance += info.get("distance", 0)
                     day_calories += info.get("calorie", 0)
 
             rows.append({
-                "date": date,
-                "steps": day_steps,
+                "date":       date,
+                "steps":      day_steps,
                 "distance_m": day_distance,
-                "calories": round(day_calories / 1000, 1) if day_calories else 0,  # stored as cal, not kcal
+                "calories":   round(day_calories / 1000, 1) if day_calories else 0,
             })
 
     df = pd.DataFrame(rows)
     if not df.empty:
-        df = df.groupby("date").sum().sort_index()  # aggregate if multiple files cover same day
+        df = df.groupby("date").sum().sort_index()
     return df
 
 
@@ -179,14 +178,12 @@ def extract_sport_per_minute(json_files: list[Path], date_range=None):
 
 def build_daily(hr_df, stress_df, rhr_df, sport_df):
     """Combine all data sources into a daily summary."""
-    # Determine date range from available data
     all_dates = set()
     for df in [hr_df, stress_df, rhr_df]:
         if not df.empty:
-            dates = df.index.date
-            all_dates.update(dates)
+            all_dates.update(df.index.date)
     if sport_df is not None and not sport_df.empty:
-        all_dates.update(sport_df.index.date if hasattr(sport_df.index, 'date') else [])
+        all_dates.update(sport_df.index.date if hasattr(sport_df.index, "date") else [])
 
     if not all_dates:
         return pd.DataFrame()
@@ -197,44 +194,37 @@ def build_daily(hr_df, stress_df, rhr_df, sport_df):
         day_start = pd.Timestamp(date_str)
         day_end = day_start + pd.Timedelta(days=1)
 
-        # HR for this day
-        day_hr = hr_df.loc[day_start:day_end]["heart_rate"] if not hr_df.empty else pd.Series(dtype=float)
-        # Stress for this day
+        day_hr     = hr_df.loc[day_start:day_end]["heart_rate"] if not hr_df.empty else pd.Series(dtype=float)
         day_stress = stress_df.loc[day_start:day_end]["stress"] if not stress_df.empty else pd.Series(dtype=float)
-        # Resting HR
-        day_rhr = rhr_df.loc[day_start:day_end]["resting_hr"] if not rhr_df.empty else pd.Series(dtype=float)
+        day_rhr    = rhr_df.loc[day_start:day_end]["resting_hr"] if not rhr_df.empty else pd.Series(dtype=float)
 
-        # Sport
         steps = distance = calories = None
         if sport_df is not None and not sport_df.empty:
             try:
                 sport_row = sport_df.loc[day_start]
-                steps = sport_row.get("steps", 0)
+                steps    = sport_row.get("steps", 0)
                 distance = sport_row.get("distance_m", 0)
                 calories = sport_row.get("calories", 0)
             except KeyError:
                 pass
 
-        row = {
-            "date": pd.Timestamp(date),
-            "steps": steps if steps and steps > 0 else None,
-            "distance_m": distance,
-            "total_cal": calories,
-            "resting_hr": int(day_rhr.median()) if len(day_rhr) else None,
-            "min_hr": int(day_hr.min()) if len(day_hr) else None,
-            "max_hr": int(day_hr.max()) if len(day_hr) else None,
-            "avg_hr": round(day_hr.mean(), 1) if len(day_hr) else None,
-            "hr_readings": len(day_hr),
-            "avg_stress": round(day_stress.mean(), 1) if len(day_stress) else None,
-            "max_stress": int(day_stress.max()) if len(day_stress) else None,
-            "min_stress": int(day_stress.min()) if len(day_stress) else None,
+        rows.append({
+            "date":            pd.Timestamp(date),
+            "steps":           steps if steps and steps > 0 else None,
+            "distance_m":      distance,
+            "total_cal":       calories,
+            "resting_hr":      int(day_rhr.median()) if len(day_rhr) else None,
+            "min_hr":          int(day_hr.min()) if len(day_hr) else None,
+            "max_hr":          int(day_hr.max()) if len(day_hr) else None,
+            "avg_hr":          round(day_hr.mean(), 1) if len(day_hr) else None,
+            "hr_readings":     len(day_hr),
+            "avg_stress":      round(day_stress.mean(), 1) if len(day_stress) else None,
+            "max_stress":      int(day_stress.max()) if len(day_stress) else None,
+            "min_stress":      int(day_stress.min()) if len(day_stress) else None,
             "stress_readings": len(day_stress),
-        }
-        rows.append(row)
+        })
 
     df = pd.DataFrame(rows).set_index("date").sort_index()
-
-    # Derived columns
     df["distance_km"] = (df["distance_m"] / 1000).round(2) if "distance_m" in df else None
 
     for col in ["avg_stress", "resting_hr", "steps"]:
@@ -257,15 +247,15 @@ def analyze(df):
         rhr_trend = round(np.polyfit(range(len(rhr)), rhr.values, 1)[0] * 7, 2)
 
     a = {
-        "n_days": len(valid),
+        "n_days":     len(valid),
         "date_range": f"{df.index.min():%Y-%m-%d} → {df.index.max():%Y-%m-%d}" if len(df) else "n/a",
-        "avg_steps": int(valid["steps"].mean()) if len(valid) else 0,
-        "max_steps": int(valid["steps"].max()) if len(valid) else 0,
-        "total_km": round(valid["distance_km"].sum(), 1) if "distance_km" in valid else 0,
-        "avg_rhr": round(rhr.mean(), 1) if len(rhr) else 0,
-        "rhr_trend": rhr_trend,
+        "avg_steps":  int(valid["steps"].mean()) if len(valid) else 0,
+        "max_steps":  int(valid["steps"].max()) if len(valid) else 0,
+        "total_km":   round(valid["distance_km"].sum(), 1) if "distance_km" in valid else 0,
+        "avg_rhr":    round(rhr.mean(), 1) if len(rhr) else 0,
+        "rhr_trend":  rhr_trend,
         "avg_stress": round(stress_valid["avg_stress"].mean(), 1) if len(stress_valid) else 0,
-        "insights": [],
+        "insights":   [],
     }
 
     if rhr_trend > 0.5:
@@ -276,106 +266,7 @@ def analyze(df):
     return a
 
 
-# ── Cross-reference sessions ────────────────────────────────────────────────
-
-def crossref_sessions(checkin_path, code, hr_df, stress_df, utc_offset=1, buffer_min=60):
-    """For each check-in session, extract ±60 min biometric windows.
-
-    Returns (summary_df, traces).
-    Note: Huawei has no Body Battery — that column will be absent.
-    """
-    checkin = pd.read_csv(checkin_path)
-    sessions = checkin[checkin["Deelnemerscode"].str.strip().str.lower() == code.lower()].copy()
-    if sessions.empty:
-        print(f"  ⚠ No sessions for '{code}'")
-        return pd.DataFrame(), []
-
-    sessions["_date"] = fix_checkin_dates(sessions)
-    for col, src in [("_start", "Starttijd?"), ("_end", "Eindtijd?")]:
-        sessions[col] = sessions.apply(
-            lambda r: pd.Timestamp(f"{r['_date'].date()} {r[src]}") - pd.Timedelta(hours=utc_offset),
-            axis=1,
-        )
-
-    BUF = pd.Timedelta(minutes=buffer_min)
-    summaries, traces = [], []
-
-    for _, row in sessions.iterrows():
-        t0, t1 = row["_start"], row["_end"]
-
-        idx = pd.date_range(t0 - BUF, t1 + BUF, freq="1min")
-        trace = pd.DataFrame(index=idx)
-        trace.index.name = "timestamp_utc"
-
-        if len(stress_df):
-            trace["stress"] = stress_df.reindex(idx, method="nearest", tolerance="2min")["stress"]
-        if len(hr_df):
-            trace["heart_rate"] = hr_df.reindex(idx, method="nearest", tolerance="2min")["heart_rate"]
-
-        trace["phase"] = "pre"
-        trace.loc[t0:t1, "phase"] = "during"
-        trace.loc[t1 + pd.Timedelta(minutes=1):, "phase"] = "post"
-        trace["minutes_relative"] = (trace.index - t0).total_seconds() / 60
-        trace["session_date"] = row["_date"].strftime("%Y-%m-%d")
-        trace["playlist"] = row["Welke playlist luisterde je?"]
-        traces.append(trace)
-
-        def phase_stats(col, phase):
-            return trace.loc[trace["phase"] == phase, col].dropna() if col in trace else pd.Series(dtype=float)
-
-        pre_s,  dur_s,  post_s  = [phase_stats("stress", p) for p in ("pre", "during", "post")]
-        pre_h,  dur_h,  post_h  = [phase_stats("heart_rate", p) for p in ("pre", "during", "post")]
-
-        def safe(s, fn):
-            return round(fn(s), 1) if len(s) else None
-
-        def delta(post, pre):
-            return round(post.mean() - pre.mean(), 1) if len(post) and len(pre) else None
-
-        local_start = t0 + pd.Timedelta(hours=utc_offset)
-        local_end   = t1 + pd.Timedelta(hours=utc_offset)
-
-        summaries.append({
-            "date":              row["_date"].strftime("%Y-%m-%d"),
-            "start_local":       local_start.strftime("%H:%M"),
-            "end_local":         local_end.strftime("%H:%M"),
-            "duration_min":      int((t1 - t0).total_seconds() / 60),
-            "playlist":          row["Welke playlist luisterde je?"],
-            "mood_before":       row["Welk gevoel had je?"],
-            "mood_before_score": row["Score van de intensiteit van je gevoel"],
-            "mood_after":        row["Welk gevoel had je?.1"],
-            "mood_after_score":  row["Score van de intensiteit van je gevoel.1"],
-            # Pre
-            "pre_stress_mean":   safe(pre_s, np.mean),
-            "pre_hr_mean":       safe(pre_h, np.mean),
-            "pre_bb_mean":       None,  # Huawei has no Body Battery
-            # During
-            "stress_mean":       safe(dur_s, np.mean),
-            "stress_min":        safe(dur_s, np.min),
-            "stress_max":        safe(dur_s, np.max),
-            "hr_mean":           safe(dur_h, np.mean),
-            "hr_min":            safe(dur_h, np.min),
-            "hr_max":            safe(dur_h, np.max),
-            "bb_start":          None,
-            "bb_end":            None,
-            "bb_delta":          None,
-            # Post
-            "post_stress_mean":  safe(post_s, np.mean),
-            "post_hr_mean":      safe(post_h, np.mean),
-            "post_bb_mean":      None,
-            # Deltas
-            "stress_delta":      delta(post_s, pre_s),
-            "hr_delta":          delta(post_h, pre_h),
-            "bb_delta_full":     None,
-            # Data quality
-            "stress_points":     len(dur_s),
-            "hr_points":         len(dur_h),
-        })
-
-    return pd.DataFrame(summaries), traces
-
-
-# ── PDF Report ──────────────────────────────────────────────────────────────
+# ── PDF Report ───────────────────────────────────────────────────────────────
 
 def render_pdf(daily_df, analysis, sessions_df, out_path):
     """Generate PDF report. Skipped if matplotlib unavailable."""
@@ -424,7 +315,6 @@ def render_pdf(daily_df, analysis, sessions_df, out_path):
         gs = GridSpec(3, 2, figure=fig, hspace=0.38, wspace=0.28,
                       left=0.08, right=0.96, top=0.94, bottom=0.06)
 
-        # Steps
         ax = fig.add_subplot(gs[0, :])
         valid = df[df["steps"].notna()]
         ax.bar(valid.index, valid["steps"], color=PAL["cyan"], alpha=0.8, width=0.8)
@@ -432,7 +322,6 @@ def render_pdf(daily_df, analysis, sessions_df, out_path):
             ax.plot(valid.index, valid["steps_7d"], color=PAL["orange"], lw=2, label="7d avg")
         ax.set_title("Daily Steps", fontweight="bold"); ax.legend(loc="upper left"); fmt(ax)
 
-        # Heart Rate
         ax = fig.add_subplot(gs[1, 0])
         hr_valid = df[df["min_hr"].notna()]
         if len(hr_valid):
@@ -443,7 +332,6 @@ def render_pdf(daily_df, analysis, sessions_df, out_path):
             ax.set_title("Heart Rate", fontweight="bold"); ax.set_ylabel("bpm")
             ax.legend(loc="upper left"); fmt(ax)
 
-        # Stress
         ax = fig.add_subplot(gs[1, 1])
         sv = df[df["avg_stress"].notna() & (df["avg_stress"] > 0)]
         if len(sv):
@@ -453,7 +341,6 @@ def render_pdf(daily_df, analysis, sessions_df, out_path):
             ax.set_title("Stress", fontweight="bold"); ax.set_ylim(0, 100)
             ax.legend(loc="upper left"); fmt(ax)
 
-        # Summary
         ax = fig.add_subplot(gs[2, :])
         ax.axis("off")
         txt = (
@@ -471,8 +358,9 @@ def render_pdf(daily_df, analysis, sessions_df, out_path):
 
         pdf.savefig(fig); plt.close(fig)
 
-        # Page 2: Sessions
-        if sessions_df is not None and len(sessions_df) and (sessions_df["stress_points"].gt(0) | sessions_df["hr_points"].gt(0)).any():
+        if sessions_df is not None and len(sessions_df) and (
+            sessions_df["stress_points"].gt(0) | sessions_df["hr_points"].gt(0)
+        ).any():
             fig2 = plt.figure(figsize=(11.7, 16.5))
             fig2.suptitle("Sessions × Biometrics", fontsize=16, fontweight="bold",
                           color=PAL["cyan"], y=0.98)
@@ -514,29 +402,15 @@ def run(export_dir, out_dir, checkin_path=None, code=None, months=6):
 
     # 1. Find files
     health_jsons = sorted(export_dir.rglob("health detail data*.json"))
-    sport_jsons = sorted(export_dir.rglob("sport per minute merged data*.json"))
+    sport_jsons  = sorted(export_dir.rglob("sport per minute merged data*.json"))
     print(f"  Found {len(health_jsons)} health detail JSONs, {len(sport_jsons)} sport JSONs")
 
-    # Date range from check-in or fallback
-    import datetime as _dt
-    date_end = _dt.datetime.now()
-    date_start = date_end - _dt.timedelta(days=months * 30)
-
-    if checkin_path and code:
-        try:
-            _ck = pd.read_csv(checkin_path)
-            _sess = _ck[_ck["Deelnemerscode"].str.strip().str.lower() == code.lower()]
-            _dates = fix_checkin_dates(_sess)
-            if len(_dates):
-                date_start = (_dates.min() - _dt.timedelta(days=30)).to_pydatetime()
-                date_end = (_dates.max() + _dt.timedelta(days=7)).to_pydatetime()
-        except Exception:
-            pass
-
+    # 2. Determine date range
+    date_start, date_end = get_date_range_from_checkins(checkin_path, code or "", months)
     dr = (pd.Timestamp(date_start), pd.Timestamp(date_end))
     print(f"  Date range: {dr[0]:%Y-%m-%d} → {dr[1]:%Y-%m-%d}\n")
 
-    # 2. Extract
+    # 3. Extract
     print("  Extracting health detail data...")
     hr_df, stress_df, rhr_df = extract_health_detail(health_jsons, date_range=dr)
     print(f"  HR: {len(hr_df)} readings, Stress: {len(stress_df)} readings, RHR: {len(rhr_df)} readings")
@@ -547,30 +421,32 @@ def run(export_dir, out_dir, checkin_path=None, code=None, months=6):
     sport_df = extract_sport_per_minute(sport_jsons, date_range=dr)
     print(f"  Sport: {len(sport_df)} days")
 
-    # 3. Build daily summary
+    # 4. Build daily summary
     daily_df = build_daily(hr_df, stress_df, rhr_df, sport_df)
     print(f"\n  {len(daily_df)} daily records")
 
     if daily_df.empty:
         sys.exit("✗ No data found in date range.")
 
-    # 4. Analyze
+    # 5. Analyze
     analysis = analyze(daily_df)
     print(f"  Steps: {analysis['avg_steps']:,}  RHR: {analysis['avg_rhr']:.0f}  Stress: {analysis['avg_stress']:.0f}")
     for ins in analysis["insights"]:
         print(f"  💡 {ins}")
 
-    # 5. Cross-reference sessions
+    # 6. Cross-reference sessions (Huawei has no body battery)
     sessions_df = None
     traces = []
     if checkin_path and code:
         print(f"\n  Cross-referencing '{code}' sessions (±60 min)...")
-        sessions_df, traces = crossref_sessions(checkin_path, code, hr_df, stress_df)
+        sessions_df, traces = crossref_sessions(
+            checkin_path, code, stress_df, hr_df, has_body_battery=False
+        )
         has_data = (sessions_df["stress_points"].gt(0) | sessions_df["hr_points"].gt(0))
         n = has_data.sum() if len(sessions_df) else 0
         print(f"  {n}/{len(sessions_df)} sessions matched")
 
-    # 6. Write outputs
+    # 7. Write outputs
     out_dir.mkdir(parents=True, exist_ok=True)
 
     daily_df.to_csv(out_dir / "huawei_daily.csv")
@@ -587,18 +463,7 @@ def run(export_dir, out_dir, checkin_path=None, code=None, months=6):
         sessions_df.to_csv(out_dir / "session_biometrics.csv", index=False)
         print(f"  → session_biometrics.csv")
 
-    if traces:
-        tdir = out_dir / "session_traces"
-        tdir.mkdir(exist_ok=True)
-        all_valid = []
-        for t in traces:
-            has_data = t.get("stress", pd.Series()).notna().any() or t.get("heart_rate", pd.Series()).notna().any()
-            if has_data:
-                all_valid.append(t)
-                t.to_csv(tdir / f"trace_{t['session_date'].iloc[0]}_{t['playlist'].iloc[0].lower()}.csv")
-        if all_valid:
-            pd.concat(all_valid).to_csv(out_dir / "session_traces_all.csv")
-            print(f"  → session_traces/ ({len(all_valid)} files)")
+    write_session_traces(traces, out_dir)
 
     render_pdf(daily_df, analysis, sessions_df, out_dir / "huawei_vitals_report.pdf")
 

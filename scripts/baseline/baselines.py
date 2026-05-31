@@ -97,6 +97,35 @@ class PersonBaseline:
         """Return the fitted recovery curve for a (prior_state, signal) pair, or None."""
         return self._recovery_curves.get((from_state, signal))
 
+    @classmethod
+    def load_from_summary(cls, df: pd.DataFrame, participant: str = "") -> "PersonBaseline":
+        """Reconstruct a PersonBaseline from a recovery_baselines.csv DataFrame.
+
+        Only recovery curves are restored (all session_effect.py needs).
+        State baselines (get_baseline()) are not available on a loaded instance.
+
+        Args:
+            df: DataFrame with columns: from_state, signal, tau_min, asymptote,
+                t_90_min, n_obs, r_squared. Typically read from recovery_baselines.csv.
+            participant: Optional codename for identification.
+
+        Returns:
+            PersonBaseline with _recovery_curves populated.
+        """
+        instance = cls(participant=participant)
+        for _, row in df.iterrows():
+            curve = RecoveryCurve(
+                from_state=str(row["from_state"]),
+                signal=str(row["signal"]),
+                tau=float(row["tau_min"]),
+                asymptote=float(row["asymptote"]),
+                t_90=float(row["t_90_min"]),
+                n_obs=int(row["n_obs"]),
+                r_squared=float(row["r_squared"]),
+            )
+            instance._recovery_curves[(curve.from_state, curve.signal)] = curve
+        return instance
+
     def summary(self) -> pd.DataFrame:
         """Return a DataFrame summarising all fitted recovery curves."""
         rows = []

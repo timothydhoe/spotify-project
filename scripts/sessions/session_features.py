@@ -9,8 +9,8 @@ Outputs:
     data/analysis/all_session_features.csv          — pooled cross-participant
 
 Usage:
-    python scripts/analysis/session_features.py
-    python scripts/analysis/session_features.py --participants kokosnoot bosbes
+    python scripts/sessions/session_features.py
+    python scripts/sessions/session_features.py --participants kokosnoot bosbes
 """
 
 from __future__ import annotations
@@ -105,6 +105,7 @@ def build_session_features(codename: str) -> pd.DataFrame | None:
         "tau_actual":       "tau_actual",
         "advantage":        "tau_advantage",
         "r2_actual":        "r2_actual",
+        "r2_expected":      "r2_expected",
         "n_points":         "n_points",
         "mood_before_score": "mood_before",
         "mood_after_score":  "mood_after",

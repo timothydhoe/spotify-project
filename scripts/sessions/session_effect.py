@@ -11,11 +11,11 @@ For each music listening session:
 Inputs:
     - session_traces_all.csv (from existing garmin_pipeline.py output)
     - classified minute DataFrame (from activity_classifier.py)
-    - PersonBaseline instance (from baselines.py)
+    - PersonBaseline instance (from baselines.py — load via PersonBaseline.load_from_summary())
 
 Output columns in session_effects.csv:
     date, playlist, pre_state, tau_expected, tau_actual, advantage,
-    r2_actual, n_points, mood_delta (if available)
+    r2_actual, r2_expected, n_points, mood_delta (if available)
 """
 
 from __future__ import annotations
@@ -28,7 +28,11 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit, OptimizeWarning
 
-from baselines import PersonBaseline, RecoveryCurve, _fit_exp_decay
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from baseline.baselines import PersonBaseline, RecoveryCurve, _fit_exp_decay
+from sessions.utils import classify_window_state, local_to_utc
 
 # Minutes before session start to use for pre-state classification
 _PRE_WINDOW_MIN = 30
@@ -52,7 +56,7 @@ def analyze_sessions(
         session_traces: From session_traces_all.csv — per-minute traces with phase labels.
         session_biometrics: From session_biometrics.csv — one row per session.
         classified_df: Per-minute DataFrame with 'activity_state' column and datetime index.
-        baseline: Fitted PersonBaseline for this participant.
+        baseline: PersonBaseline for this participant (fitted or loaded via load_from_summary()).
         signal: Which physiological signal to analyze (default: 'stress').
 
     Returns:
@@ -75,6 +79,7 @@ def analyze_sessions(
         # Get expected recovery curve
         expected_curve = baseline.get_recovery_curve(pre_state, signal)
         tau_expected = expected_curve.tau if expected_curve else None
+        r2_expected = expected_curve.r_squared if expected_curve else None
 
         # Fit actual recovery from session trace (during + post phases)
         tau_actual, r2_actual, n_points = _fit_session_recovery(traces, signal, expected_curve)
@@ -109,6 +114,7 @@ def analyze_sessions(
             "tau_actual":     round(tau_actual, 2) if tau_actual else None,
             "advantage":      advantage,
             "r2_actual":      round(r2_actual, 3) if r2_actual is not None else None,
+            "r2_expected":    round(r2_expected, 3) if r2_expected is not None else None,
             "n_points":       n_points,
             "mood_delta":     mood_delta,
             "mood_before":    mood_before,
@@ -141,7 +147,7 @@ def run_statistics(effects_df: pd.DataFrame) -> dict:
         "statistic": round(float(t_stat), 3),
         "p_value":   round(float(p_val), 4),
         "n":         int(len(valid)),
-        "mean_advantage": round(float(valid["advantage"].mean()), 2),
+        "mean_advantage_min": round(float(valid["advantage"].mean()), 2),
         "std_advantage":  round(float(valid["advantage"].std()), 2),
         "interpretation": "Music sessions show significantly faster recovery" if p_val < 0.05
                           else "No significant recovery difference detected",
@@ -157,7 +163,6 @@ def run_statistics(effects_df: pd.DataFrame) -> dict:
             "n_groups":    len(playlist_groups),
         }
 
-        # Tukey HSD if scipy.stats.tukey_hsd is available (scipy >= 1.8)
         if len(playlist_groups) >= 2:
             try:
                 tukey = stats.tukey_hsd(*playlist_groups)
@@ -185,17 +190,11 @@ def _classify_pre_session_state(classified_df: pd.DataFrame, bio_row: pd.Series)
         return "Rest"
 
     try:
-        # Parse session start from biometrics (local time stored as HH:MM, date as YYYY-MM-DD)
         start_local = pd.Timestamp(f"{bio_row['date']} {bio_row['start_local']}")
-        # Convert to UTC (CET = UTC+1)
-        start_utc = start_local - pd.Timedelta(hours=1)
+        start_utc = local_to_utc(start_local)
         window_start = start_utc - pd.Timedelta(minutes=_PRE_WINDOW_MIN)
-
-        pre_window = classified_df.loc[window_start:start_utc, "activity_state"].dropna()
-        if pre_window.empty:
-            return "Rest"
-        return str(pre_window.mode().iloc[0])
-    except (KeyError, IndexError, TypeError, ValueError):
+        return classify_window_state(classified_df, window_start, start_utc)
+    except (KeyError, TypeError, ValueError):
         return "Rest"
 
 

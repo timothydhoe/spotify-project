@@ -21,7 +21,7 @@ Output:
     effect_size, direction, n, significant_05
 
 Usage:
-    python scripts/analysis/circadian_significance.py
+    python scripts/sessions/circadian_significance.py
 """
 
 from __future__ import annotations
@@ -55,14 +55,14 @@ def load_participant_data() -> dict[str, pd.DataFrame]:
     if not FEATURE_MATRIX_PATH.exists():
         raise FileNotFoundError(
             f"Feature matrix not found: {FEATURE_MATRIX_PATH}\n"
-            f"Run: python scripts/analysis/circadian_baseline.py"
+            f"Run: python scripts/baseline/pipeline.py"
         )
 
     fm = pd.read_csv(FEATURE_MATRIX_PATH)
     return {name: group.reset_index(drop=True) for name, group in fm.groupby("participant")}
 
 
-# ── Test functions (stubs) ──────────────────────────────────────────────────
+# ── Test functions ──────────────────────────────────────────────────────────
 
 
 def _run_wilcoxon(
@@ -77,7 +77,6 @@ def _run_wilcoxon(
 
     Returns a result dict, or None if fewer than MIN_OBS valid pairs.
     """
-    # Drop pairs where either value is NaN
     mask = pre.notna() & post.notna()
     pre_clean = pre[mask].values
     post_clean = post[mask].values
@@ -88,15 +87,11 @@ def _run_wilcoxon(
 
     diff = post_clean - pre_clean
 
-    # All-zero differences → no test possible
     if np.all(diff == 0):
         return None
 
     stat, p_value = wilcoxon(diff, alternative="two-sided")
 
-    # Effect size r = Z / sqrt(N)
-    # Wilcoxon returns T statistic; approximate Z from p-value
-    from scipy.stats import norm
     z = norm.isf(p_value / 2)  # two-tailed p → Z
     effect_size = z / np.sqrt(n)
 
@@ -217,7 +212,6 @@ def test_mood(df: pd.DataFrame, participant: str) -> list[dict]:
         if n < MIN_OBS:
             continue
 
-        # All zeros → no test possible
         if np.all(values == 0):
             continue
 
@@ -249,7 +243,6 @@ def test_long_term_trend(df: pd.DataFrame, participant: str) -> list[dict]:
     """OLS regression: pre_study deviation over session sequence number."""
     results = []
 
-    # Sort by date to get correct session sequence
     df_sorted = df.sort_values("date").reset_index(drop=True)
     df_sorted["session_seq"] = range(1, len(df_sorted) + 1)
 
@@ -267,7 +260,6 @@ def test_long_term_trend(df: pd.DataFrame, participant: str) -> list[dict]:
         valid = df_sorted[[col, "session_seq"]].dropna()
         n = len(valid)
 
-        # For optional features (HRV, respiration), require >50% non-NaN
         if col in ("hrv_rmssd", "avg_resp_daily"):
             if n < len(df_sorted) * 0.5:
                 continue
@@ -275,7 +267,6 @@ def test_long_term_trend(df: pd.DataFrame, participant: str) -> list[dict]:
         if n < MIN_OBS:
             continue
 
-        # OLS: col ~ session_seq + intercept
         X = sm.add_constant(valid["session_seq"])
         model = sm.OLS(valid[col], X).fit()
 
@@ -286,7 +277,7 @@ def test_long_term_trend(df: pd.DataFrame, participant: str) -> list[dict]:
         results.append({
             "participant": participant,
             "test_category": "long_term_trend",
-            "test_name": f"trend_over_sessions",
+            "test_name": "trend_over_sessions",
             "metric": metric,
             "statistic": round(slope, 6),
             "p_value": round(p_value, 6),
@@ -315,7 +306,6 @@ def main() -> None:
         all_results.extend(test_mood(df, participant))
         all_results.extend(test_long_term_trend(df, participant))
 
-    # Save results
     if all_results:
         results_df = pd.DataFrame(all_results)
         COMBINED_DIR.mkdir(parents=True, exist_ok=True)

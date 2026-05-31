@@ -3,11 +3,11 @@
 ## STATUS TRACKER (update as work progresses)
 - [x] Pipeline 1 — extraction/
 - [x] Pipeline 2 — baseline/
-- [ ] Pipeline 3 — sessions/
+- [x] Pipeline 3 — sessions/
 - [ ] Master pipeline (main.py)
 - [ ] Notebooks (ML scripts converted)
 
-**Currently working on:** Pipeline 3 — sessions/
+**Currently working on:** Master pipeline (main.py)
 
 ---
 
@@ -137,12 +137,18 @@ analysts can apply any threshold at analysis time. `recovery_analysis.py` define
 9. **`scripts/sessions/pipeline.py`** — create new entry point; loads classified_minutes.csv (Pipeline 1 output) + recovery_baselines.csv (Pipeline 2 output) via `PersonBaseline.load_from_summary()`; runs all five stages in order
 10. **Delete** `scripts/analysis/session_effect.py`, `session_features.py`, `session_arc_analysis.py`, `circadian_significance.py`, `pipeline.py` after verification passes
 
-**Verification:**
+**Verification (completed 2026-05-31 on peer):**
 ```bash
 uv run python -m py_compile scripts/sessions/pipeline.py
 uv run python scripts/sessions/pipeline.py --help
-uv run python scripts/sessions/pipeline.py peer
+uv run python scripts/sessions/pipeline.py peer --force
 ```
+
+**DST validation result:** Compared `pre_state` classification using old hardcoded `-1h` offset
+vs new `ZoneInfo("Europe/Brussels")` on peer's 18 post-DST sessions (≥ 2026-03-29).
+**5 of 18 sessions received a different pre_state** — the old pipeline was looking at the
+wrong 30-minute window for all CEST sessions, causing the wrong baseline recovery curve
+to be selected. The fix is validated and materially affects results.
 
 ---
 

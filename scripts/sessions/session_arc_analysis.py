@@ -7,7 +7,7 @@ circadian baseline. Classifies activity state per window and runs thesis-grade
 significance tests with long-term trend analysis.
 
 Prerequisites:
-    - Run pipeline.py first to generate classified_minutes.csv per participant
+    - Run extraction/pipeline.py first to generate classified_minutes.csv per participant
     - Wearable data must be processed (garmin_pipeline.py / huawei_pipeline.py)
 
 Outputs:
@@ -17,8 +17,8 @@ Outputs:
     data/analysis/session_arc/plots/*.png
 
 Usage:
-    python scripts/analysis/session_arc_analysis.py
-    python scripts/analysis/session_arc_analysis.py --participants bosbes peer
+    python scripts/sessions/session_arc_analysis.py
+    python scripts/sessions/session_arc_analysis.py --participants bosbes peer
 """
 
 from __future__ import annotations
@@ -32,9 +32,10 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sp_stats
 
-sys.path.insert(0, str(Path(__file__).parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from circadian_baseline import MIN_OBS_PER_HOUR, _load_daily_hrv
+from baseline.circadian_baseline import MIN_OBS_PER_HOUR, _load_daily_hrv
+from sessions.utils import classify_window_state, local_to_utc
 
 # ── Configuration ───────────────────────────────────────────────────────────
 
@@ -82,12 +83,12 @@ def _load_minute_signal(proc_dir: Path, signal: str) -> pd.DataFrame | None:
 
 
 def _load_classified_minutes(participant: str) -> pd.DataFrame:
-    """Load classified_minutes.csv produced by pipeline.py."""
+    """Load classified_minutes.csv produced by extraction/pipeline.py."""
     path = ANALYSIS_DIR / participant / "classified_minutes.csv"
     if not path.exists():
         raise FileNotFoundError(
             f"classified_minutes.csv not found for {participant}. "
-            "Run: python scripts/analysis/pipeline.py --participants " + participant
+            "Run: python scripts/extraction/pipeline.py " + participant
         )
     return pd.read_csv(path, index_col="timestamp", parse_dates=True)
 
@@ -95,6 +96,10 @@ def _load_classified_minutes(participant: str) -> pd.DataFrame:
 # ═══════════════════════════════════════════════════════════════════════════
 #  2. CIRCADIAN BASELINES (generalised to any signal)
 # ═══════════════════════════════════════════════════════════════════════════
+
+# TODO: compute_signal_baseline() and compute_rolling_baseline() duplicate the
+# non-session-day exclusion + hourly-groupby logic in baseline/circadian_baseline.py.
+# Consolidate into a shared function there once all pipelines are stable.
 
 def compute_signal_baseline(
     participant: str, signal: str,
@@ -194,28 +199,7 @@ def compute_rolling_baseline(
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  3. ACTIVITY STATE CLASSIFICATION PER WINDOW
-# ═══════════════════════════════════════════════════════════════════════════
-
-def classify_window_state(
-    classified_df: pd.DataFrame,
-    start_utc: pd.Timestamp,
-    end_utc: pd.Timestamp,
-) -> str:
-    """Majority-vote activity state in the [start_utc, end_utc] window."""
-    if classified_df.empty or "activity_state" not in classified_df.columns:
-        return "Rest"
-    try:
-        window = classified_df.loc[start_utc:end_utc, "activity_state"].dropna()
-        if window.empty:
-            return "Rest"
-        return str(window.mode().iloc[0])
-    except (KeyError, IndexError):
-        return "Rest"
-
-
-# ═══════════════════════════════════════════════════════════════════════════
-#  4. BUILD ARC DEVIATIONS TABLE
+#  3. BUILD ARC DEVIATIONS TABLE
 # ═══════════════════════════════════════════════════════════════════════════
 
 def build_arc_deviations(participants: list[str] | None = None) -> pd.DataFrame:
@@ -239,7 +223,6 @@ def build_arc_deviations(participants: list[str] | None = None) -> pd.DataFrame:
         traces = pd.read_csv(traces_path, parse_dates=["timestamp_utc"])
         biometrics = pd.read_csv(bio_path)
 
-        # classified_minutes.csv from pipeline.py
         try:
             classified_df = _load_classified_minutes(participant)
         except FileNotFoundError as exc:
@@ -270,18 +253,18 @@ def build_arc_deviations(participants: list[str] | None = None) -> pd.DataFrame:
             if session_traces.empty:
                 continue
 
-            # Parse session timing (biometrics stores CET; traces are UTC)
+            # Parse session timing — biometrics stores local time; convert to UTC
             start_local = pd.Timestamp(f"{bio_row['date'].date()} {bio_row['start_local']}")
             end_local = pd.Timestamp(f"{bio_row['date'].date()} {bio_row['end_local']}")
-            start_utc = start_local - pd.Timedelta(hours=1)
-            end_utc = end_local - pd.Timedelta(hours=1)
+            start_utc = local_to_utc(start_local)
+            end_utc = local_to_utc(end_local)
 
             # Slice phases from traces (already labelled)
             pre_traces = session_traces[session_traces["phase"] == "pre"]
             during_traces = session_traces[session_traces["phase"] == "during"]
             post_traces = session_traces[session_traces["phase"] == "post"]
 
-            # Classify activity state per window (using full continuous classified_df)
+            # Classify activity state per window using shared helper
             pre_state = classify_window_state(
                 classified_df,
                 start_utc - pd.Timedelta(minutes=30),
@@ -319,7 +302,6 @@ def build_arc_deviations(participants: list[str] | None = None) -> pd.DataFrame:
             # ── Deviations per signal ───────────────────────────────────────
             for signal in SIGNALS:
                 if signal == "body_battery":
-                    # BB: absolute delta only (no circadian deviation)
                     bb_col = "body_battery"
                     bb_pre = (
                         float(pre_traces[bb_col].mean())
@@ -410,7 +392,6 @@ def build_arc_deviations(participants: list[str] | None = None) -> pd.DataFrame:
                 row["rolling_baseline_stress_pre"] = np.nan
                 row["rolling_stress_dev_pre"] = np.nan
 
-            # ── N days available for rolling baseline ───────────────────────
             row["rolling_n_days"] = _count_rolling_days(participant, bio_row["date"])
 
             rows.append(row)
@@ -441,7 +422,7 @@ def _count_rolling_days(participant: str, session_date: pd.Timestamp) -> int:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  5. SIGNIFICANCE TESTS (thesis-grade)
+#  4. SIGNIFICANCE TESTS (thesis-grade)
 # ═══════════════════════════════════════════════════════════════════════════
 
 def _bootstrap_ci(values: np.ndarray, n_boot: int = 1000, alpha: float = 0.05):
@@ -554,7 +535,6 @@ def _anova_rows(
     f_stat, p_val = sp_stats.f_oneway(*gv)
     lev_stat, lev_p = sp_stats.levene(*gv)
 
-    # η² = SS_between / SS_total
     all_vals = pd.concat(gv)
     grand_mean = all_vals.mean()
     ss_between = sum(len(g) * (g.mean() - grand_mean) ** 2 for g in gv)
@@ -579,7 +559,6 @@ def _anova_rows(
         "equal_variance_ok": bool(lev_p >= 0.05),
     })
 
-    # Tukey HSD pairwise
     try:
         from statsmodels.stats.multicomp import pairwise_tukeyhsd
 
@@ -626,7 +605,6 @@ def run_significance_tests(arc_df: pd.DataFrame) -> pd.DataFrame:
 
     results: list[dict] = []
 
-    # Deviation columns for stress and heart_rate
     dev_cols = {
         "stress": ["stress_dev_pre", "stress_dev_during", "stress_dev_post"],
         "heart_rate": ["heart_rate_dev_pre", "heart_rate_dev_during", "heart_rate_dev_post"],
@@ -635,20 +613,18 @@ def run_significance_tests(arc_df: pd.DataFrame) -> pd.DataFrame:
     # A — one-sample t-tests (deviation ≠ 0)
     for metric, cols in dev_cols.items():
         for col in cols:
-            window = col.rsplit("_", 1)[-1]  # pre / during / post
+            window = col.rsplit("_", 1)[-1]
             if col not in arc_df.columns:
                 continue
             row = _one_sample_row(arc_df[col], metric, window, "all")
             if row:
                 results.append(row)
 
-    # mood_delta one-sample
     if "mood_delta" in arc_df.columns:
         row = _one_sample_row(arc_df["mood_delta"], "mood_delta", "overall", "all")
         if row:
             results.append(row)
 
-    # bb_delta one-sample
     if "bb_delta" in arc_df.columns:
         row = _one_sample_row(arc_df["bb_delta"], "body_battery", "delta", "all")
         if row:
@@ -690,7 +666,6 @@ def run_significance_tests(arc_df: pd.DataFrame) -> pd.DataFrame:
 
     results_df = pd.DataFrame(results)
 
-    # FDR correction (Benjamini–Hochberg)
     p_vals = results_df["p_value"].values
     if len(p_vals) > 1:
         _, q_vals, _, _ = multipletests(p_vals, method="fdr_bh")
@@ -702,7 +677,7 @@ def run_significance_tests(arc_df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  6. LONG-TERM EFFECTS
+#  5. LONG-TERM EFFECTS
 # ═══════════════════════════════════════════════════════════════════════════
 
 def compute_long_term_trends(arc_df: pd.DataFrame) -> pd.DataFrame:
@@ -714,7 +689,6 @@ def compute_long_term_trends(arc_df: pd.DataFrame) -> pd.DataFrame:
         ("mood_delta", "mood_delta"),
     ]
 
-    # A — session-order linear trend per participant
     for participant in arc_df["participant"].unique():
         pdata = arc_df[arc_df["participant"] == participant].sort_values("session_number")
 
@@ -739,7 +713,6 @@ def compute_long_term_trends(arc_df: pd.DataFrame) -> pd.DataFrame:
                 "n": len(valid),
             })
 
-    # Pooled session-order trend
     for col, name in outcome_cols:
         if col not in arc_df.columns:
             continue
@@ -760,7 +733,6 @@ def compute_long_term_trends(arc_df: pd.DataFrame) -> pd.DataFrame:
             "n": len(valid),
         })
 
-    # B — rolling-baseline drift per participant
     for participant in arc_df["participant"].unique():
         pdata = arc_df[arc_df["participant"] == participant].sort_values("date")
         if "rolling_baseline_stress_pre" not in pdata.columns:
@@ -782,7 +754,6 @@ def compute_long_term_trends(arc_df: pd.DataFrame) -> pd.DataFrame:
             "n": len(valid),
         })
 
-    # C — cumulative exposure (Spearman rank correlation)
     arc_sorted = arc_df.sort_values(["participant", "date"]).copy()
     arc_sorted["cumulative_sessions"] = arc_sorted.groupby("participant").cumcount() + 1
 
@@ -797,14 +768,13 @@ def compute_long_term_trends(arc_df: pd.DataFrame) -> pd.DataFrame:
             "participant": "pooled",
             "analysis": "cumulative_exposure",
             "metric": name,
-            "slope": float(rho),       # Spearman ρ stored in slope column
+            "slope": float(rho),
             "intercept": None,
             "r_squared": float(rho ** 2),
             "p_value": float(p),
             "n": len(valid),
         })
 
-    # D — HRV daily trend (optional, per participant)
     hrv_data = arc_df[["session_number", "hrv_rmssd", "participant"]].dropna()
     for participant in hrv_data["participant"].unique():
         pdata = hrv_data[hrv_data["participant"] == participant].sort_values("session_number")
@@ -828,7 +798,7 @@ def compute_long_term_trends(arc_df: pd.DataFrame) -> pd.DataFrame:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  7. PLOTTING
+#  6. PLOTTING
 # ═══════════════════════════════════════════════════════════════════════════
 
 def _ensure_agg_backend():
@@ -945,7 +915,6 @@ def plot_long_term_trends(arc_df: pd.DataFrame, output_dir: Path) -> None:
                 x_line = np.array([valid["session_number"].min(), valid["session_number"].max()])
                 ax.plot(x_line, slope * x_line + intercept, "--", alpha=0.5)
 
-        # Pooled trend
         valid_all = arc_df[["session_number", col]].dropna()
         if len(valid_all) >= 3:
             slope, intercept, _, p, _ = sp_stats.linregress(
@@ -1041,7 +1010,7 @@ def plot_significance_summary(sig_df: pd.DataFrame, output_dir: Path) -> None:
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  8. MAIN
+#  7. MAIN
 # ═══════════════════════════════════════════════════════════════════════════
 
 def main() -> None:
@@ -1057,29 +1026,25 @@ def main() -> None:
     plot_dir = OUTPUT_DIR / "plots"
     plot_dir.mkdir(parents=True, exist_ok=True)
 
-    # Step 1 — build arc deviations
     print("Building arc deviations...")
     arc_df = build_arc_deviations(args.participants)
     if arc_df.empty:
-        print("  No data produced — check that pipeline.py has been run.")
+        print("  No data produced — check that extraction/pipeline.py has been run.")
         return
     arc_df.to_csv(OUTPUT_DIR / "arc_deviations.csv", index=False)
     print(f"  {len(arc_df)} sessions x {len(arc_df.columns)} columns")
 
-    # Step 2 — significance tests
     print("\nRunning significance tests...")
     sig_df = run_significance_tests(arc_df)
     sig_df.to_csv(OUTPUT_DIR / "significance_results.csv", index=False)
     n_sig = int((sig_df["q_value"] < 0.05).sum()) if not sig_df.empty else 0
     print(f"  {len(sig_df)} tests, {n_sig} significant at FDR q < 0.05")
 
-    # Step 3 — long-term trends
     print("\nComputing long-term trends...")
     trends_df = compute_long_term_trends(arc_df)
     trends_df.to_csv(OUTPUT_DIR / "long_term_trends.csv", index=False)
     print(f"  {len(trends_df)} trend analyses")
 
-    # Step 4 — plots
     print("\nGenerating plots...")
     plot_arc_per_participant(arc_df, plot_dir)
     plot_deviation_heatmap(arc_df, plot_dir)
@@ -1088,7 +1053,6 @@ def main() -> None:
     plot_significance_summary(sig_df, plot_dir)
     print(f"  Plots saved to {plot_dir}")
 
-    # Summary
     print(f"\n{'=' * 60}")
     print("  Arc Analysis Summary")
     print(f"{'=' * 60}")
@@ -1102,7 +1066,6 @@ def main() -> None:
         if not mood.empty:
             print(f"    Mood delta:      {mood.mean():+.1f} +/- {mood.std():.1f}")
 
-    # Flag underpowered tests
     if not sig_df.empty:
         underpowered = sig_df[sig_df["n"] < 10]
         if not underpowered.empty:

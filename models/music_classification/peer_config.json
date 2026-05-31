@@ -1,0 +1,37 @@
+{
+  "created": "2026-05-31T18:30:17.386260",
+  "participant": "peer",
+  "n_songs_total": 691,
+  "n_songs_classified": 691,
+  "scoring_features": [
+    "tempo",
+    "energy",
+    "loudness",
+    "valence",
+    "danceability",
+    "acousticness",
+    "instrumentalness",
+    "speechiness"
+  ],
+  "arousal_weights": {
+    "energy": 0.35,
+    "tempo": 0.3,
+    "loudness": 0.2,
+    "acousticness": -0.1,
+    "danceability": 0.05
+  },
+  "thresholds": {
+    "calm": 0.35,
+    "energy": 0.65,
+    "valence_floor": 0.25
+  },
+  "pre_filters": {
+    "speechiness_max": 0.66,
+    "liveness_max": 0.8
+  },
+  "class_distribution": {
+    "calm": 53,
+    "energy": 96,
+    "other": 542
+  }
+}

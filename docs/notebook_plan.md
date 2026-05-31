@@ -252,7 +252,7 @@ Current contents: `config.json`, `scaler.pkl` (from `music_classification.py`).
 - [x] `visualisation/bayesian_recommender_viz.ipynb`
 - [x] `ml/circadian_ml.ipynb`
 - [x] `visualisation/circadian_ml_viz.ipynb`
-- [ ] `ml/music_class_thresholds.ipynb`
+- [x] `ml/music_class_thresholds.ipynb`
 - [ ] `visualisation/music_class_thresholds_viz.ipynb`
 - [ ] `ml/music_class_unsupervised.ipynb`
 - [ ] `visualisation/music_class_unsupervised_viz.ipynb`

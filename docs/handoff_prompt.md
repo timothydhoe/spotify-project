@@ -32,7 +32,7 @@ The work is split into three phases:
 - [x] `notebooks/visualisation/music_class_thresholds_viz.ipynb`
 - [x] `notebooks/ml/music_class_unsupervised.ipynb`
 - [x] `notebooks/visualisation/music_class_unsupervised_viz.ipynb`
-- [ ] `notebooks/visualisation/recovery_analysis.ipynb` (move + sys.path fix only)
+- [x] `notebooks/visualisation/recovery_analysis.ipynb`
 - [ ] `notebooks/visualisation/extraction_pipeline.ipynb`
 - [ ] `notebooks/visualisation/baseline_pipeline.ipynb`
 - [ ] `notebooks/visualisation/sessions_pipeline.ipynb`

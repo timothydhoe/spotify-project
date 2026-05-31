@@ -1,0 +1,104 @@
+{
+  "bosbes": {
+    "Calm": {
+      "mean": 7.81,
+      "ci_low": 6.56,
+      "ci_high": 9.07
+    },
+    "Neutral": {
+      "mean": 4.96,
+      "ci_low": 3.73,
+      "ci_high": 6.15
+    },
+    "Energy": {
+      "mean": 8.03,
+      "ci_low": 7.16,
+      "ci_high": 8.91
+    }
+  },
+  "kiwi": {
+    "Calm": {
+      "mean": -1.9,
+      "ci_low": -3.1,
+      "ci_high": -0.73
+    },
+    "Neutral": {
+      "mean": -0.09,
+      "ci_low": -1.39,
+      "ci_high": 1.22
+    },
+    "Energy": {
+      "mean": 1.08,
+      "ci_low": 0.35,
+      "ci_high": 1.8
+    }
+  },
+  "kokosnoot": {
+    "Calm": {
+      "mean": 0.01,
+      "ci_low": -0.32,
+      "ci_high": 0.36
+    },
+    "Neutral": {
+      "mean": 0.05,
+      "ci_low": -0.61,
+      "ci_high": 0.72
+    },
+    "Energy": {
+      "mean": 11.98,
+      "ci_low": 11.69,
+      "ci_high": 12.28
+    }
+  },
+  "limoen": {
+    "Calm": {
+      "mean": 7.03,
+      "ci_low": 5.79,
+      "ci_high": 8.28
+    },
+    "Neutral": {
+      "mean": 8.94,
+      "ci_low": 8.18,
+      "ci_high": 9.7
+    },
+    "Energy": {
+      "mean": 14.95,
+      "ci_low": 14.31,
+      "ci_high": 15.57
+    }
+  },
+  "peer": {
+    "Calm": {
+      "mean": 3.98,
+      "ci_low": 3.53,
+      "ci_high": 4.44
+    },
+    "Neutral": {
+      "mean": 0.01,
+      "ci_low": -0.46,
+      "ci_high": 0.49
+    },
+    "Energy": {
+      "mean": 4.01,
+      "ci_low": 3.57,
+      "ci_high": 4.45
+    }
+  },
+  "watermeloen": {
+    "Calm": {
+      "mean": 0.0,
+      "ci_low": -1.28,
+      "ci_high": 1.28
+    },
+    "Neutral": {
+      "mean": 0.01,
+      "ci_low": -0.87,
+      "ci_high": 0.88
+    },
+    "Energy": {
+      "mean": 1.41,
+      "ci_low": 0.68,
+      "ci_high": 2.17
+    }
+  }
+}

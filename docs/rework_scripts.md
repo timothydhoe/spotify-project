@@ -5,7 +5,7 @@
 - [x] Pipeline 2 — baseline/
 - [x] Pipeline 3 — sessions/
 - [x] Master pipeline (main.py)
-- [ ] Notebooks (ML scripts converted)
+- [ ] Notebooks (ML scripts converted) — plan in docs/notebook_plan.md
 
 **Currently working on:** Notebooks (ML scripts converted)
 

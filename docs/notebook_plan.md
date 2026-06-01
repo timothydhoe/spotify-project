@@ -255,8 +255,8 @@ Current contents: `config.json`, `scaler.pkl` (from `music_classification.py`).
 - [x] `ml/music_class_thresholds.ipynb`
 - [x] `visualisation/music_class_thresholds_viz.ipynb`
 - [x] `ml/music_class_unsupervised.ipynb`
-- [ ] `visualisation/music_class_unsupervised_viz.ipynb`
-- [ ] `visualisation/recovery_analysis.ipynb`
+- [x] `visualisation/music_class_unsupervised_viz.ipynb`
+- [x] `visualisation/recovery_analysis.ipynb`
 - [ ] `visualisation/extraction_pipeline.ipynb`
 - [ ] `visualisation/baseline_pipeline.ipynb`
 - [ ] `visualisation/sessions_pipeline.ipynb`
@@ -279,5 +279,5 @@ Elk visueel krijgt: heldere titel, annotaties die uitleggen wat je ziet, interpr
 
 ### Opruimen
 
-- [ ] Delete replaced scripts from `scripts/analysis/`
-- [ ] Delete `scripts/pipeline/` stub
+- [x] Delete replaced scripts from `scripts/analysis/`
+- [x] Delete `scripts/pipeline/` stub

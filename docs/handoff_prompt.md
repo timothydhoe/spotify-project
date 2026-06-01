@@ -41,15 +41,26 @@ The work is split into three phases:
 
 ## Next step
 
-**Start `ml/music_class_thresholds.ipynb`.**
+**Build `notebooks/visualisation/extraction_pipeline.ipynb` directly in Jupyter.**
 
-Before writing any code, read the two source files:
-- `scripts/analysis/music_classification.py` (343 lines — rule-based arousal scoring)
-- `notebooks/ml_music_classification.ipynb` (existing notebook — 8 phases, more thorough than the script)
+Do NOT use a generation script. Write the notebook cells by hand using NotebookEdit/Write.
 
-Then follow the Q&A convention: ask the user ONE clarifying question at a time to understand
-requirements before proposing anything. Do not write code until the Q&A is complete and
-the user has approved a plan.
+Agreed structure (approved by user):
+1. Markdown: title + pipeline overview (input → output diagram)
+2. Code: imports + constants (PROJECT_ROOT, OI palette, dark theme, PARTICIPANTS, DEVICE map)
+3. Code: data loading (stress, HR, session_biometrics, session_traces_all, classified_minutes per participant) — load `session_biometrics.csv` WITHOUT `index_col=0` so `date` stays a column
+4. Markdown: Sectie 1 — Datadekking uitleg
+5. Code: lollipop (continuous segments per participant) + wearing strip (pcolormesh, `shading='nearest'`, Y = `np.arange(n) + 0.5`, X = date_range)
+6. Markdown: Sectie 2 — Minuut-voor-minuut signalen
+7. Code: time series (stress + HR, 5-min downsample, session marker lines)
+8. Markdown: Sectie 3 — Check-in koppeling
+9. Code: check-in matching table (total / matched / unmatched per participant)
+10. Markdown: Sectie 4 — Sessietrace
+11. Code: session trace viz (pre / during / post phases, one participant example)
+12. Markdown: Sectie 5 — Activiteitsclassificatie
+13. Code: activity classification stacked bar chart
+
+Before writing any code, follow the Q&A convention: ask ONE clarifying question at a time.
 
 ---
 

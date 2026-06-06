@@ -18,6 +18,7 @@ PARTICIPANTS_WITH_CIRCADIAN   = []   # populated by load_app_data()
 PARTICIPANTS_WITH_SESSIONS    = []
 PARTICIPANTS_WITH_TRACES      = []
 PARTICIPANTS_WITH_FEATURES    = []
+PARTICIPANTS_WITH_CLASSIFIED  = []
 
 
 @dataclass
@@ -29,10 +30,29 @@ class AppData:
     hourly_baselines:  dict = field(default_factory=dict)   # p → DataFrame (hourly_baseline.csv)
     garmin_minute:     dict = field(default_factory=dict)   # p → DataFrame (timestamp, stress, body_battery, heart_rate)
 
+    # Music classification (supervised, per participant)
+    classified_songs:  dict = field(default_factory=dict)   # p → DataFrame (classified_songs.csv)
+    has_classified:    dict = field(default_factory=dict)   # p → bool
+
     # Combined outputs
     feature_matrix:    pd.DataFrame = field(default_factory=pd.DataFrame)
     recommendations:   dict = field(default_factory=dict)
     significance_tests: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+    # Recovery analysis (RQ1)
+    recovery_features: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+    # Stress-delta model results (parallel to mood_delta table)
+    model_results_stress: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+    # Music clustering (unsupervised, combined)
+    music_clusters:    dict = field(default_factory=dict)   # "k3" → DataFrame, "means_k3" → DataFrame
+
+    # Bootstrap CI for Ridge (from notebook 1) — {} until notebook is run
+    bootstrap_ci:      dict = field(default_factory=dict)   # target → {r2_point, r2_ci_low, r2_ci_high}
+
+    # RQ3 classification accuracy (from notebook 1) — {} until notebook is run
+    rq3_results:       dict = field(default_factory=dict)   # model_name → {accuracy, n_events, ...}
 
     # Availability flags
     has_circadian:  dict = field(default_factory=dict)   # p → bool
@@ -90,6 +110,11 @@ def load_app_data() -> AppData:
         d.session_traces[p] = traces
         d.has_traces[p] = len(traces) > 0
 
+        # music classification (supervised)
+        cs = _read_csv(DATA / "analysis" / p / "classified_songs.csv")
+        d.classified_songs[p] = cs
+        d.has_classified[p] = not cs.empty
+
         # per-minute garmin data for /home wearables timeline
         stress_path = DATA / "wearables" / p / "processed" / "garmin_minute_stress.csv"
         hr_path     = DATA / "wearables" / p / "processed" / "garmin_minute_hr.csv"
@@ -120,16 +145,39 @@ def load_app_data() -> AppData:
     # significance tests
     d.significance_tests = _read_csv(DATA / "analysis" / "circadian_baselines" / "significance_tests.csv")
 
+    # recovery features (RQ1)
+    d.recovery_features = _read_csv(DATA / "analysis" / "recovery_features.csv")
+
+    # bootstrap CI for Ridge (produced by notebook 1 — graceful fallback if not yet run)
+    _bci_path = DATA / "analysis" / "circadian_baselines" / "bootstrap_ci.json"
+    d.bootstrap_ci = json.loads(_bci_path.read_text()) if _bci_path.exists() else {}
+
+    # RQ3 classification accuracy (produced by notebook 1 — graceful fallback)
+    _rq3_path = DATA / "analysis" / "circadian_baselines" / "rq3_results.json"
+    d.rq3_results = json.loads(_rq3_path.read_text()) if _rq3_path.exists() else {}
+
+    # stress-delta model results
+    d.model_results_stress = _read_csv(
+        DATA / "analysis" / "circadian_baselines" / "model_results_stress_delta.csv"
+    )
+
+    # unsupervised music clusters
+    d.music_clusters = {
+        "k3":       _read_csv(DATA / "analysis" / "music_unsupervised" / "classified_songs_k3.csv"),
+        "means_k3": _read_csv(DATA / "analysis" / "music_unsupervised" / "cluster_means_k3.csv"),
+    }
+
     # Fit live Ridge model for date-reactive inference on /home
     _fit_live_model(d)
 
     # Populate global availability lists
     global PARTICIPANTS_WITH_CIRCADIAN, PARTICIPANTS_WITH_SESSIONS
-    global PARTICIPANTS_WITH_TRACES, PARTICIPANTS_WITH_FEATURES
-    PARTICIPANTS_WITH_CIRCADIAN = [p for p in PARTICIPANTS if d.has_circadian[p]]
-    PARTICIPANTS_WITH_SESSIONS  = [p for p in PARTICIPANTS if d.has_sessions[p]]
-    PARTICIPANTS_WITH_TRACES    = [p for p in PARTICIPANTS if d.has_traces[p]]
-    PARTICIPANTS_WITH_FEATURES  = [p for p in PARTICIPANTS if d.has_features[p]]
+    global PARTICIPANTS_WITH_TRACES, PARTICIPANTS_WITH_FEATURES, PARTICIPANTS_WITH_CLASSIFIED
+    PARTICIPANTS_WITH_CIRCADIAN  = [p for p in PARTICIPANTS if d.has_circadian[p]]
+    PARTICIPANTS_WITH_SESSIONS   = [p for p in PARTICIPANTS if d.has_sessions[p]]
+    PARTICIPANTS_WITH_TRACES     = [p for p in PARTICIPANTS if d.has_traces[p]]
+    PARTICIPANTS_WITH_FEATURES   = [p for p in PARTICIPANTS if d.has_features[p]]
+    PARTICIPANTS_WITH_CLASSIFIED = [p for p in PARTICIPANTS if d.has_classified[p]]
 
     return d
 
@@ -213,9 +261,10 @@ def best_playlist_for(app_data: AppData, participant: str) -> tuple[str, int]:
     recs = app_data.recommendations.get(participant, {})
     if not recs:
         return "Neutral", 0  # Neutral is the ISO therapy safe default
-    best = max(recs, key=lambda k: recs[k]["mean"])
-    best_mean = recs[best]["mean"]
-    total = sum(max(v["mean"], 0) for v in recs.values())
+    def _mean(v): return v.get("mean_delta", v.get("mean", 0))
+    best = max(recs, key=lambda k: _mean(recs[k]))
+    best_mean = _mean(recs[best])
+    total = sum(max(_mean(v), 0) for v in recs.values())
     pct = round(best_mean / total * 100) if total > 0 else 0
     return best, pct
 

@@ -20,7 +20,8 @@ def _posterior_chart(recs: dict) -> go.Figure:
     playlists  = ["Calm", "Neutral", "Energy"]
     nl_labels  = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}
     base_colors = [PLAYLIST_COLORS[p] for p in playlists]
-    means      = [recs.get(p, {}).get("mean", 0)   for p in playlists]
+    def _m(d): return d.get("mean_delta", d.get("mean", 0))
+    means      = [_m(recs.get(p, {})) for p in playlists]
     ci_low     = [recs.get(p, {}).get("ci_low", 0) for p in playlists]
     ci_high    = [recs.get(p, {}).get("ci_high", 0) for p in playlists]
     total      = sum(max(m, 0) for m in means)
@@ -103,7 +104,8 @@ def _ranked_list(recs: dict) -> _ui.Tag:
         return _ui.div("Geen posteriordata beschikbaar.", class_="mt-caption mt-secondary")
 
     playlists = ["Calm", "Neutral", "Energy"]
-    means     = {p: recs.get(p, {}).get("mean", 0)   for p in playlists}
+    def _m2(d): return d.get("mean_delta", d.get("mean", 0))
+    means     = {p: _m2(recs.get(p, {})) for p in playlists}
     ci_low    = {p: recs.get(p, {}).get("ci_low", 0) for p in playlists}
     ci_high   = {p: recs.get(p, {}).get("ci_high", 0) for p in playlists}
     total     = sum(max(m, 0) for m in means.values())
@@ -234,6 +236,17 @@ def ui():
                         style="margin-bottom:20px;",
                     ),
 
+                    # Biometric honesty note
+                    _ui.div(
+                        _ui.span("ℹ Let op:", style="font-weight:700; color:#f59e0b; margin-right:6px;"),
+                        "biometrische inputwaarden (stress, hartslag, Body Battery) hebben bij "
+                        "N=6 deelnemers geen aantoonbaar effect op de aanbeveling "
+                        "(alle β-coëfficiënten ≈ 0 binnen 89%-HDI). "
+                        "De schuifregelaars demonstreren de modelarchitectuur, "
+                        "niet bewezen personalisatie.",
+                        class_="mt-honesty-callout",
+                    ),
+
                 ),
 
                 # Rechts — uitvoer
@@ -245,10 +258,11 @@ def ui():
                         class_="mt-caption mt-secondary",
                         style=(
                             "border-left:3px solid var(--accent); padding:6px 10px; "
-                            "margin-bottom:16px; background:var(--bg-elevated); "
+                            "margin-bottom:4px; background:var(--bg-elevated); "
                             "border-radius:0 4px 4px 0;"
                         ),
                     ),
+                    _ui.output_ui("ridge_ci_note"),
 
                     # Hero badges — Bayesian + Live side by side
                     _ui.div(
@@ -396,6 +410,20 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
     def activity_pills_ui():
         return _activity_pills(activity())
 
+    @output
+    @render.ui
+    def ridge_ci_note():
+        bci = app_data.bootstrap_ci.get("mood_delta", {})
+        if bci:
+            r2  = bci.get("r2_point", "?")
+            lo  = bci.get("r2_ci_low", "?")
+            hi  = bci.get("r2_ci_high", "?")
+            txt = f"Live Ridge R²={r2:.3f} (Bootstrap 95% CI: {lo:.3f}–{hi:.3f}, N=82 sessies). Interpreteer als richting."
+        else:
+            txt = "Live Ridge R²=0.318 (Bootstrap 95% CI: zie Model & Data · voer NB1 uit voor actuele CI). Interpreteer als richting."
+        return _ui.div(txt, class_="mt-caption mt-tertiary",
+                       style="margin-bottom:16px; font-style:italic;")
+
     @reactive.Calc
     def baseline_deviation():
         exp, _ = expected_stress(app_data, sel(), input.hour())
@@ -498,7 +526,7 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         params = compute_salt_params(stress, batt, act)
         if not params.context_notes:
             return _ui.div()
-        items = [_ui.li(note, class_="mt-caption") for note in params.context_notes]
+        items = [_ui.tags.li(note, class_="mt-caption") for note in params.context_notes]
         return _ui.div(
             _ui.div("Audio-aanpassingen op basis van huidige staat", class_="mt-caption mt-secondary",
                     style="margin-bottom:6px; font-weight:600;"),

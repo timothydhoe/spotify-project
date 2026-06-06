@@ -207,6 +207,22 @@ def _stat_grid(summary: dict, playlist_color: str, app_data=None) -> _ui.Tag:
     weeks     = summary.get("study_weeks", 0)
     weeks_str = f"{weeks} wk" if weeks else "—"
 
+    # Recovery advantage from session_features (tau_advantage where r2_actual > 0.05)
+    recovery_val = "—"
+    recovery_sub = "herstel t.o.v. basislijn"
+    p = summary.get("_participant")
+    if app_data and p:
+        sf = app_data.session_features.get(p, pd.DataFrame())
+        if not sf.empty and "tau_advantage" in sf.columns and "r2_actual" in sf.columns:
+            valid = sf[pd.to_numeric(sf["r2_actual"], errors="coerce") > 0.05]["tau_advantage"]
+            valid = pd.to_numeric(valid, errors="coerce").dropna()
+            if not valid.empty:
+                adv = valid.mean()
+                recovery_val = f"+{adv:.0f} min" if adv >= 0 else f"{adv:.0f} min"
+                recovery_sub = f"n={len(valid)} betrouwbare sessies (r²>0.05)"
+            else:
+                recovery_sub = "onvoldoende betrouwbare sessies"
+
     return _ui.div(
         _stat_card_colored("Aanbevolen afspeellijst", bp_nl.upper() if bp != "—" else "—",
                            bp_conf, color=bp_color),
@@ -214,7 +230,8 @@ def _stat_grid(summary: dict, playlist_color: str, app_data=None) -> _ui.Tag:
                            "per sessie gemiddeld", color=mood_color),
         _stat_card("Voltooide sessies", sessions, "totaal"),
         _stat_card("Studieduur", weeks_str, "weken actief"),
-        style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px;",
+        _stat_card("Herstelsnelheid", recovery_val, recovery_sub),
+        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px;",
     )
 
 
@@ -486,8 +503,8 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                 class_="mt-body",
             ),
             _ui.div(
-                "Het beste ML-model (Gradient Boosting, R²=0.41 op groepsniveau, N=40 sessies totaal) "
-                "verklaart een deel van de stemmingsvariatie — maar N=40 is exploratief. "
+                "Het beste ML-model (Ridge regressie, zie Model & Data voor actuele R² en Bootstrap CI) "
+                "verklaart een deel van de stemmingsvariatie — maar N=82 is exploratief. "
                 "Patronen zijn richtinggevend, geen bewijs.",
                 class_="mt-body mt-secondary",
                 style="margin-top:6px;",

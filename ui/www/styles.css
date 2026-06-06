@@ -1463,6 +1463,211 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   .track-row > :nth-child(5) { display: none; }
 }
 
+/* ---------- RQ Badge (research question labels) ---------- */
+.rq-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--accent-muted);
+  color: var(--accent);
+  border: 1px solid rgba(22, 163, 74, 0.25);
+  margin-left: 8px;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+/* ---------- Honesty / Warning Callout ---------- */
+.mt-honesty-callout {
+  padding: 14px 18px;
+  border-radius: 10px;
+  border-left: 3px solid #f59e0b;
+  background: rgba(245, 158, 11, 0.06);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin-top: 12px;
+  overflow-wrap: break-word;
+}
+
+/* ---------- Classification Pills (CALM / ENERGY / OTHER) ---------- */
+.mt-class-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mt-class-pill.calm    { background: rgba(37, 99, 235, 0.10);   color: #1d4ed8; border: 1px solid rgba(37,99,235,0.22); }
+.mt-class-pill.energy  { background: rgba(234, 108, 10, 0.10); color: #c2560a; border: 1px solid rgba(234,108,10,0.22); }
+.mt-class-pill.other   { background: rgba(107, 114, 128, 0.10); color: #6b7280; border: 1px solid rgba(107,114,128,0.22); }
+
+/* ---------- Arousal Dot Bar ---------- */
+.mt-arousal-dots {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.mt-arousal-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.mt-arousal-dot.filled   { background: var(--accent); }
+.mt-arousal-dot.half     { background: linear-gradient(90deg, var(--accent) 50%, var(--bg-elevated) 50%); }
+.mt-arousal-dot.empty    { background: var(--bg-elevated); border: 1px solid var(--border-default); }
+
+/* ---------- Music Browser Table ---------- */
+.mt-music-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.mt-music-table th {
+  background: var(--bg-elevated);
+  color: var(--text-tertiary);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-default);
+  white-space: nowrap;
+}
+
+.mt-music-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  vertical-align: middle;
+  transition: background 0.12s ease;
+}
+
+.mt-music-table tr:last-child td { border-bottom: none; }
+
+.mt-music-table tbody tr:hover td {
+  background: var(--bg-glass-hover);
+}
+
+/* ---------- Pagination Controls ---------- */
+.mt-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 0 4px;
+}
+
+.mt-pagination-btn {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  font-size: 0.8125rem;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mt-pagination-btn:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mt-pagination-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.mt-pagination-info {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  min-width: 100px;
+  text-align: center;
+}
+
+/* ---------- Recovery Chart ---------- */
+.mt-recovery-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 960px) {
+  .mt-recovery-stat-row { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ---------- Model Toggle (Stress / Stemming) ---------- */
+.mt-model-toggle {
+  display: inline-flex;
+  background: var(--bg-elevated);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid var(--border-default);
+}
+
+.mt-model-toggle-btn {
+  padding: 6px 18px;
+  border-radius: 7px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.mt-model-toggle-btn.active {
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+.mt-model-toggle-btn:hover:not(.active) {
+  color: var(--text-primary);
+  background: var(--bg-glass);
+}
+
+/* ---------- Table hover improvement (mt-table) ---------- */
+.mt-table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.mt-table tbody tr:hover td {
+  background: var(--bg-glass-hover);
+}
+
+/* ---------- Improved mt-section-card hover ---------- */
+.mt-section-card {
+  transition: box-shadow 0.2s ease;
+}
+.mt-section-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
 /* --- Session table (results.py) --- */
 .mt-session-table {
   width: 100%;

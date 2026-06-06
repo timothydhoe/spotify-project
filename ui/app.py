@@ -3,7 +3,7 @@ from pathlib import Path
 
 from shiny import App, reactive, render, ui
 
-from modules import circadian, home, model, pipeline, recommendation, results, science, session_replay
+from modules import circadian, home, model, music_browser, pipeline, recommendation, recovery, results, science, session_replay
 from utils.data_loader import APP_DATA, PARTICIPANTS
 
 _DATA_LEVEL = {
@@ -22,6 +22,8 @@ app_ui = ui.page_navbar(
             ui.nav_panel("Resultaten",        results.ui("results")),
             ui.nav_panel("Sessie-replay",     session_replay.ui("replay")),
             ui.nav_panel("Circadiaans ritme", circadian.ui("circadian")),
+            ui.nav_panel("Herstelanalyse",    recovery.ui("recovery")),
+            ui.nav_panel("Jouw Muziek",       music_browser.ui("music")),
         ),
     ),
     ui.nav_panel("Aanbevelingen", recommendation.ui("rec")),
@@ -117,6 +119,8 @@ def server(input, output, session):
     session_replay.server("replay", app_data=APP_DATA, selected_participant=selected_participant)
     results.server("results",   app_data=APP_DATA, selected_participant=selected_participant)
     model.server("model",       app_data=APP_DATA)
+    recovery.server("recovery", app_data=APP_DATA, selected_participant=selected_participant)
+    music_browser.server("music", app_data=APP_DATA, selected_participant=selected_participant)
 
     @output
     @render.ui

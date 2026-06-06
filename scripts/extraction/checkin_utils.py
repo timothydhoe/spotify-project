@@ -25,6 +25,7 @@ original value is kept and a warning is emitted so the researcher can inspect
 the row manually.
 """
 
+import re
 import warnings
 import pandas as pd
 
@@ -57,21 +58,27 @@ def fix_checkin_dates(sessions: pd.DataFrame) -> pd.Series:
     """
 
     def _fix_row(row):
-        submit_dt = pd.to_datetime(row[TIMESTAMP_COL], dayfirst=True)
+        # Submission timestamp is server-generated (YYYY/MM/DD) — always unambiguous.
+        # Strip trailing timezone abbreviation (EET, EEST, …) before parsing;
+        # pandas does not recognise these and will hard-error in a future version.
+        ts_clean = re.sub(r"\s+[A-Z]{2,5}$", "", str(row[TIMESTAMP_COL]).strip())
+        submit_dt = pd.to_datetime(ts_clean, dayfirst=False)
         raw = str(row[CHECKIN_DATE_COL]).strip()
-        checkin_dt = pd.to_datetime(raw, dayfirst=True)
+        # Check-in dates are always YYYY-MM-DD — use explicit format to avoid
+        # pandas applying dayfirst and swapping month/day (e.g. 2026-04-01 → Jan 4).
+        checkin_dt = pd.to_datetime(raw, format="%Y-%m-%d")
 
         # Happy path: date is on or before submission timestamp.
         if checkin_dt <= submit_dt + _FUTURE_TOLERANCE:
             return checkin_dt
 
         # Suspicious: the check-in date is after the submission timestamp.
-        # Try swapping day and month (mobile form bug).
+        # Try swapping day and month (mobile form bug): YYYY-MM-DD → YYYY-DD-MM.
         parts = raw.split("-")
         if len(parts) == 3:
-            swapped_raw = f"{parts[1]}-{parts[0]}-{parts[2]}"
+            swapped_raw = f"{parts[0]}-{parts[2]}-{parts[1]}"
             try:
-                swapped_dt = pd.to_datetime(swapped_raw, dayfirst=True)
+                swapped_dt = pd.to_datetime(swapped_raw, format="%Y-%m-%d")
                 if swapped_dt <= submit_dt + _FUTURE_TOLERANCE:
                     warnings.warn(
                         f"[check-in date] Submitted {submit_dt.date()}: "

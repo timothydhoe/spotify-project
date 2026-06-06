@@ -32,6 +32,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import norm, wilcoxon
 import statsmodels.api as sm
+from statsmodels.stats.multitest import multipletests
 
 # ── Paths ───────────────────────────────────────────────────────────────────
 
@@ -92,10 +93,14 @@ def _run_wilcoxon(
 
     stat, p_value = wilcoxon(diff, alternative="two-sided")
 
-    z = norm.isf(p_value / 2)  # two-tailed p → Z
+    # Effect size r = Z / sqrt(N) with correct sign from observed direction.
+    # norm.ppf(1 - p/2) gives |Z| from the two-tailed p; multiply by the sign
+    # of the mean difference so r reflects the direction of the effect.
+    mean_diff = np.mean(diff)
+    z_abs = norm.ppf(1 - p_value / 2) if p_value < 1.0 else 0.0
+    z = z_abs * np.sign(mean_diff) if mean_diff != 0 else 0.0
     effect_size = z / np.sqrt(n)
 
-    mean_diff = np.mean(diff)
     direction = "increase" if mean_diff > 0 else "decrease" if mean_diff < 0 else "none"
 
     return {
@@ -217,10 +222,11 @@ def test_mood(df: pd.DataFrame, participant: str) -> list[dict]:
 
         stat, p_value = wilcoxon(values, alternative="two-sided")
 
-        z = norm.isf(p_value / 2)
+        mean_val = np.mean(values)
+        z_abs = norm.ppf(1 - p_value / 2) if p_value < 1.0 else 0.0
+        z = z_abs * np.sign(mean_val) if mean_val != 0 else 0.0
         effect_size = z / np.sqrt(n)
 
-        mean_val = np.mean(values)
         direction = "improvement" if mean_val > 0 else "worsening" if mean_val < 0 else "none"
 
         results.append({
@@ -308,9 +314,19 @@ def main() -> None:
 
     if all_results:
         results_df = pd.DataFrame(all_results)
+
+        # Benjamini-Hochberg FDR correction across all tests
+        p_vals = results_df["p_value"].values
+        _, q_vals, _, _ = multipletests(p_vals, method="fdr_bh")
+        results_df["q_value"] = np.round(q_vals, 6)
+        results_df["significant_fdr"] = q_vals < 0.05
+
         COMBINED_DIR.mkdir(parents=True, exist_ok=True)
         results_df.to_csv(OUTPUT_PATH, index=False)
+        sig_05  = results_df["significant_05"].sum()
+        sig_fdr = results_df["significant_fdr"].sum()
         print(f"\n  Saved {len(results_df)} test results → {OUTPUT_PATH.name}")
+        print(f"  Significant at p<0.05: {sig_05} | Significant after FDR (q<0.05): {sig_fdr}")
     else:
         print("\n  No tests produced results.")
 

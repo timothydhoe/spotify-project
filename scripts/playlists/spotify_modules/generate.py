@@ -452,37 +452,47 @@ def save_playlist(playlist, output_dir, participant_id, playlist_type):
 # PLAYLIST PROCESSING: Unified Handler
 # ============================================================
 
-def process_single_playlist(candidates, playlist_type, output_dir, participant_id, preview=False):
+def process_single_playlist(candidates, playlist_type, output_dir, participant_id, preview=False, seed=None):
     """
-    Process a single playlist: validate, select top songs, print info, save
-    
-    This function handles all three playlist types uniformly, reducing code duplication.
-    
+    Process a single playlist: validate, select top songs, print info, save.
+
+    The optional `seed` parameter shuffles qualified candidates before taking
+    the top PLAYLIST_SIZE songs, producing session-specific variation while
+    preserving the ISO sort order within the chosen subset. Derive it from
+    a session date string to get reproducible but different playlists per day:
+        seed = hash(f"{participant_id}_{date_str}") & 0x7FFFFFFF
+
     Args:
         candidates: DataFrame of filtered candidate songs
         playlist_type: 'calm', 'neutral', or 'energy'
         output_dir: Output directory path
         participant_id: Participant code
         preview: Whether to show detailed song list
-    
+        seed: Optional int — if provided, shuffles candidates before selection
+              so each session draws a different subset of qualifying songs.
+
     Returns:
         Final playlist DataFrame or None if validation failed
     """
     # Print header
     print_playlist_header(playlist_type)
-    
+
     # Validate
     is_valid, message, stats = validate_playlist(candidates)
     print_validation_status(is_valid, message)
-    
+
     if not is_valid:
         print(f"  Warning: {stats}")
         return None
-    
+
     # Print basic stats
     print_playlist_stats(stats)
-    
-    # Select top songs
+
+    # Select songs — shuffle first when seed is provided to add session variation
+    if seed is not None and len(candidates) > PLAYLIST_SIZE:
+        candidates = candidates.sample(frac=1, random_state=seed).reset_index(drop=True)
+
+    # Select top songs (ISO sort order is preserved within the chosen subset)
     final_playlist = candidates.head(PLAYLIST_SIZE)
     
     # Print trajectory or consistency info

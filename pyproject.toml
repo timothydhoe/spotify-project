@@ -23,4 +23,8 @@ dependencies = [
     "jax[cpu]>=0.6.0",
     "numpyro>=0.18.0",
     "statsmodels>=0.14.6",
+    "shiny>=1.6.2",
+    "plotly>=6.7.0",
+    "shinywidgets>=0.8.1",
+    "torch>=2.12.0",
 ]

@@ -53,9 +53,22 @@ Three parallel ML directions being explored in `notebooks/`:
 - **Arousal/stress prediction** — Predict stress trajectory from biometric baseline + context (time of day, prior session, playlist type).
 - **Combined mood model** — Given current physiological state, predict which playlist type will produce the best mood outcome for that participant. Most novel contribution of the project.
 
+### Current ML Metrics (mood_delta, LOO-CV, post data-leakage fix — 2026-05-25)
+
+After removing look-ahead features, adding inner 5-fold CV hyperparameter search, cyclical hour/day encoding (sin/cos), ISO interaction terms (`playlist × baseline_deviation_entry`), and `session_number`:
+
+| Model | MAE | RMSE | R² (LOO) | Overfit gap |
+|---|---|---|---|---|
+| Dummy basislijn | 1.988 | 2.752 | −0.052 | 0.052 |
+| Ridge regressie | 1.737 | 2.338 | 0.241 | 0.270 |
+| **Random Forest** | **1.438** | **2.093** | **0.391** | 0.345 |
+| Gradient Boosting | 1.473 | 2.068 | 0.406 | 0.348 |
+
+Best model by R²: Gradient Boosting (R²=0.406); best by MAE: Random Forest (1.438). Overfit gaps significantly reduced vs prior run (RF: 0.455→0.345, GB: 0.575→0.348). `mood_before_score` and circadian features are top Ridge predictors. Results remain exploratory at N=40.
+
 ### Final Output Goal
 
-A **Streamlit app** styled like "Spotify Wrapped" — per-participant summary with key stats (e.g., least stressful hour of the day, playlist effectiveness, biometric trends). Target: ready for final presentation June 20, 2026.
+A **Shiny for Python app** styled like "Spotify Wrapped" — per-participant summary with biometric arcs, model explainability, Bayesian recommendations. Run with `uv run shiny run ui/app.py`. Target: ready for final presentation June 20, 2026.
 
 ---
 
@@ -114,7 +127,7 @@ uv run python scripts/wearables/huawei_pipeline.py [codename]
 ### Analysis
 
 ```bash
-# Bayesian recommender — full sampling via JAX/NumPyro (~30s)
+# Bayesian recommender — full sampling via PyMC/NUTS (~30s)
 uv run python scripts/analysis/bayesian_recommender.py
 
 # Reuse existing trace (skip sampling, regenerate plots/recommendations)
@@ -124,6 +137,9 @@ uv run python scripts/analysis/bayesian_recommender.py --reuse-trace
 uv run python scripts/analysis/circadian_baseline.py
 uv run python scripts/analysis/circadian_ml.py
 uv run python scripts/analysis/circadian_significance.py
+
+# LSTM biometric arc predictor (~5 min, requires torch)
+uv run python scripts/analysis/lstm_arc.py
 ```
 
 ### Syntax Checking (no test suite yet)
@@ -162,8 +178,9 @@ SSL_CERT_DIR="" SSL_CERT_FILE="" uv add <package> --system-certs
 
 **3. Analysis Scripts** (`scripts/analysis/`)
 - `circadian_baseline.py` — computes per-participant hourly stress + HR baselines (mean ± std per hour, non-session days only), plus a fixed pre-study baseline (days before first session) for long-term trend analysis. Builds feature matrix (28 columns) with baseline deviations, session window means (pre/during/post stress & HR), activity pre-state, and optional HRV/respiration. Excludes features with >50% NaN per participant via `excluded_features.json`
-- `circadian_ml.py` — ML models (Ridge, RF, GBR) predicting mood/stress delta from circadian features + SHAP; evaluates with LOO cross-validation (MAE, RMSE, R²); permutation importance and SHAP for explainability only, not inference
-- `bayesian_recommender.py` — hierarchical Bayesian model recommending playlist type per participant; uses JAX/NumPyro for fast sampling; `--reuse-trace` skips sampling
+- `circadian_ml.py` — ML models (Ridge, RF, GBR) predicting mood/stress delta from circadian features + SHAP; evaluates with LOO cross-validation (MAE, RMSE, R²); permutation importance and SHAP for explainability only, not inference; also generates learning curves and SHAP dependence plots
+- `lstm_arc.py` — 1-layer LSTM (32 hidden units) on per-minute stress/HR during-phase → mood_delta; LOO-CV with 5× augmentation; gradient saliency; requires `torch`
+- `bayesian_recommender.py` — hierarchical Bayesian model recommending playlist type per participant; uses PyMC (not NumPyro) with NUTS sampler via `pymc`/`arviz`; `--reuse-trace` skips sampling
 - `session_features.py`, `session_effect.py`, `baselines.py` — session-level feature extraction and baseline computation
 - `fit_extractor.py` — extracts biometric data from Garmin FIT files
 - `activity_classifier.py` — classifies activity from wearable data

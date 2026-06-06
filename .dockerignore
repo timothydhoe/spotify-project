@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+data/
+.git/
+notebooks/
+*.md
+.claude/
+verify-*.png
+/tmp/

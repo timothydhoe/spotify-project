@@ -1,0 +1,8 @@
+services:
+  moodtune:
+    build: .
+    ports:
+      - "8767:8767"
+    volumes:
+      - ./data:/app/data          # mount data so rsync updates are instant
+    restart: unless-stopped

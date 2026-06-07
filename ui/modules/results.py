@@ -231,7 +231,7 @@ def _stat_grid(summary: dict, playlist_color: str, app_data=None) -> _ui.Tag:
         _stat_card("Voltooide sessies", sessions, "totaal"),
         _stat_card("Studieduur", weeks_str, "weken actief"),
         _stat_card("Herstelsnelheid", recovery_val, recovery_sub),
-        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px;",
+        style="display:grid; grid-template-columns:repeat(3, 1fr); gap:16px;",
     )
 
 
@@ -420,10 +420,36 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         p   = selected()
         bio = app_data.session_biometrics.get(p, pd.DataFrame())
         n   = len(bio) if not bio.empty else 0
+        s   = summary()
+
+        _PL_COLORS = {"Calm": "#2563eb", "Neutral": "#7c3aed", "Energy": "#ea6c0a"}
+        bp    = s.get("best_playlist") or "Energy"
+        color = _PL_COLORS.get(bp, "var(--text-accent)")
+
+        mood_hero = _ui.div()
+        if s.get("avg_mood_lift") is not None:
+            m = s["avg_mood_lift"]
+            sign = "+" if m >= 0 else ""
+            mood_hero = _ui.div(
+                _ui.div(
+                    f"{sign}{m:.1f}",
+                    style=(
+                        f"font-family:'Sora',sans-serif; font-weight:700; font-size:3.5rem; "
+                        f"line-height:1; letter-spacing:-0.03em; color:{color};"
+                    ),
+                ),
+                _ui.div(
+                    "gem. stemmingsverbetering per sessie",
+                    style="font-size:0.8125rem; color:var(--text-secondary); margin-top:4px;",
+                ),
+                style="margin-top:16px;",
+            )
+
         return _ui.TagList(
             _ui.div(f"R.E.M.-profiel van {p.capitalize()}", class_="mt-h1"),
-            _ui.div(f"{n} sessies - Project R.E.M.", class_="mt-body mt-secondary",
+            _ui.div(f"{n} sessies · Project R.E.M.", class_="mt-body mt-secondary",
                     style="margin-top:6px;"),
+            mood_hero,
         )
 
     @output

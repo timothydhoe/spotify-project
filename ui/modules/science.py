@@ -298,7 +298,7 @@ def ui():
                                   calm="verzameld"),
                     _feature_card("Spraakheid (0-1)",      "Aanwezigheid van gesproken woord — podcasts scoren hoog, muziek laag",
                                   calm="verzameld"),
-                    style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px;",
+                    class_="feature-scroll",
                 ),
                 class_="mt-section-card",
             ),

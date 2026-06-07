@@ -1,4 +1,5 @@
 """Pagina 3 -- Circadiaans ritme: uurlijkse stressbasislijn per deelnemer."""
+import math
 import numpy as np
 import plotly.graph_objects as go
 from shiny import module, reactive, render, ui as _ui
@@ -6,6 +7,81 @@ from shinywidgets import output_widget, render_widget
 
 from utils.chart_helpers import ACCENT, GRID_COLOR, PLAYLIST_COLORS, TEXT_SECONDARY, chart_layout, empty_figure
 from utils.data_loader import PARTICIPANTS, AppData, expected_stress
+
+
+def _arc_path(h_start: float, h_end: float, r_outer: float, r_inner: float,
+              cx: float = 80, cy: float = 80) -> str:
+    """SVG path for a filled arc segment between two hours on a 24-hour clock."""
+    def _pt(hour, r):
+        angle = (hour / 24) * 2 * math.pi - math.pi / 2
+        return cx + r * math.cos(angle), cy + r * math.sin(angle)
+
+    span = h_end - h_start
+    large = 1 if span > 12 else 0
+    x1o, y1o = _pt(h_start, r_outer)
+    x2o, y2o = _pt(h_end,   r_outer)
+    x1i, y1i = _pt(h_end,   r_inner)
+    x2i, y2i = _pt(h_start, r_inner)
+    return (
+        f"M {x1o:.2f} {y1o:.2f} "
+        f"A {r_outer} {r_outer} 0 {large} 1 {x2o:.2f} {y2o:.2f} "
+        f"L {x1i:.2f} {y1i:.2f} "
+        f"A {r_inner} {r_inner} 0 {large} 0 {x2i:.2f} {y2i:.2f} Z"
+    )
+
+
+def _circadian_clock_svg(golden_hour: int, peak_hour: int) -> str:
+    """Return an SVG 24-hour clock with golden hour (green) and peak window (orange) arcs."""
+    cx, cy, size = 80, 80, 160
+    r_track, r_outer, r_inner = 68, 65, 53
+    r_tick_outer, r_tick_inner = 70, 63
+
+    # Track ring
+    track = (
+        f'<circle cx="{cx}" cy="{cy}" r="{r_track}" fill="none" '
+        f'stroke="rgba(0,0,0,0.08)" stroke-width="{r_outer - r_inner}"/>'
+    )
+
+    # Golden hour arc (1 hour, green)
+    green_path = _arc_path(golden_hour, golden_hour + 1, r_outer, r_inner, cx, cy)
+    green_arc = f'<path d="{green_path}" fill="#16a34a" opacity="0.85"/>'
+
+    # Peak window arc (2 hours, orange)
+    orange_path = _arc_path(peak_hour, peak_hour + 2, r_outer, r_inner, cx, cy)
+    orange_arc = f'<path d="{orange_path}" fill="#ea6c0a" opacity="0.85"/>'
+
+    # Hour tick marks at 0, 6, 12, 18 and label them
+    ticks = ""
+    labels = ""
+    tick_hours = {0: "0h", 6: "6h", 12: "12h", 18: "18h"}
+    for h, lbl in tick_hours.items():
+        angle = (h / 24) * 2 * math.pi - math.pi / 2
+        xo = cx + r_tick_outer * math.cos(angle)
+        yo = cy + r_tick_outer * math.sin(angle)
+        xi = cx + r_tick_inner * math.cos(angle)
+        yi = cy + r_tick_inner * math.sin(angle)
+        ticks += f'<line x1="{xi:.1f}" y1="{yi:.1f}" x2="{xo:.1f}" y2="{yo:.1f}" stroke="rgba(0,0,0,0.15)" stroke-width="1.5"/>'
+        lx = cx + (r_track + 12) * math.cos(angle)
+        ly = cy + (r_track + 12) * math.sin(angle)
+        labels += (
+            f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="middle" dominant-baseline="middle" '
+            f'font-size="9" font-family="DM Sans,sans-serif" fill="rgba(0,0,0,0.35)">{lbl}</text>'
+        )
+
+    # Center labels
+    center = (
+        f'<text x="{cx}" y="{cy - 8}" text-anchor="middle" font-size="9" '
+        f'font-family="DM Sans,sans-serif" fill="rgba(0,0,0,0.4)">24h</text>'
+        f'<text x="{cx}" y="{cy + 6}" text-anchor="middle" font-size="9" '
+        f'font-family="DM Sans,sans-serif" fill="rgba(0,0,0,0.3)">klok</text>'
+    )
+
+    return (
+        f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}" '
+        f'xmlns="http://www.w3.org/2000/svg" style="display:block;">'
+        f'{track}{green_arc}{orange_arc}{ticks}{labels}{center}'
+        f'</svg>'
+    )
 
 
 
@@ -204,10 +280,11 @@ def ui():
             style="padding:0 80px;",
         ),
 
-        # Statistiekenrij
+        # Statistiekenrij + 24-uur klok
         _ui.div(
             _ui.output_ui("stat_row"),
-            style="padding:24px 80px; display:flex; gap:16px;",
+            _ui.output_ui("clock_arc_ui"),
+            style="padding:24px 80px; display:flex; gap:24px; align-items:center;",
         ),
 
         # Afwijkingscalculator (conditioneel: alleen als basislijn beschikbaar)
@@ -305,6 +382,36 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             _stat_card(peak,    "Piekstressvenster"),
             _stat_card(dev,     "Pre-sessie afwijking (gem.)",
                        sub="stresspunten t.o.v. circadiane basislijn"),
+        )
+
+    @output
+    @render.ui
+    def clock_arc_ui():
+        hb, _ = current_data()
+        if hb is None or hb.empty:
+            return _ui.div()
+        waking = hb[hb["hour"].between(6, 23)]
+        if waking.empty:
+            waking = hb
+        golden_h = int(waking.loc[waking["mean_stress"].idxmin(), "hour"])
+        peak_h   = int(waking.loc[waking["mean_stress"].idxmax(), "hour"])
+        svg = _circadian_clock_svg(golden_h, peak_h)
+        return _ui.div(
+            _ui.HTML(svg),
+            _ui.div(
+                _ui.div(
+                    _ui.HTML('<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a;margin-right:5px;vertical-align:middle;"></span>'),
+                    f"{golden_h}:00 gouden uur",
+                    style="font-size:0.75rem; color:var(--text-secondary); margin-bottom:4px;",
+                ),
+                _ui.div(
+                    _ui.HTML('<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ea6c0a;margin-right:5px;vertical-align:middle;"></span>'),
+                    f"{peak_h}–{peak_h+2}:00 piekstress",
+                    style="font-size:0.75rem; color:var(--text-secondary);",
+                ),
+                style="margin-top:8px;",
+            ),
+            style="flex-shrink:0; text-align:center;",
         )
 
     @output

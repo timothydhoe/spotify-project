@@ -236,49 +236,42 @@ def ui():
                         style="margin-bottom:20px;",
                     ),
 
-                    # Biometric honesty note
+                    # Honesty note — quiet, at the bottom of the input panel
                     _ui.div(
-                        _ui.span("ℹ Let op:", style="font-weight:700; color:#f59e0b; margin-right:6px;"),
-                        "biometrische inputwaarden (stress, hartslag, Body Battery) hebben bij "
-                        "N=6 deelnemers geen aantoonbaar effect op de aanbeveling "
-                        "(alle β-coëfficiënten ≈ 0 binnen 89%-HDI). "
-                        "De schuifregelaars demonstreren de modelarchitectuur, "
-                        "niet bewezen personalisatie.",
-                        class_="mt-honesty-callout",
+                        _ui.span("ℹ ", style="color:#f59e0b;"),
+                        "Schuifregelaars demonstreren de modelarchitectuur — "
+                        "geen aantoonbaar effect (β ≈ 0, N=6).",
+                        class_="mt-caption mt-secondary",
+                        style="font-style:italic; margin-top:4px;",
                     ),
 
                 ),
 
                 # Rechts — uitvoer
                 _ui.div(
-                    # Historical-data disclaimer — above the badge
-                    _ui.div(
-                        "Twee aanbevelingen: Bayesiaans (historisch) en Live Ridge (huidige staat). "
-                        "Overeenstemming = robuustere aanbeveling.",
-                        class_="mt-caption mt-secondary",
-                        style=(
-                            "border-left:3px solid var(--accent); padding:6px 10px; "
-                            "margin-bottom:4px; background:var(--bg-elevated); "
-                            "border-radius:0 4px 4px 0;"
-                        ),
-                    ),
                     _ui.output_ui("ridge_ci_note"),
 
-                    # Hero badges — Bayesian + Live side by side
+                    # Primary badge — Bayesian (full-width, large)
+                    _ui.div(
+                        _ui.div("Bayesiaanse aanbeveling", class_="mt-eyebrow",
+                                style="text-align:center; margin-bottom:8px;"),
+                        _ui.output_ui("rec_badge"),
+                        style="margin-bottom:12px;",
+                    ),
+
+                    # Secondary row — Live Ridge (smaller, aligned right)
                     _ui.div(
                         _ui.div(
-                            _ui.div("Bayesiaans (historisch)", class_="mt-caption mt-secondary",
-                                    style="text-align:center; margin-bottom:6px;"),
-                            _ui.output_ui("rec_badge"),
-                            style="flex:1;",
-                        ),
-                        _ui.div(
-                            _ui.div("Live Ridge (nu)", class_="mt-caption mt-secondary",
-                                    style="text-align:center; margin-bottom:6px;"),
+                            _ui.span("Live Ridge (nu):", class_="mt-caption mt-secondary",
+                                     style="margin-right:8px; flex-shrink:0;"),
                             _ui.output_ui("live_rec_panel"),
-                            style="flex:1;",
                         ),
-                        style="display:flex; gap:16px; align-items:flex-start; margin-bottom:16px;",
+                        style=(
+                            "display:flex; align-items:center; justify-content:flex-end; "
+                            "gap:8px; margin-bottom:16px; "
+                            "padding:8px 12px; background:var(--bg-elevated); "
+                            "border-radius:8px; border:1px solid var(--border-subtle);"
+                        ),
                     ),
 
                     # Salt explanation
@@ -501,20 +494,14 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                 "Live model niet beschikbaar (onvoldoende trainingsdata).",
                 class_="mt-caption mt-secondary",
             )
-        type_name = _PLAYLIST_NL.get(best_pl, best_pl.upper())
-        iso_label = _ISO_LABEL_NL.get(best_pl, "")
-        pred_str  = " | ".join(
-            f"{_PLAYLIST_NL_L.get(k, k)}: {v:+.2f}" for k, v in sorted(preds.items())
-        )
-        return _ui.div(
-            _ui.div(
-                _ui.div("LIVE", class_="mt-rec-hero-eyebrow"),
-                _ui.div(type_name.upper(), class_=f"mt-rec-hero-type {best_pl.lower()}"),
-                _ui.div(iso_label, class_="mt-rec-hero-iso"),
-                class_=f"mt-rec-badge-hero {best_pl.lower()}",
-                style="border-style:dashed;",
+        type_name = _PLAYLIST_NL_L.get(best_pl, best_pl)
+        color     = _PL_COLORS.get(best_pl, "#16a34a")
+        return _ui.span(
+            type_name,
+            style=(
+                f"font-family:'Sora',sans-serif; font-weight:700; font-size:0.9375rem; "
+                f"color:{color}; letter-spacing:-0.01em;"
             ),
-            _ui.div(pred_str, class_="mt-caption mt-tertiary", style="margin-top:6px; font-style:italic;"),
         )
 
     @output

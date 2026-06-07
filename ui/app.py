@@ -3,17 +3,11 @@ from pathlib import Path
 
 from shiny import App, reactive, render, ui
 
-from modules import circadian, home, model, music_browser, pipeline, recommendation, recovery, results, science, session_replay
+from modules import (
+    circadian, home, model, music_browser, pipeline,
+    recommendation, recovery, results, science, session_replay,
+)
 from utils.data_loader import APP_DATA, PARTICIPANTS
-
-_DATA_LEVEL = {
-    "bosbes":      ("vol",          "Volledige biometrische data"),
-    "kokosnoot":   ("vol",          "Volledige biometrische data"),
-    "limoen":      ("gedeeltelijk", "Gedeeltelijke data (geen stresssensor)"),
-    "peer":        ("gedeeltelijk", "Gedeeltelijke data (geen biometrie)"),
-    "kiwi":        ("geen",         "Alleen stemming-check-ins"),
-    "watermeloen": ("geen",         "Alleen stemming-check-ins"),
-}
 
 _FRUIT_EMOJI = {
     "bosbes":      "🫐",
@@ -24,11 +18,324 @@ _FRUIT_EMOJI = {
     "watermeloen": "🍉",
 }
 
-_DOT_COLOR = {
-    "vol":          "#16a34a",   # green — full data
-    "gedeeltelijk": "#f59e0b",   # amber — partial
-    "geen":         "#d1d5db",   # muted — check-ins only
+# Data-availability tooltip text per participant
+_DATA_LEVEL_TIP = {
+    "bosbes":      "Volledige biometrische data",
+    "kokosnoot":   "Volledige biometrische data",
+    "limoen":      "Gedeeltelijke data (geen stresssensor)",
+    "peer":        "Gedeeltelijke data (geen biometrie)",
+    "kiwi":        "Alleen stemming-check-ins",
+    "watermeloen": "Alleen stemming-check-ins",
 }
+
+
+# ---------------------------------------------------------------------------
+# Custom navbar
+# ---------------------------------------------------------------------------
+
+def _build_navbar() -> ui.Tag:
+    """
+    Three-column CSS-grid navbar:
+      Left  — logo (links to Home tab)
+      Center — Profiel analyse ▾  |  Muziekadvies  |  Hoe het werkt ▾
+      Right  — Deelnemer: <select>  + hamburger (mobile)
+    """
+
+    def _dropdown_link(label: str, section: str, sub: str) -> ui.Tag:
+        return ui.tags.a(
+            label,
+            href="#",
+            onclick=f"mtNavTo('{section}','{sub}'); return false;",
+        )
+
+    # Participant <select> options (reused for desktop + mobile)
+    def _participant_opts(select_id: str, extra_style: str = "") -> ui.Tag:
+        opts = [
+            ui.tags.option(
+                f"{_FRUIT_EMOJI[p]} {p.capitalize()}",
+                value=p,
+                selected=(p == "bosbes"),
+                title=_DATA_LEVEL_TIP.get(p, ""),
+            )
+            for p in PARTICIPANTS
+        ]
+        return ui.tags.select(
+            *opts,
+            id=select_id,
+            class_="mt-nav-participant-select",
+            style=extra_style,
+            onchange=(
+                "mtSelectParticipant(this.value);"
+                # Keep desktop + mobile selects in sync
+                + ("document.getElementById('mt-p-desktop').value=this.value;" if "mobile" in select_id else
+                   "document.getElementById('mt-p-mobile').value=this.value;")
+            ),
+        )
+
+    inline_js = ui.HTML("""
+<script>
+(function () {
+'use strict';
+
+/* ── Navigation ──────────────────────────────────────────────────────────── */
+window.mtNavTo = function (section, sub) {
+  if (window.Shiny && Shiny.setInputValue) {
+    Shiny.setInputValue('mt_nav_goto', {section: section, sub: sub || null}, {priority: 'event'});
+  }
+  // Highlight the matching trigger
+  document.querySelectorAll('.mt-nav-trigger').forEach(function (el) {
+    el.classList.toggle('active', el.getAttribute('data-section') === section);
+  });
+  // Close any open dropdown
+  _mtCloseDropdowns();
+};
+
+/* ── Dropdown toggle (click-based for keyboard/touch) ────────────────────── */
+window.mtToggleDropdown = function (btn) {
+  var parent = btn.closest('.mt-nav-dropdown');
+  var wasOpen = parent.classList.contains('open');
+  _mtCloseDropdowns();
+  if (!wasOpen) {
+    parent.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+  }
+};
+
+function _mtCloseDropdowns() {
+  document.querySelectorAll('.mt-nav-dropdown.open').forEach(function (el) {
+    el.classList.remove('open');
+    var btn = el.querySelector('.mt-nav-trigger');
+    if (btn) btn.setAttribute('aria-expanded', 'false');
+  });
+}
+
+// Close on outside click or Escape
+document.addEventListener('click', function (e) {
+  if (!e.target.closest('.mt-nav-dropdown')) _mtCloseDropdowns();
+});
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') _mtCloseDropdowns();
+});
+
+/* ── Participant selector ────────────────────────────────────────────────── */
+var _MT_EMOJI = {bosbes:'🫐',kokosnoot:'🥥',limoen:'🍋',peer:'🍐',kiwi:'🥝',watermeloen:'🍉'};
+
+window.mtSelectParticipant = function (val) {
+  if (window.Shiny && Shiny.setInputValue) {
+    Shiny.setInputValue('mt_participant_nav', val, {priority: 'event'});
+  }
+  // Update giant emoji background
+  var el = document.getElementById('home-emoji-bg');
+  if (el) {
+    el.textContent = _MT_EMOJI[val] || '🎵';
+    el.classList.remove('pop-in');
+    void el.offsetWidth; // force reflow to retrigger animation
+    el.classList.add('pop-in');
+  }
+};
+
+/* ── Mobile hamburger ───────────────────────────────────────────────────── */
+window.mtToggleMobileMenu = function () {
+  var menu = document.getElementById('mt-mobile-menu');
+  var btn  = document.getElementById('mt-hamburger-btn');
+  if (!menu || !btn) return;
+  var open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+};
+
+window.mtCloseMobileMenu = function () {
+  var menu = document.getElementById('mt-mobile-menu');
+  var btn  = document.getElementById('mt-hamburger-btn');
+  if (menu) menu.classList.remove('open');
+  if (btn)  { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+};
+
+/* ── Sync active state when Bootstrap tab changes ───────────────────────── */
+document.addEventListener('DOMContentLoaded', function () {
+  // Home is the default tab — activate dark theme immediately
+  document.body.classList.add('mt-home-active');
+  // Inject emoji as direct body child so position:fixed escapes all stacking contexts
+  var initSel = document.getElementById('mt-p-desktop');
+  var initVal = initSel ? initSel.value : 'bosbes';
+  var initEl  = document.getElementById('home-emoji-bg');
+  if (!initEl) {
+    initEl = document.createElement('div');
+    initEl.id = 'home-emoji-bg';
+    initEl.className = 'mt-home-emoji-bg';
+    document.body.insertBefore(initEl, document.body.firstChild);
+  }
+  initEl.textContent = _MT_EMOJI[initVal] || '🫐';
+  initEl.classList.add('pop-in');
+
+  document.addEventListener('shown.bs.tab', function (e) {
+    if (!e.target) return;
+    var revMap = {
+      'Home': 'home', 'Jouw Profiel': 'profiel',
+      'Aanbevelingen': 'aanbevelingen', 'Achtergrond': 'achtergrond',
+    };
+    var label = e.target.textContent.trim();
+    var sec   = revMap[label];
+    if (sec) {
+      document.querySelectorAll('.mt-nav-trigger').forEach(function (el) {
+        el.classList.toggle('active', el.getAttribute('data-section') === sec);
+      });
+    }
+    // Dark theme is permanent — body.mt-home-active set at DOMContentLoaded and never removed
+  });
+});
+
+})();
+</script>
+""")
+
+    return ui.tags.div(
+        # ── Navbar strip ──────────────────────────────────────────────────────
+        ui.tags.nav(
+            # Left: logo / home
+            ui.tags.button(
+                ui.tags.img(
+                    src="logo/MoodTune-logo.svg",
+                    alt="MoodTune",
+                    class_="mt-navbar-logo-img",
+                ),
+                ui.tags.span("MoodTune"),
+                class_="mt-navbar-brand",
+                type="button",
+                onclick="mtNavTo('home')",
+                **{"aria-label": "Ga naar home"},
+            ),
+
+            # Center: navigation
+            ui.tags.div(
+                # Profiel analyse ▾
+                ui.tags.div(
+                    ui.tags.button(
+                        "Profiel analyse",
+                        ui.tags.span("▾", class_="mt-nav-chevron"),
+                        class_="mt-nav-trigger",
+                        type="button",
+                        onclick="mtToggleDropdown(this)",
+                        **{"data-section": "profiel", "aria-haspopup": "true",
+                           "aria-expanded": "false"},
+                    ),
+                    ui.tags.div(
+                        _dropdown_link("Resultaten",        "profiel", "Resultaten"),
+                        _dropdown_link("Sessie-replay",     "profiel", "Sessie-replay"),
+                        _dropdown_link("Circadiaans ritme", "profiel", "Circadiaans ritme"),
+                        _dropdown_link("Herstelanalyse",    "profiel", "Herstelanalyse"),
+                        _dropdown_link("Jouw Muziek",       "profiel", "Jouw Muziek"),
+                        class_="mt-nav-dropdown-menu",
+                        role="menu",
+                    ),
+                    class_="mt-nav-item mt-nav-dropdown",
+                ),
+
+                # Muziekadvies (standalone)
+                ui.tags.button(
+                    "Muziekadvies",
+                    class_="mt-nav-trigger",
+                    type="button",
+                    onclick="mtNavTo('aanbevelingen')",
+                    **{"data-section": "aanbevelingen"},
+                ),
+
+                # Hoe het werkt ▾
+                ui.tags.div(
+                    ui.tags.button(
+                        "Hoe het werkt",
+                        ui.tags.span("▾", class_="mt-nav-chevron"),
+                        class_="mt-nav-trigger",
+                        type="button",
+                        onclick="mtToggleDropdown(this)",
+                        **{"data-section": "achtergrond", "aria-haspopup": "true",
+                           "aria-expanded": "false"},
+                    ),
+                    ui.tags.div(
+                        _dropdown_link("Wetenschap",   "achtergrond", "Wetenschap"),
+                        _dropdown_link("Model & Data", "achtergrond", "Model & Data"),
+                        _dropdown_link("Pipeline",     "achtergrond", "Pipeline"),
+                        class_="mt-nav-dropdown-menu",
+                        role="menu",
+                    ),
+                    class_="mt-nav-item mt-nav-dropdown",
+                ),
+
+                class_="mt-navbar-center",
+            ),
+
+            # Right: participant selector + hamburger
+            ui.tags.div(
+                ui.tags.label(
+                    "Deelnemer:",
+                    **{"for": "mt-p-desktop"},
+                    class_="mt-nav-participant-label",
+                ),
+                _participant_opts("mt-p-desktop"),
+                ui.tags.button(
+                    ui.tags.span("☰", class_="mt-hamburger-icon"),
+                    class_="mt-hamburger",
+                    id="mt-hamburger-btn",
+                    type="button",
+                    onclick="mtToggleMobileMenu()",
+                    **{"aria-label": "Menu openen", "aria-expanded": "false",
+                       "aria-controls": "mt-mobile-menu"},
+                ),
+                class_="mt-navbar-right",
+            ),
+
+            class_="mt-navbar",
+            id="mt-custom-navbar",
+            **{"aria-label": "Hoofdnavigatie"},
+        ),
+
+        # ── Mobile full-screen menu ────────────────────────────────────────
+        ui.tags.div(
+            ui.tags.div("Jouw profiel", class_="mt-mobile-section-header"),
+            *[
+                ui.tags.a(
+                    lbl, href="#", class_="mt-mobile-link",
+                    onclick=f"mtNavTo('profiel','{lbl}'); mtCloseMobileMenu(); return false;",
+                )
+                for lbl in [
+                    "Resultaten", "Sessie-replay", "Circadiaans ritme",
+                    "Herstelanalyse", "Jouw Muziek",
+                ]
+            ],
+            ui.tags.hr(class_="mt-mobile-divider"),
+            ui.tags.a(
+                "Muziekadvies", href="#", class_="mt-mobile-link",
+                onclick="mtNavTo('aanbevelingen'); mtCloseMobileMenu(); return false;",
+            ),
+            ui.tags.hr(class_="mt-mobile-divider"),
+            ui.tags.div("Hoe het werkt", class_="mt-mobile-section-header"),
+            *[
+                ui.tags.a(
+                    lbl, href="#", class_="mt-mobile-link",
+                    onclick=f"mtNavTo('achtergrond','{lbl}'); mtCloseMobileMenu(); return false;",
+                )
+                for lbl in ["Wetenschap", "Model & Data", "Pipeline"]
+            ],
+            ui.tags.hr(class_="mt-mobile-divider"),
+            ui.tags.div(
+                ui.tags.label("Deelnemer:", class_="mt-nav-participant-label"),
+                _participant_opts("mt-p-mobile", extra_style="width:100%;"),
+                class_="mt-mobile-participant-row",
+            ),
+            class_="mt-mobile-menu",
+            id="mt-mobile-menu",
+            role="dialog",
+            **{"aria-label": "Mobiel menu"},
+        ),
+
+        # Inline JS (once, outside the nav element)
+        inline_js,
+    )
+
+
+# ---------------------------------------------------------------------------
+# App UI
+# ---------------------------------------------------------------------------
 
 app_ui = ui.page_navbar(
     ui.nav_panel("Home", home.ui("home")),
@@ -39,6 +346,7 @@ app_ui = ui.page_navbar(
             ui.nav_panel("Circadiaans ritme", circadian.ui("circadian")),
             ui.nav_panel("Herstelanalyse",    recovery.ui("recovery")),
             ui.nav_panel("Jouw Muziek",       music_browser.ui("music")),
+            id="profiel_pills",
         ),
     ),
     ui.nav_panel("Aanbevelingen", recommendation.ui("rec")),
@@ -47,137 +355,129 @@ app_ui = ui.page_navbar(
             ui.nav_panel("Wetenschap",   science.ui("science")),
             ui.nav_panel("Model & Data", model.ui("model")),
             ui.nav_panel("Pipeline",     pipeline.ui("pipeline")),
+            id="achtergrond_pills",
         ),
     ),
-    title="MoodTune",
+    id="main_nav",
+    title=ui.span(),           # Custom navbar provides the brand
     header=ui.div(
         ui.tags.head(
             ui.tags.link(rel="icon", type="image/svg+xml", href="logo/MoodTune-logo.svg"),
             ui.tags.link(rel="stylesheet", href="styles.css"),
             ui.busy_indicators.use(spinners=True, pulse=True),
         ),
-        ui.output_ui("global_participant_bar"),
+        _build_navbar(),
     ),
     footer=ui.div(
         ui.div(
             ui.output_ui("now_playing_title"),
-            ui.div(),
-            ui.div(),
             class_="now-playing-bar",
         ),
     ),
 )
 
 
+# ---------------------------------------------------------------------------
+# Server
+# ---------------------------------------------------------------------------
+
 def server(input, output, session):
     selected_participant = reactive.Value("bosbes")
     now_playing          = reactive.Value(None)
 
-    for _p in PARTICIPANTS:
-        def _make_obs(participant=_p):
-            @reactive.Effect
-            @reactive.event(input[f"g_pill_{participant}"])
-            def _():
-                selected_participant.set(participant)
-        _make_obs()
+    # ── Custom navbar: section + sub-page navigation ──────────────────────
+    @reactive.Effect
+    @reactive.event(input.mt_nav_goto)
+    def _handle_nav():
+        nav = input.mt_nav_goto()
+        if not nav or not isinstance(nav, dict):
+            return
+        section = nav.get("section")
+        sub     = nav.get("sub")
 
-    @output
-    @render.ui
-    def global_participant_bar():
-        curr = selected_participant()
-        chips = []
-        for p in PARTICIPANTS:
-            lvl, tip = _DATA_LEVEL.get(p, ("geen", ""))
-            emoji     = _FRUIT_EMOJI.get(p, "")
-            is_active = p == curr
-            # Active: subtle green tint, darker text, no border
-            # Inactive: transparent, muted text, no border
-            # Hover is handled purely by opacity (CSS class below)
-            chip_style = (
-                "display:inline-flex; align-items:center; gap:5px; "
-                "padding:4px 14px; border-radius:999px; cursor:pointer; "
-                "font-family:'DM Sans',sans-serif; font-weight:500; font-size:0.875rem; "
-                "transition:opacity 0.15s ease; border:none; white-space:nowrap; "
-                + (
-                    "background:var(--accent-muted); color:var(--text-accent); font-weight:600;"
-                    if is_active else
-                    "background:transparent; color:var(--text-secondary);"
-                )
-            )
-            chips.append(
-                ui.input_action_button(
-                    f"g_pill_{p}",
-                    ui.HTML(f'{emoji} {p.capitalize()}'),
-                    style=chip_style,
-                    title=tip,
-                    class_="participant-chip",
-                )
-            )
-        legend = ui.HTML(
-            '<span title="'
-            "Vol (🫐🥥) — volledige Garmin biometrie&#10;"
-            "Gedeeltelijk (🍋🍐) — gedeeltelijke data&#10;"
-            "Geen (🥝🍉) — alleen stemming-check-ins"
-            '" style="cursor:help; color:var(--text-tertiary); font-size:0.8125rem; '
-            'margin-left:6px; user-select:none; flex-shrink:0;">ⓘ</span>'
-        )
-        return ui.div(
-            ui.span(
-                "Deelnemer",
-                style="font-size:0.6875rem; font-weight:600; color:var(--text-tertiary); "
-                      "text-transform:uppercase; letter-spacing:0.08em; white-space:nowrap; "
-                      "margin-right:8px; flex-shrink:0;",
-            ),
-            *chips,
-            legend,
-            style=(
-                "display:flex; flex-wrap:wrap; align-items:center; gap:4px; "
-                "padding:8px var(--page-margin, 80px); "
-                "background:var(--bg-base); "
-                "border-bottom:1px solid var(--border-default); "
-                "position:sticky; top:64px; z-index:190;"
-            ),
-        )
+        _SECTION_TO_TAB = {
+            "home":          "Home",
+            "profiel":       "Jouw Profiel",
+            "aanbevelingen": "Aanbevelingen",
+            "achtergrond":   "Achtergrond",
+        }
+        tab_name = _SECTION_TO_TAB.get(section)
+        if tab_name:
+            ui.update_navs("main_nav", selected=tab_name, session=session)
+        if sub:
+            if section == "profiel":
+                ui.update_navs("profiel_pills", selected=sub, session=session)
+            elif section == "achtergrond":
+                ui.update_navs("achtergrond_pills", selected=sub, session=session)
 
-    home.server("home",       app_data=APP_DATA, now_playing=now_playing,
-                              selected_participant=selected_participant)
+    # ── Custom navbar: participant selector ───────────────────────────────
+    @reactive.Effect
+    @reactive.event(input.mt_participant_nav)
+    def _handle_participant():
+        p = input.mt_participant_nav()
+        if p and p in PARTICIPANTS:
+            selected_participant.set(p)
+
+    # ── Module servers ─────────────────────────────────────────────────────
+    home.server("home",         app_data=APP_DATA, now_playing=now_playing,
+                                selected_participant=selected_participant)
     science.server("science")
-    pipeline.server("pipeline",   app_data=APP_DATA)
-    circadian.server("circadian", app_data=APP_DATA, selected_participant=selected_participant)
-    recommendation.server("rec",  app_data=APP_DATA, selected_participant=selected_participant)
+    pipeline.server("pipeline",     app_data=APP_DATA)
+    circadian.server("circadian",   app_data=APP_DATA, selected_participant=selected_participant)
+    recommendation.server("rec",    app_data=APP_DATA, selected_participant=selected_participant)
     session_replay.server("replay", app_data=APP_DATA, selected_participant=selected_participant)
-    results.server("results",   app_data=APP_DATA, selected_participant=selected_participant)
-    model.server("model",       app_data=APP_DATA)
-    recovery.server("recovery", app_data=APP_DATA, selected_participant=selected_participant)
-    music_browser.server("music", app_data=APP_DATA, selected_participant=selected_participant)
+    results.server("results",       app_data=APP_DATA, selected_participant=selected_participant)
+    model.server("model",           app_data=APP_DATA)
+    recovery.server("recovery",     app_data=APP_DATA, selected_participant=selected_participant)
+    music_browser.server("music",   app_data=APP_DATA, selected_participant=selected_participant)
 
+    # ── Now-playing bar ────────────────────────────────────────────────────
     @output
     @render.ui
     def now_playing_title():
         import pandas as pd
         state = now_playing()
         if state is None:
+            p        = selected_participant()
+            emoji    = _FRUIT_EMOJI.get(p, "🎵")
+            data_tip = _DATA_LEVEL_TIP.get(p, "")
             return ui.TagList(
                 ui.HTML('<script>(function(){ var b = document.querySelector(".now-playing-bar"); if(b) b.removeAttribute("data-playlist"); })();</script>'),
                 ui.div(
                     ui.div(
-                        ui.div(
-                            style="width:44px; height:44px; border-radius:6px; flex-shrink:0; "
-                                  "background:var(--bg-card); border:1px solid var(--border-subtle);",
-                        ),
-                        ui.HTML('<div class="now-playing-wave"><span></span><span></span><span></span></div>'),
-                        ui.div(
-                            ui.div("Selecteer een afspeellijst", class_="now-playing-title"),
-                            ui.div("MoodTune", class_="now-playing-artist"),
-                            style="min-width:0;",
-                        ),
-                        class_="now-playing-track",
+                        style="width:44px; height:44px; border-radius:6px; flex-shrink:0; "
+                              "background:var(--bg-card); border:1px solid var(--border-subtle);",
                     ),
+                    ui.HTML('<div class="now-playing-wave"><span></span><span></span><span></span></div>'),
+                    ui.div(
+                        ui.div("PROJECT R.E.M. · MoodTune", class_="now-playing-title"),
+                        ui.div(
+                            "Muziek als hulpmiddel voor stressregulatie",
+                            class_="now-playing-artist",
+                        ),
+                        style="min-width:0;",
+                    ),
+                    class_="now-playing-track",
+                ),
+                ui.div(
+                    ui.div(
+                        ui.span(
+                            f"{emoji} {p.capitalize()}",
+                            style="font-weight:600; color:var(--text-primary); margin-right:8px;",
+                        ),
+                        ui.span(data_tip, style="font-size:0.75rem; color:var(--text-tertiary);"),
+                        style="margin-bottom:2px;",
+                    ),
+                    ui.div(
+                        "rem.studie@gmail.com",
+                        style="font-size:0.75rem; color:var(--text-tertiary);",
+                    ),
+                    style="text-align:right; flex-shrink:0; align-self:center;",
                 ),
             )
 
-        pl_type = state["playlist_type"]
-        pl_lower = pl_type.lower()
+        pl_type    = state["playlist_type"]
+        pl_lower   = pl_type.lower()
         playlist_nl = {
             "Calm":    "Kalme afspeellijst",
             "Neutral": "Neutrale afspeellijst",
@@ -191,15 +491,14 @@ def server(input, output, session):
         }
         _PL_COLORS = {"calm": "#56B4E9", "neutral": "#009E73", "energy": "#E69F00"}
 
-        # Track count + duration from playlist df
         df = state.get("df")
         if df is not None and not df.empty:
             n_tracks = len(df)
             try:
                 total_min = int(pd.to_numeric(df["duration_ms"], errors="coerce").sum() / 60000)
-                meta_str = f"{n_tracks} nrs · {total_min} min"
+                meta_str  = f"{n_tracks} nrs · {total_min} min"
             except Exception:
-                meta_str = f"{n_tracks} nrs"
+                meta_str  = f"{n_tracks} nrs"
         else:
             meta_str = ""
 
@@ -210,7 +509,6 @@ def server(input, output, session):
         )
         pl_color = _PL_COLORS.get(pl_lower, "#16a34a")
 
-        # JS: set data-playlist on bar for CSS color-coding
         js_attr = ui.HTML(
             f'<script>(function(){{ var b = document.querySelector(".now-playing-bar"); '
             f'if(b) b.setAttribute("data-playlist", "{pl_lower}"); }})();</script>'
@@ -235,6 +533,14 @@ def server(input, output, session):
                     style="min-width:0;",
                 ),
                 class_="now-playing-track",
+            ),
+            ui.div(
+                ui.span(
+                    f"{_FRUIT_EMOJI.get(state['participant'], '')} "
+                    f"{state['participant'].capitalize()}",
+                    style="font-size:0.8125rem; color:var(--text-secondary);",
+                ),
+                style="text-align:right; align-self:center; flex-shrink:0;",
             ),
         )
 

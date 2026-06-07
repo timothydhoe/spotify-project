@@ -179,6 +179,15 @@ def _track_row(i: int, row: pd.Series, is_playing: bool = False) -> _ui.Tag:
         valence_pct = int(float(row.get("valence", 0)) * 100)
     except Exception:
         valence_pct = 0
+    try:
+        danceability_pct = int(float(row.get("danceability", 0)) * 100)
+    except Exception:
+        danceability_pct = 0
+    try:
+        loudness_db  = float(row.get("loudness", 0))
+        loudness_str = f"{loudness_db:.1f} dB"
+    except Exception:
+        loudness_str = None
     dur = _track_duration(row.get("duration_ms", 0))
 
     row_class = "track-row" + (" playing" if is_playing else "")
@@ -190,13 +199,28 @@ def _track_row(i: int, row: pd.Series, is_playing: bool = False) -> _ui.Tag:
         f"background:linear-gradient(135deg, hsl({hue},40%,20%), hsl({(hue+60)%360},30%,12%));"
     )
 
-    audio_badges = _ui.div(
-        _ui.span(f"♦ {acousticness_pct}% akoestisch",
-                 style="font-size:10px; color:var(--text-tertiary); margin-right:8px;"),
-        _ui.span(f"♡ {valence_pct}% valentie",
-                 style="font-size:10px; color:var(--text-tertiary);"),
-        style="margin-top:2px;",
-    ) if (acousticness_pct > 0 or valence_pct > 0) else _ui.div()
+    badge_parts = []
+    if valence_pct > 0:
+        badge_parts.append(_ui.span(
+            f"● {valence_pct}% valentie",
+            style="font-size:10px; color:#F5DD90; margin-right:8px;",
+        ))
+    if danceability_pct > 0:
+        badge_parts.append(_ui.span(
+            f"● {danceability_pct}% dans",
+            style="font-size:10px; color:#C4A0F5; margin-right:8px;",
+        ))
+    if acousticness_pct > 0:
+        badge_parts.append(_ui.span(
+            f"● {acousticness_pct}% akoestisch",
+            style="font-size:10px; color:#7DD3C0; margin-right:8px;",
+        ))
+    if loudness_str:
+        badge_parts.append(_ui.span(
+            loudness_str,
+            style="font-size:10px; color:rgba(255,255,255,0.30);",
+        ))
+    audio_badges = _ui.div(*badge_parts, style="margin-top:2px;") if badge_parts else _ui.div()
 
     return _ui.div(
         _ui.div(num_display, class_="track-number"),
@@ -331,81 +355,82 @@ def _build_playlist_view(df: pd.DataFrame, playlist_type: str, participant: str,
 @module.ui
 def ui():
     return _ui.div(
-        # Page header — two-zone hero (Phase 6)
+        # --- FULL-HEIGHT HERO ---
         _ui.div(
-            # Left zone: title + description
-            _ui.div(
-                _ui.div("PROJECT R.E.M.", class_="mt-eyebrow", style="margin-bottom:8px;"),
-                _ui.div("MoodTune", class_="mt-h1",
-                        style="font-family:'Sora',sans-serif; font-size:2.25rem; margin-bottom:12px;"),
-                _ui.p(
-                    "Kies een willekeurig moment uit de wearables-data. Het ML-model berekent "
-                    "welk afspeellijsttype de beste stemmingsverbetering zou opleveren.",
-                    class_="mt-body",
-                    style="color:var(--text-secondary); max-width:440px;",
-                ),
-                style="flex:1; min-width:0;",
+            _ui.div("PROJECT R.E.M.", class_="mt-eyebrow",
+                    style="margin-bottom:16px; text-align:center;"),
+            _ui.div("MoodTune", class_="mt-h1 mt-home-title",
+                    style="font-family:'Sora',sans-serif; font-size:4rem; text-align:center; margin-bottom:20px;"),
+            _ui.p(
+                "Kies een willekeurig moment. Het ML-model berekent "
+                "welk afspeellijsttype de beste stemmingsverbetering zou opleveren.",
+                class_="mt-body",
+                style="max-width:440px; text-align:center; margin:0 auto 32px;",
             ),
-            # Right zone: aggregate stats from real data
-            _ui.div(
-                _ui.output_ui("hero_stats"),
-                style="flex:0 0 auto; display:flex; align-items:center;",
-            ),
+            _ui.output_ui("hero_stats"),
+            _ui.div("↓", style=(
+                "font-size:1.5rem; color:rgba(255,255,255,0.25); margin-top:40px; "
+                "animation:fadeInUp 1s ease 0.5s both;"
+            )),
             style=(
-                "display:flex; gap:32px; align-items:center; "
-                "margin-bottom:28px; padding-bottom:24px; "
-                "border-bottom:1px solid var(--border-subtle);"
+                "min-height:50vh; display:flex; flex-direction:column; "
+                "justify-content:center; align-items:center; position:relative; z-index:1; "
+                "padding:0 var(--page-margin);"
             ),
         ),
 
-        # Two-column panel: moment selector (left) + recommendation (right)
+        # --- CARDS BELOW (scroll to reveal) ---
         _ui.div(
-            # Left: date/hour picker + biometric state
+            # Two-column panel: moment selector (left) + recommendation (right)
             _ui.div(
-                _ui.div("Kies een moment", class_="mt-h3", style="margin-bottom:8px;"),
-                _ui.p(
-                    "Selecteer een datum en uur. Het model zoekt de werkelijke biometrische "
-                    "waarden op uit de wearables-data.",
-                    class_="mt-caption mt-secondary",
-                    style="margin-bottom:16px;",
-                ),
-                _ui.input_date(
-                    "home_date", "Datum",
-                    value="2026-01-01",
-                    width="100%",
-                ),
-                _ui.div(style="height:12px;"),
-                _ui.input_slider(
-                    "home_hour", "Uur van de dag",
-                    min=0, max=23, value=8, step=1,
-                    post="h",
-                    width="100%",
-                ),
+                # Left: glassmorphic date/hour picker
                 _ui.div(
-                    _ui.input_action_button(
-                        "random_btn", "↺ Willekeurig moment",
-                        class_="mt-btn-secondary",
-                        style="margin-top:12px;",
+                    _ui.div("Kies een moment", class_="mt-h3", style="margin-bottom:8px;"),
+                    _ui.p(
+                        "Selecteer een datum en uur. Het model zoekt de werkelijke biometrische "
+                        "waarden op uit de wearables-data.",
+                        class_="mt-caption mt-secondary",
+                        style="margin-bottom:16px;",
                     ),
+                    _ui.input_date(
+                        "home_date", "Datum",
+                        value="2026-01-01",
+                        width="100%",
+                    ),
+                    _ui.div(style="height:12px;"),
+                    _ui.input_select(
+                        "home_hour", "Uur van de dag",
+                        choices={str(h): f"{h:02d}:00" for h in range(24)},
+                        selected="8",
+                        width="100%",
+                    ),
+                    _ui.div(
+                        _ui.input_action_button(
+                            "random_btn", "↺ Willekeurig moment",
+                            class_="mt-btn-secondary",
+                            style="margin-top:12px;",
+                        ),
+                    ),
+                    _ui.output_ui("moment_state_ui"),
+                    class_="mt-glass-card",
+                    style="flex:1; min-width:0;",
                 ),
-                _ui.output_ui("moment_state_ui"),
-                class_="mt-card-elevated",
-                style="flex:1; min-width:0; padding:24px;",
+                # Right: glassmorphic recommendation panel
+                _ui.div(
+                    _ui.output_ui("rec_panel_ui"),
+                    class_="mt-glass-card",
+                    style="flex:1; min-width:0;",
+                ),
+                style="display:flex; gap:20px; margin-bottom:32px; align-items:stretch;",
             ),
-            # Right: recommendation panel
-            _ui.div(
-                _ui.output_ui("rec_panel_ui"),
-                class_="mt-card-elevated",
-                style="flex:1; min-width:0; padding:24px;",
-            ),
-            style="display:flex; gap:16px; margin-bottom:24px; align-items:flex-start;",
+
+            # Playlist (appears after generate click)
+            _ui.div(_ui.output_ui("player_ui")),
+
+            class_="mt-home-content fade-in",
         ),
 
-        # Playlist (appears after generate click — button is now inside rec_panel_ui)
-        _ui.div(_ui.output_ui("player_ui")),
-
-        class_="fade-in",
-        style="padding: 0 var(--page-margin);",
+        class_="mt-home-dark",
     )
 
 
@@ -453,12 +478,13 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
         delta_clr = "var(--accent)" if (avg_delta or 0) >= 0 else "var(--stress-red)"
         full_str  = str(n_full) if n_full else "—"
 
+        _sep = "width:1px; height:48px; background:rgba(255,255,255,0.10); flex-shrink:0;"
         return _ui.div(
-            _ui.div(style="width:1px; height:48px; background:var(--border-subtle); margin-right:24px; flex-shrink:0;"),
+            _ui.div(style=f"{_sep} margin-right:24px;"),
             _hero_stat(n_str, "sessies"),
-            _ui.div(style="width:1px; height:48px; background:var(--border-subtle); margin:0 24px; flex-shrink:0;"),
+            _ui.div(style=f"{_sep} margin:0 24px;"),
             _hero_stat(delta_str, "gem. Δstemming", delta_clr),
-            _ui.div(style="width:1px; height:48px; background:var(--border-subtle); margin:0 24px; flex-shrink:0;"),
+            _ui.div(style=f"{_sep} margin:0 24px;"),
             _hero_stat(full_str, "deeln. met data"),
             style="display:flex; align-items:center;",
         )
@@ -497,12 +523,12 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
                 if not valid.empty:
                     ts = valid.iloc[random.randint(0, len(valid) - 1)]["timestamp"]
                     _ui.update_date("home_date", value=str(ts.date()), session=session)
-                    _ui.update_slider("home_hour", value=int(ts.hour), session=session)
+                    _ui.update_select("home_hour", selected=str(ts.hour), session=session)
                     return
         # fallback: pick any row
         ts = gm.iloc[random.randint(0, len(gm) - 1)]["timestamp"]
         _ui.update_date("home_date", value=str(ts.date()), session=session)
-        _ui.update_slider("home_hour", value=int(ts.hour), session=session)
+        _ui.update_select("home_hour", selected=str(ts.hour), session=session)
 
     # ── Moment biometric lookup ───────────────────────────────────────────
 
@@ -616,9 +642,9 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
         if pre_stress is not None and not pd.isna(pre_stress):
             v = float(pre_stress)
             c = "#ef4444" if v > 60 else ("#f59e0b" if v > 40 else "#22c55e")
-            items.append(("Stress", f"{v:.0f}/100", c, v / 100))
+            items.append(("Stress", f"{v:.0f}%", c, v / 100))
         if pre_hr is not None and not pd.isna(pre_hr):
-            items.append(("Hartslag", f"{float(pre_hr):.0f} bpm", "var(--text-primary)", None))
+            items.append(("Hartslag", f"{float(pre_hr):.0f} bpm", "#f472b6", None))
         if bb is not None and not pd.isna(bb):
             v = float(bb)
             c = "#ef4444" if v < 30 else ("#f59e0b" if v < 50 else "#22c55e")
@@ -639,10 +665,17 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
         stat_els = []
         for label, val, color, ring_pct in items:
             ring = _ui.HTML(_ring_svg(ring_pct, color)) if ring_pct is not None else _ui.div()
+            if label == "Hartslag":
+                val_el = _ui.HTML(
+                    f'<div style="font-weight:700; color:{color}; font-size:1.05rem; line-height:1;">'
+                    f'<span class="mt-heart-beat">♥</span>{val}</div>'
+                )
+            else:
+                val_el = _ui.div(val, style=f"font-weight:700; color:{color}; font-size:1.05rem; line-height:1;")
             stat_els.append(_ui.div(
                 ring,
                 _ui.div(
-                    _ui.div(val, style=f"font-weight:700; color:{color}; font-size:1.05rem; line-height:1;"),
+                    val_el,
                     _ui.div(label, class_="mt-caption mt-secondary", style="font-size:11px; margin-top:3px;"),
                 ),
                 style="display:flex; align-items:center; gap:10px;",
@@ -685,19 +718,36 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
         color_map = {"calm": "#56B4E9", "neutral": "#009E73", "energy": "#E69F00"}
         color = color_map.get(badge_cls, "#22c55e")
 
-        reason_parts = []
-        if predictions:
-            nl = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}
-            sorted_types = sorted(predictions, key=lambda k: predictions[k], reverse=True)
-            preds_str = "  ·  ".join(
-                f"{nl.get(t, t)}: {'+' if predictions[t] >= 0 else ''}{predictions[t]:.1f} pt"
-                for t in sorted_types
-            )
-            reason_parts.append(f"Voorspelde stemmingswinst — {preds_str}")
-        elif no_data:
-            reason_parts.append("Geen wearables-data op dit tijdstip — standaard Bayesiaanse aanbeveling.")
+        # Human-readable "why" explanation
+        why_text = None
+        if not no_data:
+            pre_stress   = bio_row.get("pre_stress_mean")
+            baseline_dev = bio_row.get("baseline_deviation_entry")
+            try:
+                v = float(pre_stress) if pre_stress is not None else None
+            except (TypeError, ValueError):
+                v = None
+            if v is not None and not pd.isna(v):
+                if v > 60:
+                    why_text = "Hoge stress gedetecteerd — kalme muziek helpt ontspannen."
+                elif v < 40 and playlist_type == "Energy":
+                    why_text = "Lage basisstress — energieke muziek voor extra motivatie."
+                elif v < 40 and playlist_type == "Calm":
+                    why_text = "Lage stress — kalme muziek houdt je ontspannen."
+            if why_text is None and baseline_dev is not None:
+                try:
+                    dev = float(baseline_dev)
+                    if not pd.isna(dev):
+                        if dev > 5:
+                            why_text = f"Je bent +{dev:.0f} pt meer gestresseerd dan normaal op dit uur."
+                        elif dev < -5:
+                            why_text = f"Je bent {abs(dev):.0f} pt minder gestresseerd dan normaal."
+                except (TypeError, ValueError):
+                    pass
+            if why_text is None:
+                why_text = "Op basis van je biometrische status op dit moment."
         else:
-            reason_parts.append(f"Bayesiaans model op basis van alle sessies van {p.capitalize()}.")
+            why_text = "Geen wearables-data — standaard Bayesiaanse aanbeveling."
 
         return _ui.div(
             _ui.div(source_label, class_="mt-eyebrow", style="margin-bottom:12px;"),
@@ -710,9 +760,12 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
                 style="margin-bottom:12px;",
             ),
             _ui.div(
-                " ".join(reason_parts),
-                class_="mt-caption mt-secondary",
-                style="border-left:2px solid var(--border-default); padding-left:8px; font-style:italic;",
+                why_text,
+                style=(
+                    "font-size:0.875rem; color:rgba(255,255,255,0.65); line-height:1.55; "
+                    "padding:10px 12px; border-left:2px solid var(--border-default); "
+                    "background:rgba(255,255,255,0.03); border-radius:0 8px 8px 0; margin-bottom:4px;"
+                ),
             ),
             _mini_prediction_bars(predictions),
             _ui.div(
@@ -779,23 +832,25 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
         )
         cta = _ui.div(
             _ui.div(
-                _ui.div("Wat nu?", class_="mt-caption mt-secondary", style="margin-bottom:8px;"),
+                _ui.div("Wat wil je nu doen?", class_="mt-caption mt-secondary", style="margin-bottom:8px;"),
                 _ui.div(
                     _ui.div(
-                        _ui.div("Bekijk een echte sessie", class_="mt-body"),
-                        _ui.div("Biometrische boog + herstelcurve →", class_="mt-caption mt-secondary"),
-                        _ui.div("Navigeer naar Sessie-replay", class_="mt-caption",
+                        _ui.div("Bekijk een echte sessie →", class_="mt-body"),
+                        _ui.div("Biometrische boog + herstelcurve", class_="mt-caption mt-secondary"),
+                        _ui.div("Ga naar Sessie-replay", class_="mt-caption",
                                 style="color:var(--accent); margin-top:4px;"),
                         class_="mt-card-elevated",
-                        style="padding:16px; cursor:default;",
+                        style="padding:16px;",
+                        onclick="mtNavTo('profiel','Sessie-replay'); return false;",
                     ),
                     _ui.div(
-                        _ui.div("Persoonlijke aanbeveling", class_="mt-body"),
-                        _ui.div("Bayesiaans model + circadiane context →", class_="mt-caption mt-secondary"),
-                        _ui.div("Navigeer naar Aanbevelingen", class_="mt-caption",
+                        _ui.div("Persoonlijke aanbeveling →", class_="mt-body"),
+                        _ui.div("Bayesiaans model + circadiane context", class_="mt-caption mt-secondary"),
+                        _ui.div("Ga naar Aanbevelingen", class_="mt-caption",
                                 style="color:var(--accent); margin-top:4px;"),
                         class_="mt-card-elevated",
-                        style="padding:16px; cursor:default;",
+                        style="padding:16px;",
+                        onclick="mtNavTo('aanbevelingen'); return false;",
                     ),
                     style="display:grid; grid-template-columns:1fr 1fr; gap:12px;",
                 ),

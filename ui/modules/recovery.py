@@ -32,71 +32,100 @@ def _img_b64(path: Path) -> str:
     return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode()
 
 
+def _safe_cd(row: dict) -> list:
+    """Convert a customdata row to plain Python types — avoids numpy JSON issues."""
+    out = []
+    for v in row:
+        if hasattr(v, "item"):   # numpy scalar → Python native
+            out.append(v.item())
+        elif v != v:             # NaN float check
+            out.append("—")
+        elif v is None or (isinstance(v, float) and not v == v):
+            out.append("—")
+        else:
+            out.append(str(v) if isinstance(v, (pd.Timestamp, pd.NaT.__class__)) else v)
+    return out
+
+
 def _recovery_scatter(df: pd.DataFrame) -> go.Figure:
     """Per-session advantage scatter: x=session date, y=advantage (min), colour=playlist."""
     if df.empty or "advantage" not in df.columns:
         return empty_figure("Geen hersteldata beschikbaar")
 
     df = df.copy()
-    df["_date"] = pd.to_datetime(df["session_date"], errors="coerce")
-    # Drop rows with NaN advantage — Plotly's JSON encoder rejects float nan
-    df = df.dropna(subset=["advantage"]).sort_values("_date")
+    df["_date_str"] = df["session_date"].astype(str).str[:10]   # plain "YYYY-MM-DD" strings
+    df["_adv"]      = pd.to_numeric(df["advantage"], errors="coerce")
+    df = df.dropna(subset=["_adv"]).sort_values("_date_str")
 
-    # Compute a sensible y-axis range that clips extreme outliers for readability.
-    # Sessions outside the range are still plotted but the axis is trimmed.
-    adv_vals    = pd.to_numeric(df["advantage"], errors="coerce").dropna()
-    n_total     = len(adv_vals)
+    if df.empty:
+        return empty_figure("Geen hersteldata beschikbaar")
+
+    # Outlier-clipping: trim y-axis for readability; clip only the most extreme outlier(s).
+    adv_vals = df["_adv"]
+    n_total  = len(adv_vals)
     if n_total >= 4:
         y_lo = float(adv_vals.quantile(0.05)) - 15
         y_hi = float(adv_vals.quantile(0.95)) + 15
     else:
-        y_lo, y_hi = None, None
+        y_lo = float(adv_vals.min()) - 10
+        y_hi = float(adv_vals.max()) + 10
 
-    n_clipped = int(((adv_vals < y_lo) | (adv_vals > y_hi)).sum()) if y_lo is not None else 0
+    n_clipped = int(((adv_vals < y_lo) | (adv_vals > y_hi)).sum())
 
-    reliable    = df[df["reliable"] == True]   # noqa: E712
-    unreliable  = df[df["reliable"] != True]
+    # X-axis range: span actual data ± 5 days so dots are not squashed at the chart edge
+    x_all  = pd.to_datetime(df["_date_str"])
+    x_pad  = pd.Timedelta(days=5)
+    x_lo   = (x_all.min() - x_pad).strftime("%Y-%m-%d")
+    x_hi   = (x_all.max() + x_pad).strftime("%Y-%m-%d")
+
+    reliable   = df[df["reliable"] == True]   # noqa: E712
+    unreliable = df[df["reliable"] != True]
 
     fig = go.Figure()
-
-    # Reference line at 0
     fig.add_hline(y=0, line=dict(color="rgba(0,0,0,0.12)", width=1, dash="dot"))
 
-    # Unreliable sessions (faded)
+    # Unreliable sessions (faded open circles)
     for pl in ["Calm", "Neutral", "Energy"]:
         grp = unreliable[unreliable["playlist"] == pl] if "playlist" in unreliable.columns else pd.DataFrame()
         if grp.empty:
             continue
+        cd = [[str(row["_date_str"]), str(row.get("playlist", "")),
+               float(row.get("r2_actual", 0)) if pd.notna(row.get("r2_actual")) else "—"]
+              for _, row in grp.iterrows()]
         fig.add_trace(go.Scatter(
-            x=grp["_date"],
-            y=grp["advantage"],
+            x=grp["_date_str"].tolist(),
+            y=[float(v) for v in grp["_adv"].tolist()],
             mode="markers",
             name=f"{_PLAYLIST_NL.get(pl, pl)} (lage r²)",
             marker=dict(
                 size=9,
                 color=_PL_COLORS.get(pl, ACCENT),
-                opacity=0.25,
+                opacity=0.30,
                 line=dict(width=1.5, color=_PL_COLORS.get(pl, ACCENT)),
                 symbol="circle-open",
             ),
-            customdata=grp[["session_date", "playlist", "r2_actual"]].values,
+            customdata=cd,
             hovertemplate=(
                 "<b>%{customdata[0]}</b><br>"
                 "Playlist: %{customdata[1]}<br>"
                 "Voordeel: %{y:+.1f} min<br>"
-                "r² = %{customdata[2]:.3f} (laag, onbetrouwbaar)<extra></extra>"
+                "r² = %{customdata[2]} (laag, onbetrouwbaar)<extra></extra>"
             ),
             showlegend=True,
         ))
 
-    # Reliable sessions (opaque)
+    # Reliable sessions (opaque filled circles)
     for pl in ["Calm", "Neutral", "Energy"]:
         grp = reliable[reliable["playlist"] == pl] if "playlist" in reliable.columns else pd.DataFrame()
         if grp.empty:
             continue
+        cd = [[str(row["_date_str"]), str(row.get("playlist", "")),
+               float(row.get("r2_actual", 0)) if pd.notna(row.get("r2_actual")) else "—",
+               str(row.get("pre_state", "—"))]
+              for _, row in grp.iterrows()]
         fig.add_trace(go.Scatter(
-            x=grp["_date"],
-            y=grp["advantage"],
+            x=grp["_date_str"].tolist(),
+            y=[float(v) for v in grp["_adv"].tolist()],
             mode="markers",
             name=_PLAYLIST_NL.get(pl, pl),
             marker=dict(
@@ -105,7 +134,7 @@ def _recovery_scatter(df: pd.DataFrame) -> go.Figure:
                 opacity=0.9,
                 line=dict(width=2, color="rgba(0,0,0,0.2)"),
             ),
-            customdata=grp[["session_date", "playlist", "r2_actual", "pre_state"]].fillna("—").values,
+            customdata=cd,
             hovertemplate=(
                 "<b>%{customdata[0]}</b><br>"
                 "Playlist: %{customdata[1]}<br>"
@@ -115,38 +144,38 @@ def _recovery_scatter(df: pd.DataFrame) -> go.Figure:
             ),
         ))
 
-    yaxis_cfg = dict(title="Herstelvoordeel (min)", gridcolor=GRID_COLOR, zeroline=False)
-    if y_lo is not None:
-        yaxis_cfg["range"] = [y_lo, y_hi]
-
-    clip_note = ""
     if n_clipped > 0:
-        clip_note = (
-            f"<i>{n_clipped} sessie(s) vallen buiten het weergegeven bereik "
-            f"(uitschieters ingekort voor leesbaarheid)</i>"
-        )
         fig.add_annotation(
-            text=clip_note,
+            text=(
+                f"<i>{n_clipped} sessie(s) vallen buiten het weergegeven bereik "
+                f"(uitschieters ingekort voor leesbaarheid)</i>"
+            ),
             xref="paper", yref="paper",
-            x=0.5, y=-0.28,
+            x=0.5, y=-0.30,
             showarrow=False,
             font=dict(size=10, color=TEXT_SECONDARY),
             align="center",
         )
 
+    b_margin = 64 if n_clipped > 0 else 48
     fig.update_layout(**chart_layout(
         xaxis=dict(
             title="Sessiedatum",
             gridcolor=GRID_COLOR,
-            type="date",
             tickformat="%d %b",
+            range=[x_lo, x_hi],     # explicit range so dots are not compressed to edge
         ),
-        yaxis=yaxis_cfg,
+        yaxis=dict(
+            title="Herstelvoordeel (min)",
+            gridcolor=GRID_COLOR,
+            zeroline=False,
+            range=[y_lo, y_hi],
+        ),
         height=320,
-        margin=dict(l=64, r=32, t=16, b=56 if n_clipped > 0 else 48),
+        margin=dict(l=64, r=32, t=16, b=b_margin),
         legend=dict(
             orientation="h",
-            y=-0.30 if n_clipped > 0 else -0.22,
+            y=-0.32 if n_clipped > 0 else -0.22,
             x=0.5,
             xanchor="center",
             font=dict(size=11),
@@ -375,7 +404,7 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                 f"Kolom 'advantage' ontbreekt. Beschikbare kolommen: {available}. "
                 "Controleer of recovery_features correct is geladen."
             )
-        return _recovery_scatter(df)
+        return go.FigureWidget(_recovery_scatter(df))
 
     @output
     @render.ui

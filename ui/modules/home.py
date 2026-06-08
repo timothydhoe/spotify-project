@@ -834,34 +834,22 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
                     style="margin-bottom:14px; color:var(--text-tertiary);"),
             _ui.div(
                 _ui.div(
-                    _ui.div(
-                        "Bekijk een echte sessie →",
-                        style=(
-                            "font-weight:600; font-size:0.9375rem; color:var(--text-primary); "
-                            "transition:color 0.15s ease;"
-                        ),
-                    ),
+                    _ui.div("Bekijk een echte sessie →",
+                            class_="mt-home-cta-title",
+                            style="font-weight:600; font-size:0.9375rem; color:var(--text-primary);"),
                     _ui.div("Biometrische boog + herstelcurve", class_="mt-caption mt-tertiary",
                             style="margin-top:3px;"),
-                    style="cursor:pointer; padding:6px 0;",
+                    class_="mt-home-cta-link",
                     onclick="mtNavTo('profiel','Sessie-replay'); return false;",
-                    **{"onmouseenter": "this.querySelector('div').style.color='var(--accent)'",
-                       "onmouseleave": "this.querySelector('div').style.color='var(--text-primary)'"},
                 ),
                 _ui.div(
-                    _ui.div(
-                        "Persoonlijke aanbeveling →",
-                        style=(
-                            "font-weight:600; font-size:0.9375rem; color:var(--text-primary); "
-                            "transition:color 0.15s ease;"
-                        ),
-                    ),
+                    _ui.div("Persoonlijke aanbeveling →",
+                            class_="mt-home-cta-title",
+                            style="font-weight:600; font-size:0.9375rem; color:var(--text-primary);"),
                     _ui.div("Bayesiaans model + circadiane context", class_="mt-caption mt-tertiary",
                             style="margin-top:3px;"),
-                    style="cursor:pointer; padding:6px 0;",
+                    class_="mt-home-cta-link",
                     onclick="mtNavTo('aanbevelingen'); return false;",
-                    **{"onmouseenter": "this.querySelector('div').style.color='var(--accent)'",
-                       "onmouseleave": "this.querySelector('div').style.color='var(--text-primary)'"},
                 ),
                 style="display:flex; flex-direction:column; gap:8px;",
             ),

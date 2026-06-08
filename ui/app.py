@@ -382,10 +382,23 @@ app_ui = ui.page_navbar(
             ui.nav_panel("Sessie-inzichten",
                 ui.div(
                     results.ui("results"),
-                    ui.tags.hr(style=(
-                        "border:none; border-top:1px solid var(--border-subtle); "
-                        "margin:0 var(--page-margin) 8px;"
-                    )),
+                    # Divider + anchor so users can jump straight to Herstelanalyse
+                    ui.tags.div(
+                        ui.tags.a(
+                            "↓ Herstelanalyse",
+                            href="#mt-recovery-anchor",
+                            style=(
+                                "font-size:0.75rem; color:var(--text-tertiary); "
+                                "text-decoration:none; float:right; margin-right:var(--page-margin); "
+                                "margin-top:-8px; padding:4px 0;"
+                            ),
+                        ),
+                        ui.tags.hr(style=(
+                            "border:none; border-top:1px solid var(--border-subtle); "
+                            "margin:0 var(--page-margin) 0; clear:both;"
+                        )),
+                        ui.tags.a(id="mt-recovery-anchor"),
+                    ),
                     recovery.ui("recovery"),
                 ),
             ),

@@ -184,15 +184,10 @@ def ui():
                     style="max-width:480px; margin:0 auto 16px;",
                 ),
 
-                # Sample size + honesty
+                # Sample size + honesty (N is dynamic from feature matrix)
                 _ui.div(
                     _ui.output_ui("sample_size_note"),
-                    _ui.div(
-                        "⚠ Exploratief — N=82 sessies totaal. "
-                        "Alle resultaten zijn richting gevend, geen klinische conclusies.",
-                        class_="mt-caption",
-                        style="color:#f59e0b; margin-top:6px;",
-                    ),
+                    _ui.output_ui("honesty_note"),
                     style="max-width:480px; margin:0 auto;",
                 ),
 
@@ -436,6 +431,18 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             )
         return _ui.div()
 
+    @output
+    @render.ui
+    def honesty_note():
+        fm  = app_data.feature_matrix
+        n   = len(fm) if fm is not None and not fm.empty else "?"
+        return _ui.div(
+            f"⚠ Exploratief — N={n} sessies totaal. "
+            "Alle resultaten zijn richting gevend, geen klinische conclusies.",
+            class_="mt-caption",
+            style="color:#f59e0b; margin-top:6px;",
+        )
+
     # ── Section 2 outputs ───────────────────────────────────────────────────
 
     @output
@@ -513,12 +520,17 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
     @output
     @render.ui
     def ridge_ci_note():
+        fm  = app_data.feature_matrix
+        n   = len(fm) if fm is not None and not fm.empty else "?"
         bci = app_data.bootstrap_ci.get("mood_delta", {})
         if bci:
             r2 = bci.get("r2_point", "?")
             lo = bci.get("r2_ci_low", "?")
             hi = bci.get("r2_ci_high", "?")
-            txt = f"Live Ridge R²={r2:.3f} (Bootstrap 95% CI: {lo:.3f}–{hi:.3f}, N=82 sessies)."
+            txt = (
+                f"Live Ridge R²={r2:.3f} (Bootstrap 95% CI: {lo:.3f}–{hi:.3f}). "
+                f"Model getraind op eerdere snapshot; huidig feature matrix N={n} sessies."
+            )
         else:
             txt = "Live Ridge R²=0.318 (Bootstrap 95% CI: zie Model & Data)."
         return _ui.div(txt, class_="mt-caption mt-tertiary",

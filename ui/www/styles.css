@@ -448,6 +448,11 @@ body > .container-fluid,
 .mt-green     { color: var(--text-accent) !important; }
 .mt-secondary { color: var(--text-secondary) !important; }
 .mt-tertiary  { color: var(--text-tertiary) !important; }
+
+/* Homepage CTA arrow links */
+.mt-home-cta-link { cursor: pointer; padding: 6px 0; transition: opacity 0.15s ease; }
+.mt-home-cta-link:hover { opacity: 0.75; }
+.mt-home-cta-link:hover .mt-home-cta-title { color: var(--accent) !important; }
 .mt-red       { color: var(--stress-red) !important; }
 .mt-calm      { color: var(--calm-color) !important; }
 .mt-energy    { color: var(--energy-color) !important; }

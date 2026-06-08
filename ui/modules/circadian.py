@@ -252,8 +252,10 @@ def ui():
                 ),
                 _ui.span(
                     "afwijking = pre_stress − verwacht_stress_op_dat_uur",
-                    class_="mt-code-block",
-                    style="font-size:0.8rem;",
+                    style=(
+                        "font-family:'JetBrains Mono','Roboto Mono',monospace; "
+                        "font-size:0.8rem; color:var(--text-tertiary); font-style:italic;"
+                    ),
                 ),
                 style=(
                     "background:var(--bg-elevated); border-left:3px solid var(--accent); "
@@ -663,34 +665,41 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             return _ui.div()
         return _ui.div(
             _ui.div(
-                # 1.4 New heading + purposeful copy
-                _ui.div("Is mijn stress normaal voor dit uur?", class_="mt-h3", style="margin-bottom:10px;"),
-                _ui.p(
-                    "Ben je op dit moment gespannen? Vul je huidige stressniveau in (0–100 op de Garmin-schaal) "
-                    "en het uur van de dag — dan zie je of dit ongebruikelijk is voor jou.",
-                    class_="mt-body mt-secondary",
-                    style="margin-bottom:20px; max-width:520px;",
-                ),
                 _ui.div(
+                    # Left — inputs
                     _ui.div(
-                        _ui.input_select(
-                            "dev_hour", "Huidig uur",
-                            choices={str(h): f"{h:02d}:00" for h in range(6, 24)},
-                            selected="17",
-                            width="160px",
+                        _ui.div("Is mijn stress normaal voor dit uur?", class_="mt-h3",
+                                style="margin-bottom:10px;"),
+                        _ui.p(
+                            "Vul je huidige stressniveau in en het uur van de dag — "
+                            "dan zie je direct hoe dit zich verhoudt tot jouw typische stress op dat moment.",
+                            class_="mt-body mt-secondary",
+                            style="margin-bottom:20px;",
                         ),
-                        style="margin-bottom:16px;",
+                        _ui.div(
+                            _ui.input_select(
+                                "dev_hour", "Huidig uur",
+                                choices={str(h): f"{h:02d}:00" for h in range(6, 24)},
+                                selected="17",
+                                width="160px",
+                            ),
+                            style="margin-bottom:16px;",
+                        ),
+                        _ui.div(
+                            _ui.input_numeric(
+                                "dev_stress", "Mijn stressniveau (0–100)",
+                                value=55, min=0, max=100, step=1,
+                                width="160px",
+                            ),
+                        ),
+                        style="flex:1;",
                     ),
+                    # Right — live result
                     _ui.div(
-                        _ui.input_numeric(
-                            "dev_stress", "Mijn stressniveau (0–100)",
-                            value=55, min=0, max=100, step=1,
-                            width="160px",
-                        ),
-                        style="margin-bottom:20px;",
+                        _ui.output_ui("dev_result"),
+                        style="flex:1; min-width:220px;",
                     ),
-                    _ui.output_ui("dev_result"),
-                    style="max-width:480px;",
+                    style="display:flex; gap:48px; align-items:flex-start; flex-wrap:wrap;",
                 ),
                 class_="mt-section-card",
             ),
@@ -730,22 +739,34 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
 
         return _ui.div(
             _ui.div(
-                _ui.div("Verwachte stress op dit uur:", class_="mt-caption mt-secondary"),
-                _ui.div(f"{exp:.1f} pt  (±{std:.1f} sigma)", class_="mt-body"),
-                style="margin-bottom:8px;",
+                _ui.div("Verwachte stress op dit uur", class_="mt-caption mt-secondary",
+                        style="margin-bottom:4px;"),
+                _ui.div(
+                    f"{exp:.1f}",
+                    style=(
+                        "font-family:'Sora',sans-serif; font-weight:700; font-size:2rem; "
+                        "color:var(--text-primary); line-height:1;"
+                    ),
+                ),
+                _ui.div(f"±{std:.1f} sigma — jouw normaal op {hour:02d}:00",
+                        class_="mt-caption mt-tertiary", style="margin-top:4px;"),
+                style="margin-bottom:20px;",
             ),
             _ui.div(
-                _ui.div("Jouw afwijking:", class_="mt-caption mt-secondary"),
+                _ui.div("Jouw afwijking", class_="mt-caption mt-secondary",
+                        style="margin-bottom:4px;"),
                 _ui.div(
                     f"{sign}{dev:.1f} pt",
-                    style=f"font-size:1.75rem; font-weight:700; font-family:'Sora',sans-serif; color:{color};",
+                    style=f"font-family:'Sora',sans-serif; font-weight:700; font-size:2rem; color:{color}; line-height:1;",
                 ),
-                style="margin-bottom:8px;",
+                style="margin-bottom:16px;",
             ),
             _ui.div(meaning, class_="mt-body mt-secondary", style="margin-bottom:12px;"),
             _ui.div(
                 f"afwijking = {stress:.0f} (huidig) − {exp:.1f} (verwacht op {hour:02d}:00) = {sign}{dev:.1f}",
-                class_="mt-code-block",
+                style=(
+                    "font-family:'JetBrains Mono','Roboto Mono',monospace; "
+                    "font-size:0.8rem; color:var(--text-tertiary); font-style:italic; margin-top:4px;"
+                ),
             ),
-            class_="mt-callout",
         )

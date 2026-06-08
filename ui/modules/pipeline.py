@@ -561,10 +561,6 @@ def ui():
             ),
             # Right: detail panel
             _ui.div(
-                _ui.div(
-                    _ui.output_ui("mode_pills"),
-                    style="margin-bottom:16px;",
-                ),
                 _ui.output_ui("step_detail"),
                 style="flex:1; min-width:0;",
             ),
@@ -574,16 +570,59 @@ def ui():
             ),
         ),
 
-        # Waarom twee tracks?
+        # Drie parallelle tracks
         _ui.div(
             _ui.div(
-                _ui.div("Waarom twee aparte tracks?", class_="mt-h3", style="margin-bottom:12px;"),
-                _ui.p(
-                    "De muziek wordt samengesteld op basis van audiokenmerken — "
-                    "los van je biometrische data. "
-                    "Zo kunnen we later meten of het de muziek was die je stemming beïnvloedde, niet andersom. "
-                    "In de analysetrack worden beide samengevoegd om dit effect te kwantificeren.",
-                    class_="mt-body mt-secondary",
+                _ui.div("Drie parallelle tracks", class_="mt-h3",
+                        style="margin-bottom:16px; text-align:center;"),
+                _ui.div(
+                    _ui.div(
+                        _ui.div("🎵 Muziektrack", class_="mt-h3",
+                                style="color:var(--calm-color); margin-bottom:8px;"),
+                        _ui.p(
+                            "Spotify Exportify-bibliotheek → audiokenmerken filteren op BPM en energie → "
+                            "ISO-sortering → drie afspeellijsten per deelnemer.",
+                            class_="mt-body mt-secondary", style="font-size:0.875rem;",
+                        ),
+                        _ui.div("Geen biometriedata nodig", class_="mt-caption mt-tertiary",
+                                style="margin-top:8px; font-style:italic;"),
+                        class_="mt-card-elevated",
+                        style="flex:1; padding:20px; border-top:3px solid var(--calm-color);",
+                    ),
+                    _ui.div(
+                        _ui.div("⌚ Biometrietrack", class_="mt-h3",
+                                style="color:var(--stress-red); margin-bottom:8px;"),
+                        _ui.p(
+                            "Garmin GDPR-export → FIT-bestanden decoderen → per-minuut stress, hartslag "
+                            "en body battery → fase-gemiddelden per sessie (voor/tijdens/na).",
+                            class_="mt-body mt-secondary", style="font-size:0.875rem;",
+                        ),
+                        _ui.div("Geen audiodata nodig", class_="mt-caption mt-tertiary",
+                                style="margin-top:8px; font-style:italic;"),
+                        class_="mt-card-elevated",
+                        style="flex:1; padding:20px; border-top:3px solid var(--stress-red);",
+                    ),
+                    _ui.div(
+                        _ui.div("🧮 Analysetrack", class_="mt-h3",
+                                style="color:var(--accent); margin-bottom:8px;"),
+                        _ui.p(
+                            "Muziek- en biometriedata samengevoegd via check-in tijden → "
+                            "28-koloms feature-matrix → ML-modellen (Ridge, RF, GB) + "
+                            "Bayesiaans model → gepersonaliseerde aanbeveling.",
+                            class_="mt-body mt-secondary", style="font-size:0.875rem;",
+                        ),
+                        _ui.div("Beide tracks samengevoegd", class_="mt-caption mt-tertiary",
+                                style="margin-top:8px; font-style:italic;"),
+                        class_="mt-card-elevated",
+                        style="flex:1; padding:20px; border-top:3px solid var(--accent);",
+                    ),
+                    style="display:flex; gap:16px; flex-wrap:wrap;",
+                ),
+                _ui.div(
+                    "Muziek en biometrie worden bewust gescheiden gehouden — "
+                    "zo meten we of het de muziek was die de stemming beïnvloedde, en niet andersom.",
+                    class_="mt-caption mt-secondary",
+                    style="margin-top:16px; text-align:center; font-style:italic;",
                 ),
                 class_="mt-section-card",
             ),
@@ -599,17 +638,6 @@ def ui():
 @module.server
 def server(input, output, session, app_data: AppData):
     selected_step: reactive.Value = reactive.Value(None)
-    show_detail: reactive.Value = reactive.Value(False)
-
-    @reactive.Effect
-    @reactive.event(input.mode_overview)
-    def _():
-        show_detail.set(False)
-
-    @reactive.Effect
-    @reactive.event(input.mode_detail)
-    def _():
-        show_detail.set(True)
 
     for _s in _STEPS:
         def _make_obs(step=_s):
@@ -618,22 +646,6 @@ def server(input, output, session, app_data: AppData):
             def _():
                 selected_step.set(step["id"])
         _make_obs()
-
-    @output
-    @render.ui
-    def mode_pills():
-        show = show_detail()
-        return _ui.div(
-            _ui.input_action_button(
-                "mode_overview", "Diagram",
-                class_="pill-btn" + ("" if show else " active"),
-            ),
-            _ui.input_action_button(
-                "mode_detail", "Gegevens",
-                class_="pill-btn" + (" active" if show else ""),
-            ),
-            class_="pill-group",
-        )
 
     @output
     @render.ui
@@ -670,10 +682,10 @@ def server(input, output, session, app_data: AppData):
                     # Icon + name
                     _ui.div(
                         _ui.div(
-                            _ui.span(step["icon"], style="font-size:14px; margin-right:6px;"),
-                            _ui.span(step["label"], style="font-size:0.8125rem; font-weight:500; color:var(--text-primary);"),
+                            _ui.span(step["icon"], style="font-size:16px; margin-right:8px;"),
+                            _ui.span(step["label"], style="font-size:0.875rem; font-weight:500; color:var(--text-primary);"),
                         ),
-                        _ui.div(count, style="font-size:10px; color:var(--text-tertiary); margin-top:1px;") if count else _ui.div(),
+                        _ui.div(count, style="font-size:11px; color:var(--text-tertiary); margin-top:2px;") if count else _ui.div(),
                         style="min-width:0; flex:1;",
                     ),
                     _ui.input_action_button(

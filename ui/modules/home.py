@@ -831,30 +831,41 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
             style="color:var(--text-tertiary); margin-top:8px; text-align:center;",
         )
         cta = _ui.div(
+            _ui.div("Wat wil je nu doen?", class_="mt-eyebrow",
+                    style="margin-bottom:14px; color:var(--text-tertiary);"),
             _ui.div(
-                _ui.div("Wat wil je nu doen?", class_="mt-caption mt-secondary", style="margin-bottom:8px;"),
                 _ui.div(
                     _ui.div(
-                        _ui.div("Bekijk een echte sessie →", class_="mt-body"),
-                        _ui.div("Biometrische boog + herstelcurve", class_="mt-caption mt-secondary"),
-                        _ui.div("Ga naar Sessie-replay", class_="mt-caption",
-                                style="color:var(--accent); margin-top:4px;"),
-                        class_="mt-card-elevated",
-                        style="padding:16px;",
-                        onclick="mtNavTo('profiel','Sessie-replay'); return false;",
+                        "Bekijk een echte sessie →",
+                        style=(
+                            "font-weight:600; font-size:0.9375rem; color:var(--text-primary); "
+                            "transition:color 0.15s ease;"
+                        ),
                     ),
-                    _ui.div(
-                        _ui.div("Persoonlijke aanbeveling →", class_="mt-body"),
-                        _ui.div("Bayesiaans model + circadiane context", class_="mt-caption mt-secondary"),
-                        _ui.div("Ga naar Aanbevelingen", class_="mt-caption",
-                                style="color:var(--accent); margin-top:4px;"),
-                        class_="mt-card-elevated",
-                        style="padding:16px;",
-                        onclick="mtNavTo('aanbevelingen'); return false;",
-                    ),
-                    style="display:grid; grid-template-columns:1fr 1fr; gap:12px;",
+                    _ui.div("Biometrische boog + herstelcurve", class_="mt-caption mt-tertiary",
+                            style="margin-top:3px;"),
+                    style="cursor:pointer; padding:6px 0;",
+                    onclick="mtNavTo('profiel','Sessie-replay'); return false;",
+                    **{"onmouseenter": "this.querySelector('div').style.color='var(--accent)'",
+                       "onmouseleave": "this.querySelector('div').style.color='var(--text-primary)'"},
                 ),
+                _ui.div(
+                    _ui.div(
+                        "Persoonlijke aanbeveling →",
+                        style=(
+                            "font-weight:600; font-size:0.9375rem; color:var(--text-primary); "
+                            "transition:color 0.15s ease;"
+                        ),
+                    ),
+                    _ui.div("Bayesiaans model + circadiane context", class_="mt-caption mt-tertiary",
+                            style="margin-top:3px;"),
+                    style="cursor:pointer; padding:6px 0;",
+                    onclick="mtNavTo('aanbevelingen'); return false;",
+                    **{"onmouseenter": "this.querySelector('div').style.color='var(--accent)'",
+                       "onmouseleave": "this.querySelector('div').style.color='var(--text-primary)'"},
+                ),
+                style="display:flex; flex-direction:column; gap:8px;",
             ),
-            style="margin-top:24px; max-width:640px;",
+            style="margin-top:24px; max-width:480px;",
         )
         return _ui.div(view, caption, cta)

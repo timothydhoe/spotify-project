@@ -380,10 +380,13 @@ app_ui = ui.page_navbar(
             ui.nav_panel("Circadiaans ritme", circadian.ui("circadian")),
             ui.nav_panel("Sessie-replay",     session_replay.ui("replay")),
             ui.nav_panel("Sessie-inzichten",
-                ui.navset_underline(
-                    ui.nav_panel("Resultaten",     results.ui("results")),
-                    ui.nav_panel("Herstelanalyse", recovery.ui("recovery")),
-                    id="inzichten_tabs",
+                ui.div(
+                    results.ui("results"),
+                    ui.tags.hr(style=(
+                        "border:none; border-top:1px solid var(--border-subtle); "
+                        "margin:0 var(--page-margin) 8px;"
+                    )),
+                    recovery.ui("recovery"),
                 ),
             ),
             ui.nav_panel("Jouw Muziek",       music_browser.ui("music")),
@@ -461,7 +464,6 @@ def server(input, output, session):
             if section == "profiel":
                 if sub in ("Resultaten", "Herstelanalyse"):
                     ui.update_navs("profiel_pills", selected="Sessie-inzichten", session=session)
-                    ui.update_navs("inzichten_tabs", selected=sub, session=session)
                 else:
                     ui.update_navs("profiel_pills", selected=sub, session=session)
             elif section == "achtergrond":
@@ -516,6 +518,29 @@ def server(input, output, session):
                     ),
                     class_="now-playing-track",
                 ),
+                # Center: quick nav links
+                ui.div(
+                    ui.HTML(
+                        '<a href="#" onclick="mtNavTo(\'achtergrond\',\'Wetenschap\'); return false;" '
+                        'style="color:var(--text-tertiary); font-size:0.75rem; text-decoration:none; '
+                        'margin:0 8px; transition:color 0.15s;" '
+                        'onmouseover="this.style.color=\'var(--text-secondary)\'" '
+                        'onmouseout="this.style.color=\'var(--text-tertiary)\'">Wetenschap</a>'
+                        '<span style="color:var(--border-default);">·</span>'
+                        '<a href="#" onclick="mtNavTo(\'achtergrond\',\'Model & Data\'); return false;" '
+                        'style="color:var(--text-tertiary); font-size:0.75rem; text-decoration:none; '
+                        'margin:0 8px; transition:color 0.15s;" '
+                        'onmouseover="this.style.color=\'var(--text-secondary)\'" '
+                        'onmouseout="this.style.color=\'var(--text-tertiary)\'">Model & Data</a>'
+                        '<span style="color:var(--border-default);">·</span>'
+                        '<a href="#" onclick="mtNavTo(\'achtergrond\',\'Pipeline\'); return false;" '
+                        'style="color:var(--text-tertiary); font-size:0.75rem; text-decoration:none; '
+                        'margin:0 8px; transition:color 0.15s;" '
+                        'onmouseover="this.style.color=\'var(--text-secondary)\'" '
+                        'onmouseout="this.style.color=\'var(--text-tertiary)\'">Pipeline</a>'
+                    ),
+                    style="display:flex; align-items:center; gap:2px; justify-content:center;",
+                ),
                 ui.div(
                     ui.div(
                         ui.span(
@@ -526,8 +551,11 @@ def server(input, output, session):
                         style="margin-bottom:2px;",
                     ),
                     ui.div(
-                        "rem.studie@gmail.com",
-                        style="font-size:0.75rem; color:var(--text-tertiary);",
+                        ui.HTML(
+                            '<span style="font-size:0.75rem; color:var(--text-tertiary);">Geanonimiseerde data · </span>'
+                            '<a href="mailto:rem.studie@gmail.com" style="font-size:0.75rem; color:var(--text-tertiary); text-decoration:none;" '
+                            'onmouseover="this.style.color=\'var(--text-secondary)\'" onmouseout="this.style.color=\'var(--text-tertiary)\'">rem.studie@gmail.com</a>'
+                        ),
                     ),
                     style="text-align:right; flex-shrink:0; align-self:center;",
                 ),

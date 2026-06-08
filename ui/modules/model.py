@@ -289,12 +289,113 @@ def ui():
                 "Volledige transparantie over elk model, kenmerk en posterior "
                 "die gebruikt worden om de aanbevelingen te genereren.",
                 class_="mt-body mt-secondary",
-                style="margin-top:8px; max-width:640px;",
+                style="margin-top:8px; max-width:640px; margin-left:auto; margin-right:auto;",
             ),
             style="text-align:center; padding:48px var(--page-margin) 32px;",
         ),
 
-        # Modelvergelij kingstabel
+        # Onderzoeksvragen — overzicht
+        _ui.div(
+            _ui.div(
+                _ui.div("Onderzoeksvragen", class_="mt-h2",
+                        style="margin-bottom:16px; text-align:center;"),
+                _ui.div(
+                    _ui.div(
+                        _ui.span("RQ1", class_="rq-badge"),
+                        _ui.span("Kunnen ISO-afspeellijsten stress meetbaar verlagen (via smartwatch)?",
+                                 class_="mt-body mt-secondary", style="margin-left:8px;"),
+                        style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-subtle);",
+                    ),
+                    _ui.div(
+                        _ui.span("RQ2", class_="rq-badge"),
+                        _ui.span("Correleert verminderde fysiologische stress met verbeterde zelfgerapporteerde stemming?",
+                                 class_="mt-body mt-secondary", style="margin-left:8px;"),
+                        style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-subtle);",
+                    ),
+                    _ui.div(
+                        _ui.span("RQ3", class_="rq-badge"),
+                        _ui.span("Kunnen we afspeellijsttype terugherleiden uit biometrische signalen alleen?",
+                                 class_="mt-body mt-secondary", style="margin-left:8px;"),
+                        style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-subtle);",
+                    ),
+                    _ui.div(
+                        _ui.span("RQ4", class_="rq-badge"),
+                        _ui.span("Kunnen we stemming voorspellen uit fysiologische toestand + afspeellijsttype?",
+                                 class_="mt-body mt-secondary", style="margin-left:8px;"),
+                        style="display:flex; align-items:center; padding:10px 0; border-bottom:1px solid var(--border-subtle);",
+                    ),
+                    _ui.div(
+                        _ui.span("RQ5", class_="rq-badge"),
+                        _ui.span("Kan ongesuperviseerde muziekclassificatie afspeellijstgeneratie optimaliseren?",
+                                 class_="mt-body mt-secondary", style="margin-left:8px;"),
+                        style="display:flex; align-items:center; padding:10px 0;",
+                    ),
+                ),
+                class_="mt-section-card",
+            ),
+            style="padding:0 var(--page-margin) 24px;",
+        ),
+
+        # RQ1 + RQ2 — Sessie-effecten & Statistische Significantie
+        _ui.div(
+            _ui.div(
+                _ui.div(
+                    _ui.div(
+                        _ui.span("RQ1 + RQ2", class_="rq-badge"),
+                        _ui.span(" — Sessie-effecten & Statistische Significantie", class_="mt-h2",
+                                 style="margin-left:4px;"),
+                    ),
+                    _ui.input_action_button("toggle_sig", "▲ Verberg tabel",
+                                            class_="mt-expand-trigger",
+                                            style="margin-left:auto; font-size:12px;"),
+                    style="display:flex; align-items:center; gap:0; margin-bottom:4px;",
+                ),
+                _ui.div("Wilcoxon signed-rank, tweezijdig · N≥5 vereist · Per deelnemer",
+                        class_="mt-caption mt-secondary", style="margin-bottom:12px;"),
+                _ui.div(
+                    "⚠  Geen tests bereiken significantie na FDR-correctie (27 tests, α=0.05). "
+                    "Effect sizes zijn aanwezig maar de steekproef (N=82) is onvoldoende om ze te bevestigen.",
+                    class_="mt-callout",
+                    style="border-left:3px solid #f59e0b; margin-bottom:16px; font-size:0.875rem;",
+                ),
+                _ui.div(
+                    _ui.input_select(
+                        "sig_participant", "Deelnemer",
+                        choices=participants_keuze, selected="Allemaal",
+                        width="180px",
+                    ),
+                    _ui.input_checkbox("sig_only_sig", "Alleen significant", value=True),
+                    style="display:flex; gap:16px; align-items:center; margin-bottom:16px; flex-wrap:wrap;",
+                ),
+                _ui.output_ui("sig_section"),
+                class_="mt-section-card",
+            ),
+            style="padding:0 var(--page-margin) 24px;",
+        ),
+
+        # RQ3 — Biometrische classificatie
+        _ui.div(
+            _ui.div(
+                _ui.div(
+                    _ui.div(
+                        _ui.span("RQ3", class_="rq-badge"),
+                        _ui.span(" — Biometrische Classificatie", class_="mt-h2",
+                                 style="margin-left:4px;"),
+                    ),
+                    _ui.input_action_button("toggle_rq3", "▲ Verberg resultaten",
+                                            class_="mt-expand-trigger",
+                                            style="margin-left:auto; font-size:12px;"),
+                    style="display:flex; align-items:center; margin-bottom:8px;",
+                ),
+                _ui.div("Kunnen we de afspeellijst terugherleiden uit de biometrie alleen?",
+                        class_="mt-caption mt-secondary", style="margin-bottom:12px;"),
+                _ui.output_ui("rq3_section"),
+                class_="mt-section-card",
+            ),
+            style="padding:0 var(--page-margin) 24px;",
+        ),
+
+        # RQ4a — Voorspellende modellen + uitleg
         _ui.div(
             _ui.div(
                 _ui.div(
@@ -302,16 +403,41 @@ def ui():
                         _ui.span("Voorspellende modellen", class_="mt-h2"),
                         _ui.span("RQ4", class_="rq-badge"),
                     ),
-                    # Stemming / Stress toggle — rendered dynamically so active class updates
                     _ui.div(
                         _ui.output_ui("model_toggle_ui"),
                         style="margin-left:auto;",
                     ),
                     style="display:flex; align-items:center; gap:8px; margin-bottom:16px; flex-wrap:wrap;",
                 ),
+                # Training setup collapsible
+                _ui.HTML(
+                    '<details class="mt-details" style="margin-bottom:16px;">'
+                    '<summary style="font-size:0.875rem; font-weight:600; cursor:pointer;">Trainingsopzet &amp; hyperparameters</summary>'
+                    '<div class="mt-details-body" style="font-size:0.875rem; color:var(--text-secondary); margin-top:10px; line-height:1.7;">'
+                    '<b>Feature matrix:</b> 28 kenmerken, N=82 sessies (4 deelnemers met biometrische data)<br>'
+                    '<b>Target:</b> mood_delta = mood_after_score − mood_before_score (schaal 1–10)<br>'
+                    '<b>Validatiestrategie:</b> Leave-One-Out kruisvalidatie — elke sessie precies één keer als testset<br>'
+                    '<b>Imputatie:</b> mediane imputatie per fold binnen sklearn Pipeline — voorkomt datalekkage van de testset naar de trainingset<br>'
+                    '<b>Ridge α:</b> geselecteerd via 5-voudige GridSearchCV op log-schaal 0.01–100; optimaal α=1.0<br>'
+                    '<b>Random Forest:</b> n_estimators=200, geen maximale dieptebeperking (max_depth=None)<br>'
+                    '<b>Gradient Boosting:</b> learning_rate=0.1, n_estimators=100, max_depth=3<br>'
+                    '<b>Kenmerken met >50% NaN:</b> uitgesloten via excluded_features.json (per deelnemer bepaald)'
+                    '</div></details>'
+                ),
                 _ui.output_ui("model_table_ui"),
                 _ui.p("LOO-KV = Leave-One-Out kruisvalidatie. Bootstrap CI alleen voor Ridge.",
                       class_="mt-caption mt-secondary", style="margin-top:12px;"),
+                # Interpretation callout
+                _ui.div(
+                    _ui.span("Hoe interpreteer je de uitkomst? ", style="font-weight:600;"),
+                    "Het model voorspelt mood_delta op een schaal van 1–10. "
+                    "R²=0.318 bij N=82 betekent dat ~32% van de stemmingsvariatie verklaard wordt door de kenmerken — "
+                    "de overige 68% is onverklaarde variantie (individuele verschillen, ontbrekende context zoals sociale situatie). "
+                    "Een positieve coëfficiënt voor baseline_deviation_entry (+0.23) betekent: "
+                    "elke 10pt hogere dan-normaal stress vóór de sessie voorspelt ~2.3pt extra stemmingswinst.",
+                    class_="mt-callout",
+                    style="margin-top:14px; margin-bottom:16px; font-size:0.875rem;",
+                ),
                 _ui.div(
                     _ui.div(
                         _ui.span("⚠ Vermogenanalyse", style="font-weight:700; font-size:1rem; color:#f59e0b;"),
@@ -322,7 +448,7 @@ def ui():
                     "De huidige N=82 biedt slechts ~15% vermogen voor dit effect. "
                     "Alle ML-resultaten zijn daarom uitsluitend exploratief — geen conclusies trekken.",
                     style=(
-                        "margin-top:16px; padding:16px 20px; "
+                        "margin-top:0; padding:16px 20px; "
                         "background:rgba(245,158,11,0.10); "
                         "border:2px solid #f59e0b; "
                         "border-radius:10px; "
@@ -330,17 +456,93 @@ def ui():
                         "line-height:1.6;"
                     ),
                 ),
+                # Modelverklaringen
+                _ui.div("Waarom deze modellen?", class_="mt-h3",
+                        style="margin-top:28px; margin-bottom:14px;"),
+                _ui.div(
+                    _ui.div(
+                        _ui.span("Ridge regressie", class_="mt-h3",
+                                 style="margin-bottom:6px; display:block;"),
+                        _ui.span("Beste model · R²=0.318", class_="mt-badge mt-badge-calm",
+                                 style="margin-bottom:10px; display:inline-block;"),
+                        _ui.p("Lineaire regressie met L2-regularisatie (α=1.0 via cross-validatie). "
+                              "Stabiel bij kleine datasets doordat regularisatie overfitting tegengaat. "
+                              "Volledig interpreteerbaar via coëfficiënten.",
+                              class_="mt-body mt-secondary", style="font-size:0.875rem; margin-bottom:8px;"),
+                        _ui.p(
+                            "Sterkste voorspeller: baseline_deviation_entry — hoeveel gestresseerder "
+                            "je bent dan jouw typische stress op dat uur. "
+                            "Een coëfficiënt van +0.23 betekent: 10pt extra dan-normaal stress → "
+                            "~2.3pt extra verwachte stemmingswinst.",
+                            class_="mt-caption mt-secondary",
+                            style="font-size:0.8125rem; margin-bottom:8px; font-style:italic;",
+                        ),
+                        _ui.div(
+                            _ui.span("Valkuil: ", style="font-weight:600; color:var(--text-secondary);"),
+                            "Aanneemt lineariteit — complexe interacties worden gemist.",
+                            class_="mt-caption mt-tertiary",
+                        ),
+                        class_="mt-card-elevated", style="padding:16px;",
+                    ),
+                    _ui.div(
+                        _ui.span("Random Forest", class_="mt-h3",
+                                 style="margin-bottom:6px; display:block;"),
+                        _ui.span("R²=0.233", class_="mt-badge mt-badge-neutral",
+                                 style="margin-bottom:10px; display:inline-block;"),
+                        _ui.p("Ensemble van 200 beslissingsbomen. "
+                              "Vangt niet-lineaire patronen en levert native feature importance via gemiddelde impurity-afname.",
+                              class_="mt-body mt-secondary", style="font-size:0.875rem; margin-bottom:8px;"),
+                        _ui.div(
+                            _ui.span("Valkuil: ", style="font-weight:600; color:var(--text-secondary);"),
+                            "Kan overfitten bij N<100 zonder dieptebeperking.",
+                            class_="mt-caption mt-tertiary",
+                        ),
+                        class_="mt-card-elevated", style="padding:16px;",
+                    ),
+                    _ui.div(
+                        _ui.span("Gradient Boosting", class_="mt-h3",
+                                 style="margin-bottom:6px; display:block;"),
+                        _ui.span("R²=0.108 · ⚠ overfit", class_="mt-badge mt-badge-energy",
+                                 style="margin-bottom:10px; display:inline-block;"),
+                        _ui.p("Sequentieel ensemble (lr=0.1, 100 bomen). "
+                              "Sterkste op trainingsdata, maar overfitting-gap=0.71 maakt generalisatie bij N=82 onbetrouwbaar.",
+                              class_="mt-body mt-secondary", style="font-size:0.875rem; margin-bottom:8px;"),
+                        _ui.div(
+                            _ui.span("Conclusie: ", style="font-weight:600; color:#f59e0b;"),
+                            "Ongeschikt voor dit dataset; behouden als vergelijkingspunt.",
+                            class_="mt-caption mt-tertiary",
+                        ),
+                        class_="mt-card-elevated", style="padding:16px;",
+                    ),
+                    _ui.div(
+                        _ui.span("Gemengd-effecten model", class_="mt-h3",
+                                 style="margin-bottom:6px; display:block;"),
+                        _ui.span("Mixed LME", class_="mt-badge",
+                                 style="margin-bottom:10px; display:inline-block;"),
+                        _ui.p("Lineair gemengd model met random intercept per deelnemer (statsmodels MixedLM). "
+                              "Modelleert dat elke persoon een andere basislijn heeft — correct voor inferentie, "
+                              "maar vereist meer sessies per deelnemer.",
+                              class_="mt-body mt-secondary", style="font-size:0.875rem; margin-bottom:8px;"),
+                        _ui.div(
+                            _ui.span("Valkuil: ", style="font-weight:600; color:var(--text-secondary);"),
+                            "Random effects slecht geschat bij ≤20 sessies per persoon.",
+                            class_="mt-caption mt-tertiary",
+                        ),
+                        class_="mt-card-elevated", style="padding:16px;",
+                    ),
+                    style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px;",
+                ),
                 class_="mt-section-card",
             ),
             style="padding:0 var(--page-margin) 24px;",
         ),
 
-        # Kenmerken (SHAP)
+        # RQ4b — Welke kenmerken verklaren de uitkomst? (SHAP)
         _ui.div(
             _ui.div(
                 _ui.div(
                     _ui.div(
-                        _ui.span("Wat voorspelt de uitkomst?", class_="mt-h2"),
+                        _ui.span("Welke kenmerken verklaren de uitkomst?", class_="mt-h2"),
                         _ui.span("RQ4", class_="rq-badge"),
                     ),
                     _ui.input_action_button("toggle_shap", "▲ Verberg SHAP",
@@ -361,29 +563,7 @@ def ui():
             style="padding:0 var(--page-margin) 24px;",
         ),
 
-        # RQ3 — Biometrische classificatie (collapsible)
-        _ui.div(
-            _ui.div(
-                _ui.div(
-                    _ui.div(
-                        _ui.span("RQ3", class_="rq-badge"),
-                        _ui.span(" — Biometrische Classificatie", class_="mt-h2",
-                                 style="margin-left:4px;"),
-                    ),
-                    _ui.input_action_button("toggle_rq3", "▼ Toon resultaten",
-                                            class_="mt-expand-trigger",
-                                            style="margin-left:auto; font-size:12px;"),
-                    style="display:flex; align-items:center; margin-bottom:8px;",
-                ),
-                _ui.div("Kunnen we de afspeellijst terugherleiden uit de biometrie alleen?",
-                        class_="mt-caption mt-secondary", style="margin-bottom:12px;"),
-                _ui.output_ui("rq3_section"),
-                class_="mt-section-card",
-            ),
-            style="padding:0 var(--page-margin) 24px;",
-        ),
-
-        # Bayesiaanse posteriors
+        # RQ4c — Bayesiaanse Aanbeveler
         _ui.div(
             _ui.div(
                 _ui.div(
@@ -408,42 +588,48 @@ def ui():
             style="padding:0 var(--page-margin) 24px;",
         ),
 
-        # Significantietests (collapsible)
+        # RQ5 — Muziekclassificatie
         _ui.div(
             _ui.div(
                 _ui.div(
-                    _ui.div("Sessie-effecten - Statistische significantie", class_="mt-h2",
-                            style="margin-bottom:4px;"),
-                    _ui.input_action_button("toggle_sig", "▼ Toon tabel",
-                                            class_="mt-expand-trigger",
-                                            style="margin-left:12px; font-size:12px;"),
-                    style="display:flex; align-items:center; gap:0;",
+                    _ui.span("RQ5", class_="rq-badge"),
+                    _ui.span(" — Muziekclassificatie", class_="mt-h2", style="margin-left:4px;"),
+                    style="display:flex; align-items:center; margin-bottom:12px;",
                 ),
-                _ui.div("Wilcoxon signed-rank, tweezijdig - N>=5 vereist - Per deelnemer",
-                        class_="mt-caption mt-secondary", style="margin-bottom:12px;"),
-                _ui.div(
-                    "⚠  Geen tests bereiken significantie na FDR-correctie (27 tests, α=0.05). "
-                    "Effect sizes zijn aanwezig maar de steekproef (N=82) is onvoldoende om ze te bevestigen.",
-                    class_="mt-callout",
-                    style="border-left:3px solid #f59e0b; margin-bottom:16px; font-size:0.875rem;",
+                _ui.p(
+                    "Kan ongesuperviseerde clustering van audiokenmerken de afspeellijstgeneratie optimaliseren "
+                    "ten opzichte van handmatig afgestelde BPM-drempelwaarden?",
+                    class_="mt-body mt-secondary", style="margin-bottom:16px;",
                 ),
-                # Filter controls — always present, table toggled below
                 _ui.div(
-                    _ui.input_select(
-                        "sig_participant", "Deelnemer",
-                        choices=participants_keuze, selected="Allemaal",
-                        width="180px",
+                    _ui.div(
+                        _ui.div("Aanpak", class_="mt-h3", style="margin-bottom:8px;"),
+                        _ui.p(
+                            "K-Means clustering (k=3 vs. BIC-optimaal via GMM) op Spotify audiokenmerken. "
+                            "Gaussiaans Mengselmodel (GMM) valideert clusteraantal. "
+                            "Zie notebook ml_music_classification.ipynb voor de volledige analyse.",
+                            class_="mt-body mt-secondary", style="font-size:0.875rem;",
+                        ),
+                        class_="mt-card-elevated", style="padding:16px; flex:1;",
                     ),
-                    _ui.input_checkbox("sig_only_sig", "Alleen significant", value=True),
-                    style="display:flex; gap:16px; align-items:center; margin-bottom:16px; flex-wrap:wrap;",
+                    _ui.div(
+                        _ui.div("Status", class_="mt-h3", style="margin-bottom:8px;"),
+                        _ui.p(
+                            "Exploratieve fase. De clusters overlappen sterk met handmatige BPM-drempelwaarden, "
+                            "wat de huidige parameterisatie ondersteunt. "
+                            "Geen productiemodel — directe regelgebaseerde classificatie presteert vergelijkbaar bij N=82.",
+                            class_="mt-body mt-secondary", style="font-size:0.875rem;",
+                        ),
+                        class_="mt-card-elevated", style="padding:16px; flex:1;",
+                    ),
+                    style="display:flex; gap:12px; flex-wrap:wrap;",
                 ),
-                _ui.output_ui("sig_section"),
                 class_="mt-section-card",
             ),
             style="padding:0 var(--page-margin) 24px;",
         ),
 
-        # Architectuurdiagram (collapsible)
+        # Architectuurdiagram (collapsible — deep dive)
         _ui.div(
             _ui.div(
                 _ui.div(
@@ -481,10 +667,10 @@ def ui():
 
 @module.server
 def server(input, output, session, app_data: AppData):
-    show_sig   = reactive.Value(False)
+    show_sig   = reactive.Value(True)
     show_arch  = reactive.Value(False)
     show_shap  = reactive.Value(True)
-    show_rq3   = reactive.Value(False)
+    show_rq3   = reactive.Value(True)
     model_target = reactive.Value("mood_delta")  # "mood_delta" or "stress_delta"
 
     @reactive.Effect
@@ -689,6 +875,14 @@ def server(input, output, session, app_data: AppData):
         if shap_src:
             sections.append(_ui.div(
                 _ui.div(
+                    _ui.span("Wat zie je hier? ", style="font-weight:600;"),
+                    "Elke stip = 1 sessie. De X-as toont de SHAP-waarde: hoe sterk beïnvloedt dit kenmerk de voorspelling? "
+                    "Kenmerken bovenaan hebben de grootste gemiddelde invloed. "
+                    "Rood = hoge kenmerkswaarde, blauw = lage waarde.",
+                    class_="mt-callout",
+                    style="margin-bottom:12px; font-size:0.875rem;",
+                ),
+                _ui.div(
                     "Exploratief — N=82 sessies. Patronen zijn richtinggevend, geen inferentie.",
                     class_="mt-caption",
                     style="color:#f59e0b; margin-bottom:12px;",
@@ -697,12 +891,6 @@ def server(input, output, session, app_data: AppData):
                     _ui.img(src=shap_src, style="max-width:100%; border-radius:6px;",
                             alt="SHAP beeswarm plot — mood_delta RandomForest"),
                     class_="data-terminal",
-                ),
-                _ui.div(
-                    "Elke stip is een sessie. Positieve SHAP-waarden verhogen de voorspelde stemmingsdelta. "
-                    "Rode stippen = hoge kenmerkswaarde, blauwe stippen = lage waarde.",
-                    class_="mt-caption mt-secondary",
-                    style="margin-top:8px;",
                 ),
             ))
         else:
@@ -768,8 +956,14 @@ def server(input, output, session, app_data: AppData):
             sections.append(_ui.div(
                 _ui.div("SHAP dependentieplots — top-2 kenmerken", class_="mt-h3",
                         style="margin-top:24px; margin-bottom:8px;"),
-                _ui.div("Hoe verandert de SHAP-waarde van een kenmerk over zijn waardebereik?",
-                        class_="mt-caption mt-secondary", style="margin-bottom:12px;"),
+                _ui.div(
+                    _ui.span("Wat zie je hier? ", style="font-weight:600;"),
+                    "X-as = waarde van het kenmerk; Y-as = bijdrage aan de voorspelling (SHAP-waarde). "
+                    "Een stijgende lijn betekent: hogere kenmerkswaarde → grotere voorspelde stemming. "
+                    "Kleurpunten tonen de waarde van een interacterend kenmerk.",
+                    class_="mt-callout",
+                    style="margin-bottom:12px; font-size:0.875rem;",
+                ),
                 _ui.div(*dep_items,
                         style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;"),
             ))
@@ -795,9 +989,12 @@ def server(input, output, session, app_data: AppData):
                 _ui.div("Leercurven", class_="mt-h3",
                         style="margin-top:24px; margin-bottom:8px;"),
                 _ui.div(
-                    "Trein-MAE (streepjes) vs. LOO-CV-MAE (doorgetrokken lijn) als functie van trainingsgrootte. "
-                    "Een kleine kloof duidt op weinig overfitting; platte curven tonen de N=82-grens.",
-                    class_="mt-caption mt-secondary", style="margin-bottom:12px;",
+                    _ui.span("Wat zie je hier? ", style="font-weight:600;"),
+                    "Train-MAE (streepjeslijn) daalt naarmate meer trainingsdata beschikbaar is. "
+                    "LOO-CV-MAE (doorgetrokken lijn) toont hoe goed het model generaliseert naar ongeziene sessies. "
+                    "Als de kloof klein blijft is het model stabiel; vlakke LOO-curven bij grote N wijzen op datahonger.",
+                    class_="mt-callout",
+                    style="margin-bottom:12px; font-size:0.875rem;",
                 ),
                 _ui.div(*lc_items,
                         style="display:grid; grid-template-columns:repeat(2,1fr); gap:16px;"),

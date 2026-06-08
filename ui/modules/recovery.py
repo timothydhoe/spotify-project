@@ -42,6 +42,18 @@ def _recovery_scatter(df: pd.DataFrame) -> go.Figure:
     # Drop rows with NaN advantage — Plotly's JSON encoder rejects float nan
     df = df.dropna(subset=["advantage"]).sort_values("_date")
 
+    # Compute a sensible y-axis range that clips extreme outliers for readability.
+    # Sessions outside the range are still plotted but the axis is trimmed.
+    adv_vals    = pd.to_numeric(df["advantage"], errors="coerce").dropna()
+    n_total     = len(adv_vals)
+    if n_total >= 4:
+        y_lo = float(adv_vals.quantile(0.05)) - 15
+        y_hi = float(adv_vals.quantile(0.95)) + 15
+    else:
+        y_lo, y_hi = None, None
+
+    n_clipped = int(((adv_vals < y_lo) | (adv_vals > y_hi)).sum()) if y_lo is not None else 0
+
     reliable    = df[df["reliable"] == True]   # noqa: E712
     unreliable  = df[df["reliable"] != True]
 
@@ -103,6 +115,25 @@ def _recovery_scatter(df: pd.DataFrame) -> go.Figure:
             ),
         ))
 
+    yaxis_cfg = dict(title="Herstelvoordeel (min)", gridcolor=GRID_COLOR, zeroline=False)
+    if y_lo is not None:
+        yaxis_cfg["range"] = [y_lo, y_hi]
+
+    clip_note = ""
+    if n_clipped > 0:
+        clip_note = (
+            f"<i>{n_clipped} sessie(s) vallen buiten het weergegeven bereik "
+            f"(uitschieters ingekort voor leesbaarheid)</i>"
+        )
+        fig.add_annotation(
+            text=clip_note,
+            xref="paper", yref="paper",
+            x=0.5, y=-0.28,
+            showarrow=False,
+            font=dict(size=10, color=TEXT_SECONDARY),
+            align="center",
+        )
+
     fig.update_layout(**chart_layout(
         xaxis=dict(
             title="Sessiedatum",
@@ -110,12 +141,12 @@ def _recovery_scatter(df: pd.DataFrame) -> go.Figure:
             type="date",
             tickformat="%d %b",
         ),
-        yaxis=dict(title="Herstelvoordeel (min)", gridcolor=GRID_COLOR, zeroline=False),
+        yaxis=yaxis_cfg,
         height=320,
-        margin=dict(l=64, r=32, t=16, b=48),
+        margin=dict(l=64, r=32, t=16, b=56 if n_clipped > 0 else 48),
         legend=dict(
             orientation="h",
-            y=-0.22,
+            y=-0.30 if n_clipped > 0 else -0.22,
             x=0.5,
             xanchor="center",
             font=dict(size=11),
@@ -335,7 +366,8 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         if df.empty:
             return empty_figure(
                 "Hersteldata niet beschikbaar voor deze deelnemer. "
-                "Herstelanalyse vereist stresstraces met een betrouwbare exponentiële herstelcurve."
+                "Herstelanalyse vereist een Garmin stresssensor — "
+                "alleen beschikbaar voor bosbes, kokosnoot en limoen."
             )
         if "advantage" not in df.columns:
             available = ", ".join(df.columns.tolist()[:8])

@@ -1,22 +1,22 @@
 """Shared Plotly layout factories and color constants."""
 import plotly.graph_objects as go
 
-# Design system tokens — light mode
-BG_BASE     = "#f4f2ee"
-BG_CARD     = "#ffffff"
-BG_ELEVATED = "#ede9e3"
+# Design system tokens — dark mode
+BG_BASE     = "#090f0a"
+BG_CARD     = "rgba(255,255,255,0.06)"
+BG_ELEVATED = "rgba(255,255,255,0.08)"
 ACCENT      = "#16a34a"
-TEXT_PRIMARY   = "#111827"
-TEXT_SECONDARY = "#6b7280"
-TEXT_TERTIARY  = "#9ca3af"
-STRESS_RED  = "#dc2626"
-GRID_COLOR  = "rgba(0,0,0,0.06)"
-ZERO_COLOR  = "rgba(0,0,0,0.10)"
+TEXT_PRIMARY   = "rgba(255,255,255,0.88)"
+TEXT_SECONDARY = "rgba(255,255,255,0.52)"
+TEXT_TERTIARY  = "rgba(255,255,255,0.32)"
+STRESS_RED  = "#f87171"
+GRID_COLOR  = "rgba(255,255,255,0.07)"
+ZERO_COLOR  = "rgba(255,255,255,0.12)"
 
 # Legacy aliases
 BG_PRIMARY   = BG_BASE
 ACCENT_GREEN = ACCENT
-BORDER       = "rgba(0,0,0,0.08)"
+BORDER       = "rgba(255,255,255,0.10)"
 
 # Okabe-Ito colorblind-safe palette — matches notebooks/ml/*.ipynb
 # Calm=#56B4E9 (sky blue), Neutral=#009E73 (bluish green), Energy=#E69F00 (orange)
@@ -62,9 +62,10 @@ PLOTLY_LAYOUT = dict(
         borderwidth=0,
     ),
     hoverlabel=dict(
-        bgcolor=BG_CARD,
-        font_color=TEXT_PRIMARY,
-        bordercolor=BORDER,
+        bgcolor="#141f15",
+        font_color="rgba(255,255,255,0.90)",
+        bordercolor="rgba(255,255,255,0.18)",
+        font=dict(family="DM Sans, sans-serif", size=13),
     ),
     modebar=dict(
         remove=[

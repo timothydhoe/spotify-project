@@ -10,7 +10,7 @@ from utils.data_loader import PARTICIPANTS, AppData, expected_stress
 
 
 def _arc_path(h_start: float, h_end: float, r_outer: float, r_inner: float,
-              cx: float = 120, cy: float = 120) -> str:
+              cx: float = 180, cy: float = 180) -> str:
     """SVG path for a filled arc segment between two hours on a 24-hour clock."""
     def _pt(hour, r):
         angle = (hour / 24) * 2 * math.pi - math.pi / 2
@@ -30,81 +30,162 @@ def _arc_path(h_start: float, h_end: float, r_outer: float, r_inner: float,
     )
 
 
+def _stress_color(normalized: float, alpha: float = 0.75) -> str:
+    """Map 0.0 (calm) → 1.0 (peak stress) to a green→orange→red colour."""
+    n = max(0.0, min(1.0, normalized))
+    if n < 0.5:
+        t = n * 2
+        r = int(22  + (230 - 22)  * t)
+        g = int(163 + (159 - 163) * t)
+        b = int(74  + (0   - 74)  * t)
+    else:
+        t = (n - 0.5) * 2
+        r = int(230 + (220 - 230) * t)
+        g = int(159 + (38  - 159) * t)
+        b = int(0   + (38  - 0)   * t)
+    return f"rgba({r},{g},{b},{alpha})"
+
+
 def _circadian_clock_svg(
     golden_hour: int, peak_hour: int,
-    golden_stress: float | None = None, peak_stress: float | None = None,
+    golden_stress: float | None = None,
+    peak_stress: float | None = None,
+    hb_df=None,
+    sessions: list | None = None,
 ) -> str:
-    """Return an interactive SVG 24-hour clock with golden hour (green) and peak window (orange) arcs."""
-    cx, cy, size = 120, 120, 240
-    r_track, r_outer, r_inner = 102, 98, 80
-    r_tick_outer, r_tick_inner = 105, 95
+    """
+    SVG 24-hour clock with:
+    - Full stress-gradient ring (heat map per hour)
+    - Golden-hour (green) and peak-stress (orange) highlight arcs
+    - Per-session dots on the outer ring (coloured by playlist, filled/hollow by mood outcome)
+    - Clock face labels: 12 (midnight/top), 3 (6h/right), 6 (noon/bottom), 9 (18h/left)
+    """
+    cx = cy = 180
+    size = 360
+    r_outer, r_inner = 148, 118       # main arc band
+    r_dot = 158                        # session dot radius
+    r_tick_out, r_tick_in = 153, 143   # tick marks
+    r_label = 170                      # clock face number radius
 
-    # Track ring
-    track = (
-        f'<circle cx="{cx}" cy="{cy}" r="{r_track}" fill="none" '
-        f'stroke="rgba(255,255,255,0.06)" stroke-width="{r_outer - r_inner}"/>'
+    parts: list[str] = []
+
+    # ── Background track ring ────────────────────────────────────────────────
+    parts.append(
+        f'<circle cx="{cx}" cy="{cy}" r="{(r_outer+r_inner)//2}" fill="none" '
+        f'stroke="rgba(255,255,255,0.06)" stroke-width="{r_outer-r_inner}"/>'
     )
 
-    # Golden hour arc (1 hour, green) — interactive
+    # ── Stress gradient ring (one arc per hour) ──────────────────────────────
+    if hb_df is not None and not hb_df.empty and "mean_stress" in hb_df.columns:
+        stress_vals = {}
+        for _, row in hb_df.iterrows():
+            stress_vals[int(row["hour"])] = float(row["mean_stress"])
+        if stress_vals:
+            mn = min(stress_vals.values())
+            mx = max(stress_vals.values())
+            rng = mx - mn if mx > mn else 1.0
+            for h in range(24):
+                if h not in stress_vals:
+                    continue
+                norm = (stress_vals[h] - mn) / rng
+                col  = _stress_color(norm, alpha=0.55)
+                p    = _arc_path(h, h + 1, r_outer, r_inner, cx, cy)
+                parts.append(f'<path d="{p}" fill="{col}"/>')
+
+    # ── Golden hour arc (1 h, bright green, on top of gradient) ─────────────
     green_path = _arc_path(golden_hour, golden_hour + 1, r_outer, r_inner, cx, cy)
-    golden_title = (
-        f"Gouden uur: {golden_hour:02d}:00 — laagste stress van de dag"
-        + (f" ({golden_stress:.1f} pt)" if golden_stress is not None else "")
-    )
-    green_arc = (
-        f'<path d="{green_path}" fill="#16a34a" opacity="0.9" '
-        f'style="cursor:pointer;" class="mt-clock-arc" '
-        f'onclick="Shiny.setInputValue(\'circadian-clock_click\', \'golden\', {{priority:\'event\'}})">'
-        f'<title>{golden_title}</title></path>'
+    parts.append(
+        f'<path d="{green_path}" fill="#16a34a" opacity="0.95" style="cursor:pointer;" '
+        f'onclick="Shiny.setInputValue(\'circadian-clock_click\',\'golden\',{{priority:\'event\'}})"/>'
     )
 
-    # Peak window arc (2 hours, orange) — interactive
+    # ── Peak stress arc (2 h, orange) ────────────────────────────────────────
     orange_path = _arc_path(peak_hour, peak_hour + 2, r_outer, r_inner, cx, cy)
-    peak_title = (
-        f"Piekstress: {peak_hour:02d}–{peak_hour+2:02d}:00 — hoogste stress van de dag"
-        + (f" ({peak_stress:.1f} pt)" if peak_stress is not None else "")
-    )
-    orange_arc = (
-        f'<path d="{orange_path}" fill="#E69F00" opacity="0.9" '
-        f'style="cursor:pointer;" class="mt-clock-arc" '
-        f'onclick="Shiny.setInputValue(\'circadian-clock_click\', \'peak\', {{priority:\'event\'}})">'
-        f'<title>{peak_title}</title></path>'
+    parts.append(
+        f'<path d="{orange_path}" fill="#E69F00" opacity="0.90" style="cursor:pointer;" '
+        f'onclick="Shiny.setInputValue(\'circadian-clock_click\',\'peak\',{{priority:\'event\'}})"/>'
     )
 
-    # Hour tick marks at 0, 6, 12, 18
-    ticks = ""
-    labels = ""
-    tick_hours = {0: "0h", 6: "6h", 12: "12h", 18: "18h"}
-    for h, lbl in tick_hours.items():
+    # ── Session dots (playlist colour, filled=positive delta, hollow=negative) ─
+    _PL_COLS = {"Calm": "#56B4E9", "Neutral": "#009E73", "Energy": "#E69F00"}
+    if sessions:
+        for hour, playlist, mood_delta in sessions:
+            angle = (hour / 24) * 2 * math.pi - math.pi / 2
+            dx = cx + r_dot * math.cos(angle)
+            dy = cy + r_dot * math.sin(angle)
+            col     = _PL_COLS.get(str(playlist).capitalize(), "#86efac")
+            positive = mood_delta is not None and float(mood_delta) > 0
+            fill    = col if positive else "none"
+            stroke  = col
+            tip     = f"{int(hour):02d}:00 · {playlist} · delta {mood_delta:+.1f}pt" if mood_delta is not None else f"{int(hour):02d}:00 · {playlist}"
+            parts.append(
+                f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="5" '
+                f'fill="{fill}" stroke="{stroke}" stroke-width="2" opacity="0.85">'
+                f'<title>{tip}</title></circle>'
+            )
+
+    # ── Major tick marks every 6 h ───────────────────────────────────────────
+    for h in range(0, 24, 6):
         angle = (h / 24) * 2 * math.pi - math.pi / 2
-        xo = cx + r_tick_outer * math.cos(angle)
-        yo = cy + r_tick_outer * math.sin(angle)
-        xi = cx + r_tick_inner * math.cos(angle)
-        yi = cy + r_tick_inner * math.sin(angle)
-        ticks += (
+        xo = cx + r_tick_out * math.cos(angle)
+        yo = cy + r_tick_out * math.sin(angle)
+        xi = cx + r_tick_in  * math.cos(angle)
+        yi = cy + r_tick_in  * math.sin(angle)
+        parts.append(
             f'<line x1="{xi:.1f}" y1="{yi:.1f}" x2="{xo:.1f}" y2="{yo:.1f}" '
-            f'stroke="rgba(255,255,255,0.15)" stroke-width="2"/>'
-        )
-        lx = cx + (r_track + 16) * math.cos(angle)
-        ly = cy + (r_track + 16) * math.sin(angle)
-        labels += (
-            f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="middle" dominant-baseline="middle" '
-            f'font-size="12" font-family="DM Sans,sans-serif" fill="rgba(255,255,255,0.35)">{lbl}</text>'
+            f'stroke="rgba(255,255,255,0.30)" stroke-width="2.5" stroke-linecap="round"/>'
         )
 
-    # Center label
-    center = (
-        f'<text x="{cx}" y="{cy - 10}" text-anchor="middle" font-size="13" '
-        f'font-family="DM Sans,sans-serif" fill="rgba(255,255,255,0.4)">24h</text>'
-        f'<text x="{cx}" y="{cy + 8}" text-anchor="middle" font-size="11" '
-        f'font-family="DM Sans,sans-serif" fill="rgba(255,255,255,0.25)">klok</text>'
+    # ── Minor tick marks every 3 h (smaller) ────────────────────────────────
+    for h in range(3, 24, 6):
+        angle = (h / 24) * 2 * math.pi - math.pi / 2
+        xo = cx + (r_tick_out - 2) * math.cos(angle)
+        yo = cy + (r_tick_out - 2) * math.sin(angle)
+        xi = cx + (r_tick_in  + 2) * math.cos(angle)
+        yi = cy + (r_tick_in  + 2) * math.sin(angle)
+        parts.append(
+            f'<line x1="{xi:.1f}" y1="{yi:.1f}" x2="{xo:.1f}" y2="{yo:.1f}" '
+            f'stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-linecap="round"/>'
+        )
+
+    # ── Clock face numbers: 12/3/6/9 (= 0h/6h/12h/18h) ──────────────────────
+    face_labels = {
+        0:  ("12", "midnight"),
+        6:  ("3",  "06:00"),
+        12: ("6",  "middag"),
+        18: ("9",  "18:00"),
+    }
+    for h, (big_lbl, sub_lbl) in face_labels.items():
+        angle = (h / 24) * 2 * math.pi - math.pi / 2
+        lx = cx + r_label * math.cos(angle)
+        ly = cy + r_label * math.sin(angle)
+        parts.append(
+            f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="middle" dominant-baseline="middle" '
+            f'font-size="17" font-weight="600" font-family="Sora,sans-serif" '
+            f'fill="rgba(255,255,255,0.70)">{big_lbl}</text>'
+        )
+        # Small sub-label slightly offset toward edge
+        slx = cx + (r_label + 14) * math.cos(angle)
+        sly = cy + (r_label + 14) * math.sin(angle)
+        parts.append(
+            f'<text x="{slx:.1f}" y="{sly:.1f}" text-anchor="middle" dominant-baseline="middle" '
+            f'font-size="9" font-family="DM Sans,sans-serif" '
+            f'fill="rgba(255,255,255,0.28)">{sub_lbl}</text>'
+        )
+
+    # ── Centre: participant-facing summary ───────────────────────────────────
+    parts.append(
+        f'<text x="{cx}" y="{cy - 14}" text-anchor="middle" '
+        f'font-size="11" font-family="DM Sans,sans-serif" fill="rgba(255,255,255,0.28)">24-uurs</text>'
+        f'<text x="{cx}" y="{cy + 4}" text-anchor="middle" '
+        f'font-size="11" font-family="DM Sans,sans-serif" fill="rgba(255,255,255,0.20)">stressritme</text>'
     )
 
     return (
         f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}" '
-        f'xmlns="http://www.w3.org/2000/svg" style="display:block;">'
-        f'{track}{green_arc}{orange_arc}{ticks}{labels}{center}'
-        f'</svg>'
+        f'xmlns="http://www.w3.org/2000/svg" style="display:block; overflow:visible;">'
+        + "".join(parts)
+        + "</svg>"
     )
 
 
@@ -303,10 +384,10 @@ def ui():
             style="padding:0 var(--page-margin);",
         ),
 
-        # 1.3 24-uur klok als hero — groot, gecentreerd, interactief
+        # 24-uur klok
         _ui.div(
             _ui.output_ui("clock_hero_ui"),
-            style="padding:40px var(--page-margin) 8px;",
+            style="padding:24px var(--page-margin) 8px;",
         ),
 
         # Afwijkingscalculator
@@ -401,6 +482,7 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
     @output
     @render.ui
     def clock_hero_ui():
+        import pandas as pd
         hb, sf = current_data()
         if hb is None or (hasattr(hb, "empty") and hb.empty):
             return _ui.div()
@@ -413,115 +495,134 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         golden_stress = float(waking.loc[waking["mean_stress"].idxmin(), "mean_stress"])
         peak_stress   = float(waking.loc[waking["mean_stress"].idxmax(), "mean_stress"])
 
-        # Avg deviation
-        import pandas as pd
+        # Average pre-session circadian deviation
+        dev_val = None
         dev_str = "—"
         if not sf.empty and "baseline_deviation_entry" in sf.columns:
             dev = pd.to_numeric(sf["baseline_deviation_entry"], errors="coerce").mean()
             if not pd.isna(dev):
+                dev_val = dev
                 dev_str = f"+{dev:.1f} pt" if dev >= 0 else f"{dev:.1f} pt"
 
-        svg = _circadian_clock_svg(golden_h, peak_h, golden_stress, peak_stress)
+        # Build session dot list: (hour_of_day, playlist, mood_delta)
+        sessions = []
+        if not sf.empty and "hour_of_day" in sf.columns and "playlist" in sf.columns:
+            for _, row in sf.iterrows():
+                h  = row.get("hour_of_day")
+                pl = row.get("playlist", "")
+                md = row.get("mood_delta")
+                if h is not None:
+                    try:
+                        md_f = float(md) if md is not None and str(md) not in ("", "nan") else None
+                    except (TypeError, ValueError):
+                        md_f = None
+                    sessions.append((float(h), str(pl).capitalize(), md_f))
 
-        # Determine which arc is selected
-        clicked = clock_click()
-
-        def _kpi_callout(label, time_str, stress_val, color, which):
-            is_active = clicked == which
-            border_w  = "3px" if is_active else "1px"
-            bg        = f"rgba({('22,163,74' if which=='golden' else '230,159,0')},0.12)" if is_active else "var(--bg-card)"
-            return _ui.div(
-                _ui.div(
-                    _ui.HTML(f'<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:{color};margin-right:6px;vertical-align:middle;"></span>'),
-                    label,
-                    style=f"font-size:0.75rem; color:var(--text-tertiary); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;",
-                ),
-                _ui.div(time_str, style="font-size:1.5rem; font-weight:700; font-family:'Sora',sans-serif; line-height:1;"),
-                _ui.div(f"{stress_val:.1f} gemiddeld", style="font-size:0.8125rem; color:var(--text-secondary); margin-top:4px;"),
-                style=(
-                    f"flex:1; text-align:center; padding:16px 20px; border-radius:12px; "
-                    f"background:{bg}; border:{border_w} solid {color}; "
-                    "cursor:pointer; transition:all 0.15s ease;"
-                ),
-                onclick=f"Shiny.setInputValue('circadian-clock_click', '{which}', {{priority:'event'}})",
-            )
-
-        clock_section = _ui.div(
-            # Clock
-            _ui.div(
-                _ui.HTML(svg),
-                _ui.div(
-                    "Klik op een arc voor details",
-                    style="font-size:0.75rem; color:var(--text-tertiary); margin-top:8px; text-align:center;",
-                ),
-                style="flex-shrink:0; display:flex; flex-direction:column; align-items:center;",
-            ),
-            # KPI callouts
-            _ui.div(
-                _kpi_callout("Gouden uur", f"{golden_h:02d}:00", golden_stress, "#16a34a", "golden"),
-                _kpi_callout("Piekstress", f"{peak_h:02d}–{peak_h+2:02d}:00", peak_stress, "#E69F00", "peak"),
-                _ui.div(
-                    _ui.div("Pre-sessie afwijking", style="font-size:0.75rem; color:var(--text-tertiary); font-weight:600; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;"),
-                    _ui.div(dev_str, style="font-size:1.5rem; font-weight:700; font-family:'Sora',sans-serif;"),
-                    _ui.div("gemiddeld t.o.v. basislijn", style="font-size:0.8125rem; color:var(--text-secondary); margin-top:4px;"),
-                    style="flex:1; text-align:center; padding:16px 20px; border-radius:12px; background:var(--bg-card); border:1px solid var(--border-subtle);",
-                ),
-                style="display:flex; flex-direction:column; gap:12px; flex:1; justify-content:center;",
-            ),
-            style="display:flex; gap:32px; align-items:center; max-width:700px; margin:0 auto;",
+        svg = _circadian_clock_svg(
+            golden_h, peak_h, golden_stress, peak_stress,
+            hb_df=hb, sessions=sessions,
         )
 
-        # Arc detail panel on click
-        detail_panel = _ui.div()
-        if clicked == "golden":
-            exp_str = f"{golden_stress:.1f} stresspunten"
-            detail_panel = _ui.div(
+        # Session dot legend
+        pl_dots = []
+        seen = set()
+        for _, pl, md in sessions:
+            key = (pl, md is not None and md > 0)
+            if key not in seen:
+                seen.add(key)
+                col = {"Calm": "#56B4E9", "Neutral": "#009E73", "Energy": "#E69F00"}.get(pl, "#86efac")
+                nl  = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}.get(pl, pl)
+                fill_style = f"background:{col};" if (md is not None and md > 0) else f"background:none;border:2px solid {col};"
+                pl_dots.append(_ui.span(
+                    _ui.HTML(f'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;{fill_style}margin-right:4px;vertical-align:middle;"></span>'),
+                    nl + (" ↑" if (md is not None and md > 0) else " ↓/—"),
+                    style="font-size:0.75rem; color:var(--text-tertiary); margin-right:12px; white-space:nowrap;",
+                ))
+
+        legend = _ui.div(
+            *pl_dots,
+            _ui.span("Gevuld = positieve stemmingsdelta",
+                     style="font-size:0.7rem; color:var(--text-tertiary); opacity:0.7;"),
+            style="display:flex; flex-wrap:wrap; align-items:center; gap:4px; margin-top:12px;",
+        ) if pl_dots else _ui.div()
+
+        # ── Right panel: always-visible info ─────────────────────────────────
+        def _info_block(dot_color, label, time_str, stress_val, explanation, border_color):
+            return _ui.div(
                 _ui.div(
-                    _ui.HTML('<span style="color:#16a34a; font-weight:700; margin-right:8px;">●</span>'),
-                    _ui.span(f"Gouden uur — {golden_h:02d}:00", style="font-weight:600;"),
-                    style="margin-bottom:8px;",
+                    _ui.HTML(
+                        f'<span style="display:inline-block;width:10px;height:10px;'
+                        f'border-radius:50%;background:{dot_color};margin-right:6px;'
+                        f'vertical-align:middle;flex-shrink:0;"></span>'
+                    ),
+                    _ui.span(label, style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-tertiary);"),
+                    style="display:flex; align-items:center; margin-bottom:6px;",
                 ),
-                _ui.p(
-                    f"Op {golden_h:02d}:00 is jouw gemiddelde stress het laagst: {exp_str}. "
-                    "Dit is jouw optimale moment voor ontspanning, herstel, of een kalme afspeellijst.",
-                    class_="mt-body mt-secondary",
-                    style="margin:0;",
+                _ui.div(time_str, style="font-size:1.625rem; font-weight:700; font-family:'Sora',sans-serif; line-height:1; margin-bottom:4px;"),
+                _ui.div(f"{stress_val:.0f} gem. stresspunten", style="font-size:0.8125rem; color:var(--text-secondary); margin-bottom:8px;"),
+                _ui.p(explanation, style="font-size:0.8125rem; color:var(--text-tertiary); margin:0; line-height:1.55;"),
+                style=(
+                    f"padding:16px 18px; border-radius:10px; border-left:3px solid {border_color}; "
+                    f"background:var(--bg-elevated);"
                 ),
-                class_="mt-callout",
-                style="max-width:600px; margin:16px auto 0; border-left-color:#16a34a;",
             )
-        elif clicked == "peak":
-            exp_str = f"{peak_stress:.1f} stresspunten"
-            detail_panel = _ui.div(
-                _ui.div(
-                    _ui.HTML('<span style="color:#E69F00; font-weight:700; margin-right:8px;">●</span>'),
-                    _ui.span(f"Piekstressvenster — {peak_h:02d}–{peak_h+2:02d}:00", style="font-weight:600;"),
-                    style="margin-bottom:8px;",
-                ),
-                _ui.p(
-                    f"Tussen {peak_h:02d}:00 en {peak_h+2:02d}:00 is jouw stress typisch het hoogst: {exp_str}. "
-                    "Een energieke afspeellijst kan hier bewust inspelen op je verhoogde arousal — "
-                    "of een kalme lijst kan helpen om af te schakelen.",
-                    class_="mt-body mt-secondary",
-                    style="margin:0;",
-                ),
-                class_="mt-callout",
-                style="max-width:600px; margin:16px auto 0; border-left-color:#E69F00;",
-            )
+
+        golden_explanation = (
+            f"Jouw stressniveau is hier het laagst van de dag. Ideaal voor ontspanning, "
+            f"een kalme afspeellijst, of herstel. Gekleurde stippen op de klok tonen "
+            f"wanneer je daadwerkelijk sessies had."
+        )
+        peak_explanation = (
+            f"Jouw stress piek typisch hier. Een energieke afspeellijst sluit aan op "
+            f"je verhoogde arousal — of een kalme lijst helpt af te schakelen."
+        )
+
+        dev_color  = "#22c55e" if (dev_val is not None and dev_val < -2) else \
+                     "#ef4444" if (dev_val is not None and dev_val > 2) else "var(--text-primary)"
+        dev_explanation = (
+            "Gemiddeld verschil tussen jouw stress bij aanvang van een sessie "
+            "en jouw eigen basislijn op dat uur. Positief = je zat gespannener dan normaal."
+        )
+
+        right_panel = _ui.div(
+            _ui.div("Jouw 24-uurs stressritme", class_="mt-h2", style="margin-bottom:4px;"),
+            _ui.p(
+                "De ring toont jouw stressverloop over 24 uur: groen = laag, oranje/rood = hoog. "
+                "Stippen zijn luistersessies. Groen arc = gouden uur, oranje arc = piekstressvenster.",
+                style="font-size:0.8125rem; color:var(--text-tertiary); margin-bottom:20px; line-height:1.55;",
+            ),
+            _info_block("#16a34a", "Gouden uur",
+                        f"{golden_h:02d}:00", golden_stress,
+                        golden_explanation, "#16a34a"),
+            _ui.div(style="height:10px;"),
+            _info_block("#E69F00", "Piekstress",
+                        f"{peak_h:02d}–{peak_h+2:02d}:00", peak_stress,
+                        peak_explanation, "#E69F00"),
+            _ui.div(style="height:10px;"),
+            _ui.div(
+                _ui.div("Pre-sessie afwijking", style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-tertiary); margin-bottom:6px;"),
+                _ui.div(dev_str, style=f"font-size:1.625rem; font-weight:700; font-family:'Sora',sans-serif; color:{dev_color}; line-height:1; margin-bottom:4px;"),
+                _ui.p(dev_explanation, style="font-size:0.8125rem; color:var(--text-tertiary); margin:0; line-height:1.55;"),
+                style="padding:16px 18px; border-radius:10px; background:var(--bg-elevated); border:1px solid var(--border-subtle);",
+            ),
+            style="display:flex; flex-direction:column; justify-content:flex-start;",
+        )
 
         return _ui.div(
             _ui.div(
-                "Jouw 24-uurs stressritme",
-                class_="mt-h2",
-                style="text-align:center; margin-bottom:8px;",
+                # Left: clock + legend
+                _ui.div(
+                    _ui.HTML(svg),
+                    legend,
+                    style="display:flex; flex-direction:column; align-items:center;",
+                ),
+                # Right: always-visible info
+                right_panel,
+                style=(
+                    "display:grid; grid-template-columns:380px 1fr; "
+                    "gap:40px; align-items:start;"
+                ),
             ),
-            _ui.p(
-                "Klik op het groene of oranje arc voor uitleg.",
-                class_="mt-caption mt-secondary",
-                style="text-align:center; margin-bottom:24px;",
-            ),
-            clock_section,
-            detail_panel,
             class_="mt-section-card",
             style="padding:32px 40px;",
         )

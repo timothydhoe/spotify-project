@@ -874,7 +874,7 @@ def server(input, output, session, app_data: AppData):
                         _ui.div("Random Forest (5-fold CV)", class_="mt-stat-label"),
                     ),
                     _ui.div(
-                        _ui.div(str(chance_str), style="font-family:'Sora',sans-serif; font-weight:700; font-size:2rem; color:#6b7280;"),
+                        _ui.div(str(chance_str), style="font-family:'Sora',sans-serif; font-weight:700; font-size:2rem; color:rgba(255,255,255,0.45);"),
                         _ui.div("Kansniveau (3 klassen)", class_="mt-stat-label"),
                     ),
                     style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:16px;",

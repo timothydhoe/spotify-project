@@ -398,7 +398,7 @@ def _recovery_badge(row: pd.Series) -> _ui.Tag:
     except (TypeError, ValueError):
         pass
 
-    badge_color = "#6b7280" if not r2_ok else color
+    badge_color = "rgba(255,255,255,0.45)" if not r2_ok else color
 
     # Build technical footnote as a collapsible details element
     if footnote:

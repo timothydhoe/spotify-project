@@ -108,7 +108,7 @@ def _ranked_list(recs: dict) -> _ui.Tag:
             f"background:{color}22; color:{color}; font-weight:600; font-size:12px; "
             f"border:1px solid {color}55; margin-right:8px;"
         )
-        pct_style = f"font-size:20px; font-weight:700; color:{'#6b7280' if uncertain else color};"
+        pct_style = f"font-size:20px; font-weight:700; color:{'rgba(255,255,255,0.45)' if uncertain else color};"
 
         uncertainty_note = (
             _ui.span(" ⚠ CI omvat nul", style="font-size:11px; color:#f59e0b; margin-left:6px;")

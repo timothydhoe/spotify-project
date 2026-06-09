@@ -257,13 +257,13 @@ def ui():
         # Concept explanation + data funnel — always visible
         _ui.div(
             _ui.output_ui("concept_explanation"),
-            style="padding:0 var(--page-margin) 16px;",
+            style="padding:0 var(--page-margin) 48px;",
         ),
 
         # Stat row
         _ui.div(
             _ui.output_ui("recovery_stats"),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # Per-session scatter chart
@@ -279,7 +279,7 @@ def ui():
                 _ui.output_ui("honest_framing"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # Combined group PNGs (collapsible)
@@ -297,7 +297,7 @@ def ui():
                 _ui.output_ui("group_plots"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
     )
 

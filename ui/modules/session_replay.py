@@ -467,7 +467,7 @@ def ui():
         # Sessie-samenvatting
         _ui.div(
             _ui.output_ui("session_summary"),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # Sessie-uitkomst banner

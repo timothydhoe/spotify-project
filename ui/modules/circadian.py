@@ -52,13 +52,17 @@ def _circadian_clock_svg(
     peak_stress: float | None = None,
     hb_df=None,
     sessions: list | None = None,
+    active_arc: str | None = None,
 ) -> str:
     """
     SVG 24-hour clock with:
-    - Full stress-gradient ring (heat map per hour)
+    - Full stress-gradient ring (heat map per hour, hover shows stress at that hour)
     - Golden-hour (green) and peak-stress (orange) highlight arcs
-    - Per-session dots on the outer ring (coloured by playlist, filled/hollow by mood outcome)
+    - Per-session dots on the outer ring (clickable, coloured by playlist)
     - Clock face labels: 12 (midnight/top), 3 (6h/right), 6 (noon/bottom), 9 (18h/left)
+
+    sessions: list of (hour, playlist, mood_delta, date, pre_stress, mood_before) tuples
+    active_arc: 'golden' | 'peak' | None — highlights the clicked arc
     """
     cx = cy = 180
     size = 360
@@ -76,8 +80,8 @@ def _circadian_clock_svg(
     )
 
     # ── Stress gradient ring (one arc per hour) ──────────────────────────────
+    stress_vals: dict[int, float] = {}
     if hb_df is not None and not hb_df.empty and "mean_stress" in hb_df.columns:
-        stress_vals = {}
         for _, row in hb_df.iterrows():
             stress_vals[int(row["hour"])] = float(row["mean_stress"])
         if stress_vals:
@@ -92,36 +96,89 @@ def _circadian_clock_svg(
                 p    = _arc_path(h, h + 1, r_outer, r_inner, cx, cy)
                 parts.append(f'<path d="{p}" fill="{col}"/>')
 
-    # ── Golden hour arc (1 h, bright green, on top of gradient) ─────────────
-    green_path = _arc_path(golden_hour, golden_hour + 1, r_outer, r_inner, cx, cy)
+    # ── Golden hour arc (1 h, bright green) ─────────────────────────────────
+    green_path   = _arc_path(golden_hour, golden_hour + 1, r_outer, r_inner, cx, cy)
+    green_glow   = "filter:drop-shadow(0 0 6px #16a34a);" if active_arc == "golden" else ""
+    green_stroke = f'stroke="#86efac" stroke-width="2"' if active_arc == "golden" else ""
     parts.append(
-        f'<path d="{green_path}" fill="#16a34a" opacity="0.95" style="cursor:pointer;" '
+        f'<path d="{green_path}" fill="#16a34a" opacity="0.95" '
+        f'style="cursor:pointer;{green_glow}" {green_stroke} '
         f'onclick="Shiny.setInputValue(\'circadian-clock_click\',\'golden\',{{priority:\'event\'}})"/>'
     )
 
     # ── Peak stress arc (2 h, orange) ────────────────────────────────────────
-    orange_path = _arc_path(peak_hour, peak_hour + 2, r_outer, r_inner, cx, cy)
+    orange_path   = _arc_path(peak_hour, peak_hour + 2, r_outer, r_inner, cx, cy)
+    orange_glow   = "filter:drop-shadow(0 0 6px #E69F00);" if active_arc == "peak" else ""
+    orange_stroke = f'stroke="#fbbf24" stroke-width="2"' if active_arc == "peak" else ""
     parts.append(
-        f'<path d="{orange_path}" fill="#E69F00" opacity="0.90" style="cursor:pointer;" '
+        f'<path d="{orange_path}" fill="#E69F00" opacity="0.90" '
+        f'style="cursor:pointer;{orange_glow}" {orange_stroke} '
         f'onclick="Shiny.setInputValue(\'circadian-clock_click\',\'peak\',{{priority:\'event\'}})"/>'
     )
 
+    # ── Invisible hover overlays for each hour → update centre text ──────────
+    if stress_vals:
+        for h in range(24):
+            if h not in stress_vals:
+                continue
+            sv   = stress_vals[h]
+            p_hit = _arc_path(h, h + 1, r_outer, r_inner, cx, cy)
+            t_str = f"{h:02d}:00"
+            parts.append(
+                f'<path d="{p_hit}" fill="transparent" style="cursor:default;" '
+                f'onmouseover="'
+                f'document.getElementById(\'mt-circ-t\').textContent=\'{t_str}\';'
+                f'document.getElementById(\'mt-circ-s\').textContent=\'{sv:.0f} pt\';'
+                f'document.getElementById(\'mt-circ-t\').style.fontSize=\'13px\';'
+                f'" '
+                f'onmouseout="'
+                f'document.getElementById(\'mt-circ-t\').textContent=\'24-uurs\';'
+                f'document.getElementById(\'mt-circ-s\').textContent=\'stressritme\';'
+                f'document.getElementById(\'mt-circ-t\').style.fontSize=\'11px\';'
+                f'"/>'
+            )
+
     # ── Session dots (playlist colour, filled=positive delta, hollow=negative) ─
     _PL_COLS = {"Calm": "#56B4E9", "Neutral": "#009E73", "Energy": "#E69F00"}
+    _PL_NL   = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}
     if sessions:
-        for hour, playlist, mood_delta in sessions:
-            angle = (hour / 24) * 2 * math.pi - math.pi / 2
-            dx = cx + r_dot * math.cos(angle)
-            dy = cy + r_dot * math.sin(angle)
+        for sess in sessions:
+            # Accepts (hour, playlist, mood_delta) or extended tuples/dicts
+            hour, playlist, mood_delta = sess[0], sess[1], sess[2]
+            date      = sess[3] if len(sess) > 3 else ""
+            pre_stress = sess[4] if len(sess) > 4 else 0.0
+            mood_before = sess[5] if len(sess) > 5 else ""
+
+            angle   = (float(hour) / 24) * 2 * math.pi - math.pi / 2
+            dx      = cx + r_dot * math.cos(angle)
+            dy      = cy + r_dot * math.sin(angle)
             col     = _PL_COLS.get(str(playlist).capitalize(), "#86efac")
+            pl_nl   = _PL_NL.get(str(playlist).capitalize(), playlist)
             positive = mood_delta is not None and float(mood_delta) > 0
             fill    = col if positive else "none"
-            stroke  = col
-            tip     = f"{int(hour):02d}:00 · {playlist} · delta {mood_delta:+.1f}pt" if mood_delta is not None else f"{int(hour):02d}:00 · {playlist}"
+            tip     = f"{int(float(hour)):02d}:00 · {pl_nl} · delta {mood_delta:+.1f}pt" if mood_delta is not None else f"{int(float(hour)):02d}:00 · {pl_nl}"
+
+            # Encode click payload as JS object literal (safe for SVG attributes)
+            md_js  = f"{mood_delta}" if mood_delta is not None else "null"
+            ps_js  = f"{float(pre_stress):.1f}"
+            mb_js  = str(mood_before).replace("'", "").replace('"', "")
+            dt_js  = str(date)[:10]
+            pl_js  = str(playlist).replace("'", "")
+            onclick = (
+                f"Shiny.setInputValue('circadian-clock_dot_click',"
+                f"{{date:'{dt_js}',hour:{int(float(hour))},playlist:'{pl_js}',"
+                f"mood_delta:{md_js},pre_stress:{ps_js},mood_before:'{mb_js}'}},"
+                f"{{priority:'event'}})"
+            )
             parts.append(
-                f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="5" '
-                f'fill="{fill}" stroke="{stroke}" stroke-width="2" opacity="0.85">'
-                f'<title>{tip}</title></circle>'
+                f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="6" '
+                f'fill="{fill}" stroke="{col}" stroke-width="2.5" opacity="0.9" '
+                f'style="cursor:pointer;transition:r 0.1s;" '
+                f'onmouseover="this.setAttribute(\'r\',\'9\');this.style.opacity=\'1\';" '
+                f'onmouseout="this.setAttribute(\'r\',\'6\');this.style.opacity=\'0.9\';" '
+                f'onclick="{onclick}">'
+                f'<title>{tip}</title>'
+                f'</circle>'
             )
 
     # ── Major tick marks every 6 h ───────────────────────────────────────────
@@ -173,12 +230,14 @@ def _circadian_clock_svg(
             f'fill="rgba(255,255,255,0.28)">{sub_lbl}</text>'
         )
 
-    # ── Centre: participant-facing summary ───────────────────────────────────
+    # ── Centre: participant-facing summary (IDs let hover JS update the text) ──
     parts.append(
-        f'<text x="{cx}" y="{cy - 14}" text-anchor="middle" '
-        f'font-size="11" font-family="DM Sans,sans-serif" fill="rgba(255,255,255,0.28)">24-uurs</text>'
-        f'<text x="{cx}" y="{cy + 4}" text-anchor="middle" '
-        f'font-size="11" font-family="DM Sans,sans-serif" fill="rgba(255,255,255,0.20)">stressritme</text>'
+        f'<text id="mt-circ-t" x="{cx}" y="{cy - 14}" text-anchor="middle" '
+        f'dominant-baseline="middle" font-size="11" font-family="DM Sans,sans-serif" '
+        f'fill="rgba(255,255,255,0.28)" style="pointer-events:none;transition:font-size 0.1s;">24-uurs</text>'
+        f'<text id="mt-circ-s" x="{cx}" y="{cy + 4}" text-anchor="middle" '
+        f'dominant-baseline="middle" font-size="11" font-family="DM Sans,sans-serif" '
+        f'fill="rgba(255,255,255,0.20)" style="pointer-events:none;">stressritme</text>'
     )
 
     return (
@@ -411,9 +470,10 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         p  = selected()
         hb = app_data.hourly_baselines.get(p)
         fm = app_data.feature_matrix
+        sf = pd.DataFrame()
         if fm is not None and not fm.empty and "participant" in fm.columns:
             sf = fm[fm["participant"] == p].copy()
-        else:
+        if sf.empty:
             sf_raw = app_data.session_features.get(p)
             sf = sf_raw.copy() if sf_raw is not None and not sf_raw.empty else pd.DataFrame()
         sb = app_data.session_biometrics.get(p, pd.DataFrame())
@@ -440,7 +500,28 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
     @reactive.Effect
     @reactive.event(input.clock_click)
     def _on_clock_click():
-        clock_click.set(input.clock_click())
+        cc = input.clock_click()
+        # Toggle: clicking the same arc again clears the highlight
+        clock_click.set(None if clock_click() == cc else cc)
+
+    @reactive.Effect
+    @reactive.event(input.clock_dot_click)
+    def _on_clock_dot_click():
+        cd = input.clock_dot_click()
+        if not cd:
+            selected_dot.set(None)
+            return
+        md = cd.get("mood_delta")
+        dot = {
+            "date":        str(cd.get("date", ""))[:10],
+            "hour":        int(float(cd.get("hour", 0))),
+            "delta":       f"{float(md):+.1f} pt" if md is not None else "—",
+            "mood_before": str(cd.get("mood_before", "—")),
+            "post_stress": "—",
+            "playlist":    str(cd.get("playlist", "")),
+            "pre_stress":  float(cd.get("pre_stress") or 0),
+        }
+        selected_dot.set(None if selected_dot() == dot else dot)
 
     @output
     @render.text
@@ -504,29 +585,38 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                 dev_val = dev
                 dev_str = f"+{dev:.1f} pt" if dev >= 0 else f"{dev:.1f} pt"
 
-        # Build session dot list: (hour_of_day, playlist, mood_delta)
+        # Build session dot list — 6-tuples for full click detail
         sessions = []
         if not sf.empty and "hour_of_day" in sf.columns and "playlist" in sf.columns:
             for _, row in sf.iterrows():
                 h  = row.get("hour_of_day")
                 pl = row.get("playlist", "")
                 md = row.get("mood_delta")
+                dt = str(row.get("date", ""))[:10]
+                ps = row.get("pre_stress_mean", 0.0)
+                mb = str(row.get("mood_before", "—"))
                 if h is not None:
                     try:
                         md_f = float(md) if md is not None and str(md) not in ("", "nan") else None
                     except (TypeError, ValueError):
                         md_f = None
-                    sessions.append((float(h), str(pl).capitalize(), md_f))
+                    try:
+                        ps_f = float(ps) if ps is not None and str(ps) not in ("", "nan") else 0.0
+                    except (TypeError, ValueError):
+                        ps_f = 0.0
+                    sessions.append((float(h), str(pl).capitalize(), md_f, dt, ps_f, mb))
 
         svg = _circadian_clock_svg(
             golden_h, peak_h, golden_stress, peak_stress,
             hb_df=hb, sessions=sessions,
+            active_arc=clock_click(),
         )
 
         # Session dot legend
         pl_dots = []
         seen = set()
-        for _, pl, md in sessions:
+        for sess in sessions:
+            _, pl, md = sess[0], sess[1], sess[2]
             key = (pl, md is not None and md > 0)
             if key not in seen:
                 seen.add(key)

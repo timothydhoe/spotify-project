@@ -465,11 +465,8 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
 
         def _hero_stat(value: str, label: str, color: str = "var(--text-accent)") -> _ui.Tag:
             return _ui.div(
-                _ui.div(value, style=(
-                    f"font-family:'Sora',sans-serif; font-weight:700; font-size:1.75rem; "
-                    f"color:{color}; line-height:1; letter-spacing:-0.02em;"
-                )),
-                _ui.div(label, class_="mt-stat-label", style="margin-top:4px;"),
+                _ui.div(value, class_="mt-hero-stat-value", style=f"color:{color};"),
+                _ui.div(label, class_="mt-stat-label", style="margin-top:6px; font-size:0.625rem;"),
             )
 
         n_str     = str(n_sessions) if n_sessions else "—"
@@ -478,7 +475,7 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
         delta_clr = "var(--accent)" if (avg_delta or 0) >= 0 else "var(--stress-red)"
         full_str  = str(n_full) if n_full else "—"
 
-        _sep = "width:1px; height:48px; background:rgba(255,255,255,0.10); flex-shrink:0;"
+        _sep = "width:1px; height:60px; background:rgba(255,255,255,0.10); flex-shrink:0;"
         return _ui.div(
             _ui.div(style=f"{_sep} margin-right:24px;"),
             _hero_stat(n_str, "sessies"),

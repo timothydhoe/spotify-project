@@ -6,7 +6,12 @@ import pandas as pd
 from shiny import module, reactive, render, ui as _ui
 
 from utils.chart_helpers import ACCENT, PLAYLIST_COLORS, STRESS_RED, TEXT_SECONDARY
-from utils.data_loader import AppData
+from utils.data_loader import AppData, FEATURE_LABELS
+
+
+def _fl(key: str) -> str:
+    """Translate a raw feature/test identifier to its Dutch display label."""
+    return FEATURE_LABELS.get(key, key)
 
 ROOT = Path(__file__).parent.parent.parent
 DATA = ROOT / "data"
@@ -137,11 +142,22 @@ def _model_table(results_csv: Path, target: str = "mood_delta", bootstrap_ci: di
         )
     else:
         caption = (
-            "Ridge is het meest stabiele model (R²=0.318, Bootstrap 95% CI: −0.03–0.55). "
+            "Ridge is het meest stabiele model (R²=0.318, Bootstrap 95% CI: −0.026–0.549 — CI omvat nul). "
             "Gradient Boosting overfitting-verschil = 0.71 — onbruikbaar voor generalisatie. "
+            "Ridge LOPO MAE=2.104 vs LOO MAE=1.578 (+33%); RF/GB generaliseren beter cross-participant maar zijn instabiel op LOO-niveau. "
             "Alle resultaten zijn exploratief (N=82 sessies; ~600 nodig voor statistisch bewijs)."
         )
-        lopo_note = _ui.div()
+        lopo_note = _ui.div(
+            _ui.span("⚠ LOPO-generalisatiefout (mood_delta)", style="font-weight:700; color:#f59e0b;"),
+            " — Ridge LOPO MAE=2.104 (vs LOO MAE=1.578, +33%). "
+            "Interessant: RF LOPO MAE=1.646 en GB LOPO MAE=1.671 generaliseren beter over deelnemers dan Ridge, "
+            "maar Ridge is betrouwbaarder op LOO-niveau (sessie-uit-sessie).",
+            style=(
+                "margin-top:12px; padding:12px 16px; background:rgba(245,158,11,0.08); "
+                "border:1px solid rgba(245,158,11,0.3); border-radius:8px; "
+                "font-size:0.875rem; line-height:1.6;"
+            ),
+        )
 
     return _ui.div(
         _ui.div(
@@ -164,7 +180,13 @@ def _significance_table(sig_df: pd.DataFrame, filter_p: str, only_sig: bool) -> 
 
     df = sig_df.copy()
     if "test_name" in df.columns and "test" not in df.columns:
-        df["test"] = df.get("test_category", "").astype(str) + " - " + df["test_name"].astype(str)
+        df["test"] = (
+            df["test_category"].astype(str).map(lambda x: _fl(x))
+            + " — "
+            + df["test_name"].astype(str).map(lambda x: _fl(x))
+        )
+    if "metric" in df.columns:
+        df["metric"] = df["metric"].astype(str).map(lambda x: _fl(x))
     if "significant_05" in df.columns and "significant" not in df.columns:
         df["significant"] = df["significant_05"]
     if "p_value" not in df.columns and "p-value" in df.columns:
@@ -203,6 +225,13 @@ def _significance_table(sig_df: pd.DataFrame, filter_p: str, only_sig: bool) -> 
                     pval  = float(val)
                     color = ACCENT if pval < 0.05 else TEXT_SECONDARY
                     cells.append(_ui.tags.td(f"{pval:.4f}", style=f"color:{color};"))
+                except (ValueError, TypeError):
+                    cells.append(_ui.tags.td(str(val)))
+            elif col == "q_value":
+                try:
+                    qval  = float(val)
+                    color = ACCENT if qval < 0.05 else TEXT_SECONDARY
+                    cells.append(_ui.tags.td(f"{qval:.4f}", style=f"color:{color};"))
                 except (ValueError, TypeError):
                     cells.append(_ui.tags.td(str(val)))
             elif col == "effect_size":
@@ -333,7 +362,7 @@ def ui():
                 ),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # RQ1 + RQ2 — Sessie-effecten & Statistische Significantie
@@ -370,12 +399,16 @@ def ui():
                 _ui.output_ui("sig_section"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # RQ3 — Biometrische classificatie
         _ui.div(
             _ui.div(
+                _ui.p(
+                    "Biometrie alleen is onvoldoende — context en activiteitstype zijn bepalend.",
+                    class_="mt-section-intro",
+                ),
                 _ui.div(
                     _ui.div(
                         _ui.span("RQ3", class_="rq-badge"),
@@ -392,12 +425,16 @@ def ui():
                 _ui.output_ui("rq3_section"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # RQ4a — Voorspellende modellen + uitleg
         _ui.div(
             _ui.div(
+                _ui.p(
+                    "Ridge regressie verklaart 32% van de stemmingsvariatie bij N=82 sessies.",
+                    class_="mt-section-intro",
+                ),
                 _ui.div(
                     _ui.div(
                         _ui.span("Voorspellende modellen", class_="mt-h2"),
@@ -433,15 +470,16 @@ def ui():
                     'De testset ziet nooit trainingsstatistieken — de correcte volgorde. '
                     'Kenmerken met >50% NaN per deelnemer worden uitgesloten via <code>excluded_features.json</code>.<br>'
 
-                    '<b>Ridge regressie:</b> α-gevoeligheidsanalyse op log-schaal {0.01, 0.1, 1.0, 10, 100} '
-                    'via gegeneraliseerde kruisvalidatie (GCV). Optimale α=1.0 (sklearn standaard). '
-                    'Bootstrap 95% CI (1000 hersamples op LOO-residuen): R²=[0.18, 0.44].<br>'
+                    '<b>Ridge regressie:</b> α-gevoeligheidsanalyse op log-schaal {0.01, 0.1, 1.0, 10, 100} via expliciete LOO. '
+                    'α=1.0 gebruikt in opgeslagen modelresultaten (notebook run); live inferentiemodel gebruikt α=10 '
+                    '(LOO MAE=1.550, marginaal beter dan α=1.0 MAE=1.578 per notebook gevoeligheidsanalyse). '
+                    'Bootstrap 95% CI (1000 hersamples op LOO-residuen): R²=[−0.026, 0.549] — CI omvat nul.<br>'
 
-                    '<b>Random Forest:</b> n_estimators=200, max_depth=None (onbeperkt), '
-                    'min_samples_leaf=1. Feature importance via gemiddelde impurity-afname (MDI).<br>'
+                    '<b>Random Forest:</b> n_estimators=100, max_depth=3 (beperkt tegen overfitting bij N&lt;100), '
+                    'random_state=42. Feature importance via gemiddelde impurity-afname (MDI).<br>'
 
-                    '<b>Gradient Boosting:</b> learning_rate=0.1, n_estimators=100, max_depth=3, '
-                    'subsample=1.0. Overfitting-gap=0.71 (train R²=0.82 vs LOO R²=0.11) — model ongeschikt bij N=82.<br>'
+                    '<b>Gradient Boosting:</b> learning_rate=0.1, n_estimators=50, max_depth=2, '
+                    'random_state=42. Overfitting-gap=0.71 (train R²=0.82 vs LOO R²=0.11) — model ongeschikt bij N=82.<br>'
 
                     '<b>Gemengd-effecten (LME):</b> statsmodels MixedLM met random intercept per deelnemer. '
                     'Modelleert deelnemer-specifieke basislijnen maar vereist ≥20 sessies per persoon voor stabiele random effects.'
@@ -454,11 +492,11 @@ def ui():
                 # Interpretation callout
                 _ui.div(
                     _ui.span("Hoe interpreteer je de uitkomst? ", style="font-weight:600;"),
-                    "Het model voorspelt mood_delta op een schaal van 1–10. "
+                    "Het model voorspelt stemmingsdelta op een schaal van 1–10. "
                     "R²=0.318 bij N=82 betekent dat ~32% van de stemmingsvariatie verklaard wordt door de kenmerken — "
                     "de overige 68% is onverklaarde variantie (individuele verschillen, ontbrekende context zoals sociale situatie). "
-                    "Een positieve coëfficiënt voor baseline_deviation_entry (+0.23) betekent: "
-                    "elke 10pt hogere dan-normaal stress vóór de sessie voorspelt ~2.3pt extra stemmingswinst.",
+                    f"Positieve coëfficiënten voor '{_fl('baseline_deviation_entry')}' "
+                    "betekenen: hogere dan-normaal stress vóór de sessie voorspelt meer stemmingswinst.",
                     class_="mt-callout",
                     style="margin-top:14px; margin-bottom:16px; font-size:0.875rem;",
                 ),
@@ -487,17 +525,17 @@ def ui():
                     _ui.div(
                         _ui.span("Ridge regressie", class_="mt-h3",
                                  style="margin-bottom:6px; display:block;"),
-                        _ui.span("Beste model · R²=0.318", class_="mt-badge mt-badge-calm",
+                        _ui.span("Beste model · R²=0.318 · Bootstrap CI: [−0.026, 0.549]", class_="mt-badge mt-badge-calm",
                                  style="margin-bottom:10px; display:inline-block;"),
-                        _ui.p("Lineaire regressie met L2-regularisatie (α=1.0 via cross-validatie). "
-                              "Stabiel bij kleine datasets doordat regularisatie overfitting tegengaat. "
-                              "Volledig interpreteerbaar via coëfficiënten.",
+                        _ui.p("Lineaire regressie met L2-regularisatie. "
+                              "Opgeslagen resultaten: α=1.0. Live inferentiemodel: α=10 "
+                              "(marginaal beter per LOO-gevoeligheidsanalyse in notebook 1). "
+                              "Stabiel bij kleine datasets; volledig interpreteerbaar via coëfficiënten.",
                               class_="mt-body mt-secondary", style="font-size:0.875rem; margin-bottom:8px;"),
                         _ui.p(
-                            "Sterkste voorspeller: baseline_deviation_entry — hoeveel gestresseerder "
+                            f"Sterkste voorspeller: '{_fl('baseline_deviation_entry')}' — hoeveel gestresseerder "
                             "je bent dan jouw typische stress op dat uur. "
-                            "Een coëfficiënt van +0.23 betekent: 10pt extra dan-normaal stress → "
-                            "~2.3pt extra verwachte stemmingswinst.",
+                            "Zie ridge_coefficients_mood_delta.png voor exacte coëfficiënten uit het model.",
                             class_="mt-caption mt-secondary",
                             style="font-size:0.8125rem; margin-bottom:8px; font-style:italic;",
                         ),
@@ -506,29 +544,30 @@ def ui():
                             "Aanneemt lineariteit — complexe interacties worden gemist.",
                             class_="mt-caption mt-tertiary",
                         ),
-                        class_="mt-card-elevated", style="padding:16px;",
+                        class_="mt-card-elevated", style="padding:16px; border-left:3px solid var(--accent-lime);",
                     ),
                     _ui.div(
                         _ui.span("Random Forest", class_="mt-h3",
                                  style="margin-bottom:6px; display:block;"),
                         _ui.span("R²=0.233", class_="mt-badge mt-badge-neutral",
                                  style="margin-bottom:10px; display:inline-block;"),
-                        _ui.p("Ensemble van 200 beslissingsbomen. "
-                              "Vangt niet-lineaire patronen en levert native feature importance via gemiddelde impurity-afname.",
+                        _ui.p("Ensemble van 100 beslissingsbomen (max_depth=3). "
+                              "Vangt niet-lineaire patronen en levert native feature importance via gemiddelde impurity-afname. "
+                              "Dieptebeperking (max_depth=3) verkleint overfitting bij N<100.",
                               class_="mt-body mt-secondary", style="font-size:0.875rem; margin-bottom:8px;"),
                         _ui.div(
                             _ui.span("Valkuil: ", style="font-weight:600; color:var(--text-secondary);"),
-                            "Kan overfitten bij N<100 zonder dieptebeperking.",
+                            "LOPO MAE=1.646 (beter dan Ridge=2.104 cross-participant), maar LOO R²=0.233 < Ridge R²=0.318.",
                             class_="mt-caption mt-tertiary",
                         ),
-                        class_="mt-card-elevated", style="padding:16px;",
+                        class_="mt-card-elevated", style="padding:16px; border-left:3px solid #56B4E9;",
                     ),
                     _ui.div(
                         _ui.span("Gradient Boosting", class_="mt-h3",
                                  style="margin-bottom:6px; display:block;"),
                         _ui.span("R²=0.108 · ⚠ overfit", class_="mt-badge mt-badge-energy",
                                  style="margin-bottom:10px; display:inline-block;"),
-                        _ui.p("Sequentieel ensemble (lr=0.1, 100 bomen). "
+                        _ui.p("Sequentieel ensemble (lr=0.1, 50 bomen, max_depth=2). "
                               "Sterkste op trainingsdata, maar overfitting-gap=0.71 maakt generalisatie bij N=82 onbetrouwbaar.",
                               class_="mt-body mt-secondary", style="font-size:0.875rem; margin-bottom:8px;"),
                         _ui.div(
@@ -536,7 +575,7 @@ def ui():
                             "Ongeschikt voor dit dataset; behouden als vergelijkingspunt.",
                             class_="mt-caption mt-tertiary",
                         ),
-                        class_="mt-card-elevated", style="padding:16px;",
+                        class_="mt-card-elevated", style="padding:16px; border-left:3px solid #f59e0b;",
                     ),
                     _ui.div(
                         _ui.span("Gemengd-effecten model", class_="mt-h3",
@@ -552,18 +591,22 @@ def ui():
                             "Random effects slecht geschat bij ≤20 sessies per persoon.",
                             class_="mt-caption mt-tertiary",
                         ),
-                        class_="mt-card-elevated", style="padding:16px;",
+                        class_="mt-card-elevated", style="padding:16px; border-left:3px solid #009E73;",
                     ),
                     style="display:grid; grid-template-columns:repeat(2,1fr); gap:12px;",
                 ),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # RQ4b — Welke kenmerken verklaren de uitkomst? (SHAP)
         _ui.div(
             _ui.div(
+                _ui.p(
+                    f"'{_fl('baseline_deviation_entry')}' domineert elke voorspelling.",
+                    class_="mt-section-intro",
+                ),
                 _ui.div(
                     _ui.div(
                         _ui.span("Welke kenmerken verklaren de uitkomst?", class_="mt-h2"),
@@ -576,7 +619,7 @@ def ui():
                 ),
                 _ui.output_ui("shap_subtitle"),
                 _ui.div(
-                    "baseline_deviation_entry is het sterkste kenmerk: "
+                    f"'{_fl('baseline_deviation_entry')}' is het sterkste kenmerk: "
                     "hoe gestresseerd ben jij t.o.v. jouw normaal op dit uur van de dag?",
                     class_="mt-callout",
                     style="margin-bottom:12px;",
@@ -584,7 +627,7 @@ def ui():
                 _ui.output_ui("shap_section"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # RQ4c — Bayesiaanse Aanbeveler
@@ -644,7 +687,7 @@ def ui():
                 _ui.output_ui("bayes_diagnostics_ui"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # RQ5 — Muziekclassificatie
@@ -690,15 +733,17 @@ def ui():
                                  style="margin-bottom:10px; display:inline-block; font-size:11px;"),
                         _ui.p(
                             "StandardScaler (μ=0, σ=1) op 6 audiokenmerken — GMM veronderstelt Gaussische verdeling. "
-                            "BIC-sweep k=2..10 bepaalt optimaal clusteraantal. "
-                            "k=3 geforceerd vs. BIC-optimaal vergeleken via silhouette + PCA-scatter. "
-                            "Resultaat: clusters overlappen sterk met handmatige BPM-drempelwaarden → "
-                            "bevestigt de huidige parameterisatie.",
+                            "BIC-sweep k=2..10 bepaalt optimaal clusteraantal: BIC-optimaal is k=9, "
+                            "maar silhouette bij k=9 ≈ −0.001 (clusters overlappen volledig). "
+                            "k=3 is pragmatisch gekozen voor interpreteerbaarheid, niet omdat het statistisch superieur is. "
+                            "Bevinding: muziek vormt een continu spectrum, geen harde categorieën — "
+                            "drempelwaardeclassificatie en GMM presteren vergelijkbaar bij N=82.",
                             class_="mt-body mt-secondary", style="font-size:0.875rem; margin-bottom:8px;",
                         ),
                         _ui.div(
                             _ui.span("Conclusie: ", style="font-weight:600; color:var(--text-secondary);"),
-                            "Geen productiemodel — regelgebaseerde classificatie presteert vergelijkbaar bij N=82.",
+                            "Geen productiemodel. Het audiokenmerkruimte is een spectrum — "
+                            "ongesuperviseerde clustering voegt weinig toe boven de handmatige arousal-drempelwaarden.",
                             class_="mt-caption mt-tertiary",
                         ),
                         class_="mt-card-elevated", style="padding:16px; flex:1;",
@@ -707,7 +752,7 @@ def ui():
                 ),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # Architectuurdiagram (collapsible — deep dive)
@@ -723,7 +768,7 @@ def ui():
                 _ui.output_ui("arch_section"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # Open-data-voettekst
@@ -824,7 +869,7 @@ def server(input, output, session, app_data: AppData):
         if tgt == "stress_delta":
             return _ui.div("SHAP-waarden · Ridge op stress_delta · N=82 sessies, exploratief",
                            class_="mt-caption mt-secondary", style="margin-bottom:4px;")
-        return _ui.div("SHAP-waarden · Random Forest op mood_delta · N=82 sessies, exploratief",
+        return _ui.div("SHAP-waarden · Ridge op mood_delta (beste model per LOO-MAE) · N=82 sessies, exploratief",
                        class_="mt-caption mt-secondary", style="margin-bottom:4px;")
 
     @output
@@ -887,8 +932,8 @@ def server(input, output, session, app_data: AppData):
                 _ui.div("Verwarringsmatrix — Logistische Regressie",
                         class_="mt-caption mt-secondary", style="margin-bottom:6px;"),
                 _ui.div(
-                    _ui.img(src=cm_src, style="max-width:420px; border-radius:6px;"),
-                    class_="data-terminal",
+                    _ui.img(src=cm_src, style="width:100%; max-width:640px; border-radius:8px; display:block;"),
+                    style="overflow:hidden; border-radius:8px;",
                 ),
             ))
         items.append(_ui.div(
@@ -971,7 +1016,8 @@ def server(input, output, session, app_data: AppData):
                 _ui.div(
                     _ui.img(src=shap_src, style="max-width:100%; border-radius:6px;",
                             alt="SHAP beeswarm plot — mood_delta RandomForest"),
-                    class_="data-terminal",
+                    class_="mt-chart-hero",
+                    style="margin-top:4px;",
                 ),
             ))
         else:
@@ -1011,16 +1057,16 @@ def server(input, output, session, app_data: AppData):
         if tgt == "stress_delta":
             dep_plots = [
                 ("shap_dependence_stress_delta_baseline_deviation_entry.png",
-                 "SHAP dependentie — baseline_deviation_entry (circadiane afwijking)"),
+                 f"SHAP dependentie — {_fl('baseline_deviation_entry')}"),
                 ("shap_dependence_stress_delta_avg_resp_daily.png",
-                 "SHAP dependentie — avg_resp_daily (dagelijkse ademhaling)"),
+                 f"SHAP dependentie — {_fl('avg_resp_daily')}"),
             ]
         else:
             dep_plots = [
                 ("shap_dependence_mood_delta_mood_before_score.png",
-                 "SHAP dependentie — mood_before_score (stemming voor sessie)"),
+                 f"SHAP dependentie — {_fl('mood_before_score')}"),
                 ("shap_dependence_mood_delta_dow_cos.png",
-                 "SHAP dependentie — dag van de week (cosinus)"),
+                 f"SHAP dependentie — {_fl('dow_cos')}"),
             ]
         dep_items = []
         for fname, caption in dep_plots:
@@ -1257,4 +1303,35 @@ def server(input, output, session, app_data: AppData):
                 ),
             ),
             style="padding:8px 0;",
-        )
+        ),
+
+        # Scroll-reveal: fade sections in as they enter the viewport
+        _ui.HTML("""
+<script>
+(function () {
+  'use strict';
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) {
+        e.target.classList.remove('mt-reveal');
+        e.target.classList.add('mt-revealed');
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.06 });
+  function _attach() {
+    document.querySelectorAll('.mt-section-card:not(.mt-revealed)').forEach(function (el) {
+      el.classList.add('mt-reveal');
+      obs.observe(el);
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _attach);
+  } else {
+    _attach();
+  }
+  // Re-attach when Shiny re-renders (tab switches, reactive updates)
+  document.addEventListener('shiny:value', function () { setTimeout(_attach, 80); });
+})();
+</script>
+""")

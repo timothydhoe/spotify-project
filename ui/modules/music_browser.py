@@ -144,8 +144,9 @@ def ui():
                 style="display:inline-flex; align-items:center; gap:8px; justify-content:center;",
             ),
             _ui.p(
-                "Jouw Spotify-bibliotheek door de lens van de arousal-classifier. "
-                "Kalm / Energiek / Overig — op basis van tempo, energie, loudness en acousticness.",
+                "Jouw Spotify-bibliotheek geclassificeerd via een deterministisch arousal-score model. "
+                "Kalm / Energiek / Overig — score = 35% energie + 30% tempo + 20% loudness "
+                "− 10% acousticness + 5% danceability (MinMaxScaler per deelnemer).",
                 class_="mt-body mt-secondary",
                 style="margin-top:8px; max-width:560px; margin-left:auto; margin-right:auto;",
             ),
@@ -155,13 +156,13 @@ def ui():
         # 5.2 Muziekmix-samenvatting (vervangt de collapsible clustering-sectie)
         _ui.div(
             _ui.output_ui("music_mix_summary"),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # Class distribution pills + controls
         _ui.div(
             _ui.output_ui("class_summary"),
-            style="padding:0 var(--page-margin) 16px;",
+            style="padding:0 var(--page-margin) 48px;",
         ),
 
         # Filter + sort row
@@ -363,7 +364,7 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             )
 
         # PCA scatter PNG — shown inline, no dropdown
-        pca_src = _img_b64(DATA / "analysis" / "music_unsupervised" / "pca_scatter_k3_vs_k9.png")
+        pca_src = _img_b64(DATA / "analysis" / "music_classification" / "pca_scatter_k3.png")
         pca_block = _ui.div()
         if pca_src:
             pca_block = _ui.div(
@@ -375,9 +376,10 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                     style="background:#111827; border-radius:10px; padding:16px; margin-top:20px;",
                 ),
                 _ui.p(
-                    "Elke stip is één nummer. Kleur = geclassificeerde groep. "
-                    "De overlap laat zien dat muziek een spectrum is, geen harde categorieën — "
-                    "de classifier kiest de meest passende groep.",
+                    "k=3 clustering op alle nummers (PCA-projectie). "
+                    "Elke stip is één nummer. Kleur = GMM-cluster. "
+                    "De overlap laat zien dat muziek een continu spectrum is — "
+                    "de arousal-classifier kiest de meest passende groep.",
                     class_="mt-caption mt-secondary",
                     style="margin-top:10px; text-align:center;",
                 ),
@@ -392,9 +394,9 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                 style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;",
             ),
             _ui.p(
-                "De classifier groepeert jouw nummers op basis van tempo (BPM), energie en geluidsniveau. "
-                "Kalme nummers passen het best bij de afspeellijsten voor ontspanning. "
-                "Energieke nummers worden ingezet bij de energiesessies.",
+                "Arousal-score per nummer: 35% energie + 30% tempo + 20% loudness − 10% acousticness + 5% danceability "
+                "(genormaliseerd op jouw bibliotheekreeks). "
+                "Score < 0.35 (én valence ≥ 0.25) → Kalm. Score > 0.65 → Energiek. Tussenin → Overig.",
                 class_="mt-body mt-secondary",
                 style="margin:0;",
             ),

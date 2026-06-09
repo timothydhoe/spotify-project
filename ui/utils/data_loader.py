@@ -30,7 +30,7 @@ class AppData:
     hourly_baselines:  dict = field(default_factory=dict)   # p → DataFrame (hourly_baseline.csv)
     garmin_minute:     dict = field(default_factory=dict)   # p → DataFrame (timestamp, stress, body_battery, heart_rate)
 
-    # Music classification (supervised, per participant)
+    # Music classification (threshold-based arousal score, per participant — notebook 3)
     classified_songs:  dict = field(default_factory=dict)   # p → DataFrame (classified_songs.csv)
     has_classified:    dict = field(default_factory=dict)   # p → bool
 
@@ -110,7 +110,7 @@ def load_app_data() -> AppData:
         d.session_traces[p] = traces
         d.has_traces[p] = len(traces) > 0
 
-        # music classification (supervised)
+        # music classification (threshold-based arousal score from notebook 3)
         cs = _read_csv(DATA / "analysis" / p / "classified_songs.csv")
         d.classified_songs[p] = cs
         d.has_classified[p] = not cs.empty
@@ -349,15 +349,18 @@ def live_recommend(
     return best, results
 
 
-_FEATURE_NAMES_NL = {
-    "baseline_deviation_entry": "Stressafwijking van basislijn",
-    "hr_baseline_deviation":    "HRafwijking van basislijn",
+# Public label map — used by model.py, recommendation.py, and any other UI module
+# that needs to translate raw Python identifiers to Dutch display strings.
+FEATURE_LABELS: dict[str, str] = {
+    # ── ML feature names ─────────────────────────────────────────────────────
+    "baseline_deviation_entry": "Stressafwijking t.o.v. basislijn",
+    "hr_baseline_deviation":    "HF-afwijking t.o.v. basislijn",
     "playlist_calm":            "Afspeellijst: Kalm",
     "playlist_energy":          "Afspeellijst: Energiek",
-    "mood_before_score":        "Stemming voor (score)",
-    "bb_start":                 "Body Battery",
-    "days_since_last_session":  "Dagen sinds laatste sessie",
-    "pre_state_encoded":        "Activiteitsniveau",
+    "mood_before_score":        "Stemming voor sessie",
+    "bb_start":                 "Body Battery bij start",
+    "days_since_last_session":  "Dagen sinds vorige sessie",
+    "pre_state_encoded":        "Activiteitsniveau vooraf",
     "avg_resp_daily":           "Ademhaling (daggemiddelde)",
     "session_number":           "Sessienummer",
     "hour_sin":                 "Uur (sinus)",
@@ -366,7 +369,40 @@ _FEATURE_NAMES_NL = {
     "dow_cos":                  "Weekdag (cosinus)",
     "calm_x_dev":               "Kalm × stressafwijking",
     "energy_x_dev":             "Energiek × stressafwijking",
+    # ── Significance table: metric column ────────────────────────────────────
+    "stress":                   "Stress",
+    "stress_deviation":         "Stressafwijking",
+    "hr":                       "Hartslag",
+    "hr_deviation":             "HF-afwijking",
+    "hrv":                      "HRV",
+    "respiration":              "Ademhaling",
+    "mood":                     "Stemming",
+    # ── Significance table: test_category column ─────────────────────────────
+    "immediate_all":                    "Direct effect (alle)",
+    "immediate_by_playlist":            "Direct effect (per afspeellijst)",
+    "immediate_by_playlist_activity":   "Direct effect (afspeellijst × activiteit)",
+    "long_term_trend":                  "Langetermijntrend",
+    "mood_by_playlist":                 "Stemming per afspeellijst",
+    # ── Significance table: test_name column ─────────────────────────────────
+    "pre_vs_during":                    "Voor vs. tijdens",
+    "pre_vs_post":                      "Voor vs. na",
+    "trend_over_sessions":              "Trend over sessies",
+    "pre_vs_during_Calm":               "Voor vs. tijdens (Kalm)",
+    "pre_vs_during_Energy":             "Voor vs. tijdens (Energiek)",
+    "pre_vs_during_Neutral":            "Voor vs. tijdens (Neutraal)",
+    "pre_vs_post_Calm":                 "Voor vs. na (Kalm)",
+    "pre_vs_post_Energy":               "Voor vs. na (Energiek)",
+    "pre_vs_post_Neutral":              "Voor vs. na (Neutraal)",
+    "pre_vs_during_Calm_Rest":          "Voor vs. tijdens (Kalm, rust)",
+    "pre_vs_during_Energy_Rest":        "Voor vs. tijdens (Energiek, rust)",
+    "pre_vs_post_Calm_Rest":            "Voor vs. na (Kalm, rust)",
+    "pre_vs_post_Energy_Rest":          "Voor vs. na (Energiek, rust)",
+    "mood_delta_Calm":                  "Stemmingsdelta (Kalm)",
+    "mood_delta_Energy":                "Stemmingsdelta (Energiek)",
+    "mood_delta_Neutral":               "Stemmingsdelta (Neutraal)",
 }
+
+_FEATURE_NAMES_NL = FEATURE_LABELS  # backward-compat alias
 
 
 def explain_live_prediction(

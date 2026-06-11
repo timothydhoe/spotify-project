@@ -486,7 +486,17 @@ def export_baselines(
         baseline.to_csv(participant_dir / "hourly_baseline.csv", index=False)
 
     feature_matrix, excluded_features = build_feature_matrix(participants, data_dir, analysis_dir)
-    feature_matrix.to_csv(combined_dir / "feature_matrix.csv", index=False)
+
+    # Upsert: merge with the existing combined file so re-running for one
+    # participant does not erase the others' rows.
+    combined_path = combined_dir / "feature_matrix.csv"
+    if combined_path.exists():
+        existing = pd.read_csv(combined_path)
+        if "participant" in existing.columns:
+            existing = existing[~existing["participant"].isin(participants)]
+            feature_matrix = pd.concat([existing, feature_matrix], ignore_index=True)
+
+    feature_matrix.to_csv(combined_path, index=False)
 
     # Save exclusion metadata for downstream code (ML, significance tests)
     with open(combined_dir / "excluded_features.json", "w") as f:

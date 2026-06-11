@@ -3,27 +3,284 @@ from pathlib import Path
 
 from shiny import App, reactive, render, ui
 
-from modules import circadian, home, model, music_browser, pipeline, recommendation, recovery, results, science, session_replay
+from modules import (
+    circadian, home, model, music_browser, pipeline,
+    recommendation, recovery, results, science, session_replay,
+)
 from utils.data_loader import APP_DATA, PARTICIPANTS
 
-_DATA_LEVEL = {
-    "bosbes":      ("vol",          "Volledige biometrische data"),
-    "kokosnoot":   ("vol",          "Volledige biometrische data"),
-    "limoen":      ("gedeeltelijk", "Gedeeltelijke data (geen stresssensor)"),
-    "peer":        ("gedeeltelijk", "Gedeeltelijke data (geen biometrie)"),
-    "kiwi":        ("geen",         "Alleen stemming-check-ins"),
-    "watermeloen": ("geen",         "Alleen stemming-check-ins"),
+_FRUIT_EMOJI = {
+    "bosbes":      "🫐",
+    "kokosnoot":   "🥥",
+    "limoen":      "🍋",
+    "peer":        "🍐",
+    "kiwi":        "🥝",
+    "watermeloen": "🍉",
 }
+
+# Data-availability tooltip text per participant
+_DATA_LEVEL_TIP = {
+    "bosbes":      "Volledige biometrische data",
+    "kokosnoot":   "Volledige biometrische data",
+    "limoen":      "Gedeeltelijke data (geen stresssensor)",
+    "peer":        "Gedeeltelijke data (geen biometrie)",
+    "kiwi":        "Alleen stemming-check-ins",
+    "watermeloen": "Alleen stemming-check-ins",
+}
+
+
+# ---------------------------------------------------------------------------
+# Custom navbar
+# ---------------------------------------------------------------------------
+
+def _build_navbar() -> ui.Tag:
+    """
+    Three-column CSS-grid navbar:
+      Left  — logo (links to Home tab)
+      Center — Profiel analyse ▾  |  Muziekadvies  |  Hoe het werkt ▾
+      Right  — Deelnemer: <select>  + hamburger (mobile)
+    """
+
+    def _dropdown_link(label: str, section: str, sub: str) -> ui.Tag:
+        return ui.tags.a(
+            label,
+            href="#",
+            onclick=f"mtNavTo('{section}','{sub}'); return false;",
+        )
+
+    # Participant <select> options (reused for desktop + mobile)
+    def _participant_opts(select_id: str, extra_style: str = "") -> ui.Tag:
+        opts = [
+            ui.tags.option(
+                f"{_FRUIT_EMOJI[p]} {p.capitalize()}",
+                value=p,
+                selected=(p == "bosbes"),
+                title=_DATA_LEVEL_TIP.get(p, ""),
+            )
+            for p in PARTICIPANTS
+        ]
+        return ui.tags.select(
+            *opts,
+            id=select_id,
+            class_="mt-nav-participant-select",
+            style=extra_style,
+            onchange=(
+                "mtSelectParticipant(this.value);"
+                # Keep desktop + mobile selects in sync
+                + ("document.getElementById('mt-p-desktop').value=this.value;" if "mobile" in select_id else
+                   "document.getElementById('mt-p-mobile').value=this.value;")
+            ),
+        )
+
+    inline_js = ui.tags.script(src="js/main.js?v=2")
+
+    return ui.tags.div(
+        # ── Navbar strip ──────────────────────────────────────────────────────
+        ui.tags.nav(
+            # Left: logo / home
+            ui.tags.button(
+                ui.tags.img(
+                    src="logo/MoodTune-logo.svg",
+                    alt="MoodTune",
+                    class_="mt-navbar-logo-img",
+                ),
+                ui.tags.span("MoodTune"),
+                class_="mt-navbar-brand",
+                type="button",
+                onclick="mtNavTo('home')",
+                **{"aria-label": "Ga naar home"},
+            ),
+
+            # Center: navigation
+            ui.tags.div(
+                # Profiel analyse ▾
+                ui.tags.div(
+                    ui.tags.button(
+                        "Profiel analyse",
+                        ui.tags.span("▾", class_="mt-nav-chevron"),
+                        class_="mt-nav-trigger",
+                        type="button",
+                        onclick="mtToggleDropdown(this)",
+                        **{"data-section": "profiel", "aria-haspopup": "true",
+                           "aria-expanded": "false"},
+                    ),
+                    ui.tags.div(
+                        _dropdown_link("Circadiaans ritme", "profiel", "Circadiaans ritme"),
+                        _dropdown_link("Sessie-replay",     "profiel", "Sessie-replay"),
+                        _dropdown_link("Sessie-inzichten",  "profiel", "Sessie-inzichten"),
+                        _dropdown_link("Jouw Muziek",       "profiel", "Jouw Muziek"),
+                        class_="mt-nav-dropdown-menu",
+                        role="menu",
+                    ),
+                    class_="mt-nav-item mt-nav-dropdown",
+                ),
+
+                # Muziekadvies (standalone)
+                ui.tags.button(
+                    "Muziekadvies",
+                    class_="mt-nav-trigger",
+                    type="button",
+                    onclick="mtNavTo('aanbevelingen')",
+                    **{"data-section": "aanbevelingen"},
+                ),
+
+                # Hoe het werkt ▾
+                ui.tags.div(
+                    ui.tags.button(
+                        "Hoe het werkt",
+                        ui.tags.span("▾", class_="mt-nav-chevron"),
+                        class_="mt-nav-trigger",
+                        type="button",
+                        onclick="mtToggleDropdown(this)",
+                        **{"data-section": "achtergrond", "aria-haspopup": "true",
+                           "aria-expanded": "false"},
+                    ),
+                    ui.tags.div(
+                        _dropdown_link("Wetenschap",   "achtergrond", "Wetenschap"),
+                        _dropdown_link("Model & Data", "achtergrond", "Model & Data"),
+                        _dropdown_link("Pipeline",     "achtergrond", "Pipeline"),
+                        class_="mt-nav-dropdown-menu",
+                        role="menu",
+                    ),
+                    class_="mt-nav-item mt-nav-dropdown",
+                ),
+
+                class_="mt-navbar-center",
+            ),
+
+            # Right: participant selector + hamburger
+            ui.tags.div(
+                _participant_opts("mt-p-desktop"),
+                ui.tags.button(
+                    ui.tags.span("☰", class_="mt-hamburger-icon"),
+                    class_="mt-hamburger",
+                    id="mt-hamburger-btn",
+                    type="button",
+                    onclick="mtToggleMobileMenu()",
+                    **{"aria-label": "Menu openen", "aria-expanded": "false",
+                       "aria-controls": "mt-mobile-menu"},
+                ),
+                class_="mt-navbar-right",
+            ),
+
+            # Sub-nav second row (hidden by default; JS shows it when in profiel/achtergrond)
+            ui.tags.div(
+                ui.tags.div(
+                    ui.tags.button("Circadiaans ritme", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Circadiaans ritme"},
+                                   onclick="mtNavTo('profiel','Circadiaans ritme')"),
+                    ui.tags.button("Sessie-replay", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Sessie-replay"},
+                                   onclick="mtNavTo('profiel','Sessie-replay')"),
+                    ui.tags.button("Sessie-inzichten", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Sessie-inzichten"},
+                                   onclick="mtNavTo('profiel','Sessie-inzichten')"),
+                    ui.tags.button("Jouw Muziek", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Jouw Muziek"},
+                                   onclick="mtNavTo('profiel','Jouw Muziek')"),
+                    class_="mt-subnav-group",
+                    **{"data-section": "profiel"},
+                ),
+                ui.tags.div(
+                    ui.tags.button("Wetenschap", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Wetenschap"},
+                                   onclick="mtNavTo('achtergrond','Wetenschap')"),
+                    ui.tags.button("Model & Data", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Model & Data"},
+                                   onclick="mtNavTo('achtergrond','Model & Data')"),
+                    ui.tags.button("Pipeline", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Pipeline"},
+                                   onclick="mtNavTo('achtergrond','Pipeline')"),
+                    class_="mt-subnav-group",
+                    **{"data-section": "achtergrond"},
+                ),
+                class_="mt-navbar-subnav",
+                id="mt-subnav",
+            ),
+
+            class_="mt-navbar",
+            id="mt-custom-navbar",
+            **{"aria-label": "Hoofdnavigatie"},
+        ),
+
+        # ── Mobile full-screen menu ────────────────────────────────────────
+        ui.tags.div(
+            ui.tags.div("Jouw profiel", class_="mt-mobile-section-header"),
+            *[
+                ui.tags.a(
+                    lbl, href="#", class_="mt-mobile-link",
+                    onclick=f"mtNavTo('profiel','{lbl}'); mtCloseMobileMenu(); return false;",
+                )
+                for lbl in [
+                    "Circadiaans ritme", "Sessie-replay",
+                    "Sessie-inzichten", "Jouw Muziek",
+                ]
+            ],
+            ui.tags.hr(class_="mt-mobile-divider"),
+            ui.tags.a(
+                "Muziekadvies", href="#", class_="mt-mobile-link",
+                onclick="mtNavTo('aanbevelingen'); mtCloseMobileMenu(); return false;",
+            ),
+            ui.tags.hr(class_="mt-mobile-divider"),
+            ui.tags.div("Hoe het werkt", class_="mt-mobile-section-header"),
+            *[
+                ui.tags.a(
+                    lbl, href="#", class_="mt-mobile-link",
+                    onclick=f"mtNavTo('achtergrond','{lbl}'); mtCloseMobileMenu(); return false;",
+                )
+                for lbl in ["Wetenschap", "Model & Data", "Pipeline"]
+            ],
+            ui.tags.hr(class_="mt-mobile-divider"),
+            ui.tags.div(
+                _participant_opts("mt-p-mobile", extra_style="width:100%;"),
+                class_="mt-mobile-participant-row",
+            ),
+            class_="mt-mobile-menu",
+            id="mt-mobile-menu",
+            role="dialog",
+            **{"aria-label": "Mobiel menu"},
+        ),
+
+        # Inline JS (once, outside the nav element)
+        inline_js,
+    )
+
+
+# ---------------------------------------------------------------------------
+# App UI
+# ---------------------------------------------------------------------------
 
 app_ui = ui.page_navbar(
     ui.nav_panel("Home", home.ui("home")),
     ui.nav_panel("Jouw Profiel",
         ui.navset_pill(
-            ui.nav_panel("Resultaten",        results.ui("results")),
-            ui.nav_panel("Sessie-replay",     session_replay.ui("replay")),
             ui.nav_panel("Circadiaans ritme", circadian.ui("circadian")),
-            ui.nav_panel("Herstelanalyse",    recovery.ui("recovery")),
+            ui.nav_panel("Sessie-replay",     session_replay.ui("replay")),
+            ui.nav_panel("Sessie-inzichten",
+                ui.div(
+                    results.ui("results"),
+                    # Divider + anchor so users can jump straight to Herstelanalyse
+                    ui.tags.div(
+                        ui.tags.a(
+                            "↓ Herstelanalyse",
+                            href="#mt-recovery-anchor",
+                            style=(
+                                "font-size:0.75rem; color:var(--text-tertiary); "
+                                "text-decoration:none; float:right; margin-right:var(--page-margin); "
+                                "margin-top:-8px; padding:4px 0;"
+                            ),
+                        ),
+                        ui.tags.hr(style=(
+                            "border:none; border-top:1px solid var(--border-subtle); "
+                            "margin:0 var(--page-margin) 0; clear:both;"
+                        )),
+                        ui.tags.a(id="mt-recovery-anchor"),
+                    ),
+                    recovery.ui("recovery"),
+                ),
+            ),
             ui.nav_panel("Jouw Muziek",       music_browser.ui("music")),
+            id="profiel_pills",
         ),
     ),
     ui.nav_panel("Aanbevelingen", recommendation.ui("rec")),
@@ -32,110 +289,226 @@ app_ui = ui.page_navbar(
             ui.nav_panel("Wetenschap",   science.ui("science")),
             ui.nav_panel("Model & Data", model.ui("model")),
             ui.nav_panel("Pipeline",     pipeline.ui("pipeline")),
+            id="achtergrond_pills",
         ),
     ),
-    title="MoodTune",
+    id="main_nav",
+    title=ui.span(),           # Custom navbar provides the brand
     header=ui.div(
         ui.tags.head(
-            ui.tags.link(rel="icon", type="image/svg+xml", href="favicon.svg"),
-            ui.tags.link(rel="stylesheet", href="styles.css"),
+            ui.tags.link(rel="icon", type="image/png", href="favicon.png?v=2"),
+            ui.tags.link(rel="stylesheet", href="css/styles.css"),
             ui.busy_indicators.use(spinners=True, pulse=True),
         ),
-        ui.output_ui("global_participant_bar"),
+        _build_navbar(),
     ),
     footer=ui.div(
         ui.div(
-            ui.div(
-                ui.div(class_="now-playing-art"),
-                ui.div(
-                    ui.output_ui("now_playing_title"),
-                    ui.div("MoodTune", class_="now-playing-artist"),
-                    style="min-width: 0;",
-                ),
-                class_="now-playing-track",
-            ),
-            ui.div(
-                ui.div("- -", class_="now-playing-empty"),
-                class_="now-playing-controls",
-            ),
-            ui.div(),
+            ui.output_ui("now_playing_title"),
             class_="now-playing-bar",
         ),
     ),
 )
 
 
+# ---------------------------------------------------------------------------
+# Server
+# ---------------------------------------------------------------------------
+
 def server(input, output, session):
     selected_participant = reactive.Value("bosbes")
     now_playing          = reactive.Value(None)
 
-    for _p in PARTICIPANTS:
-        def _make_obs(participant=_p):
-            @reactive.Effect
-            @reactive.event(input[f"g_pill_{participant}"])
-            def _():
-                selected_participant.set(participant)
-        _make_obs()
+    # ── Custom navbar: section + sub-page navigation ──────────────────────
+    @reactive.Effect
+    @reactive.event(input.mt_nav_goto)
+    def _handle_nav():
+        nav = input.mt_nav_goto()
+        if not nav or not isinstance(nav, dict):
+            return
+        section = nav.get("section")
+        sub     = nav.get("sub")
 
-    @output
-    @render.ui
-    def global_participant_bar():
-        curr = selected_participant()
-        _dot = {"vol": "●", "gedeeltelijk": "◑", "geen": "○"}
-        pills = []
-        for p in PARTICIPANTS:
-            lvl, tip = _DATA_LEVEL.get(p, ("geen", ""))
-            cls = "pill-btn pill-btn-sm" + (" active" if p == curr else "")
-            pills.append(
-                ui.input_action_button(f"g_pill_{p}", f"{p.capitalize()} {_dot[lvl]}",
-                                       class_=cls, title=tip)
-            )
-        return ui.div(
-            ui.span("Deelnemer:",
-                    style="font-size:11px; font-weight:500; color:var(--text-secondary); "
-                          "text-transform:uppercase; letter-spacing:0.08em; margin-right:4px; white-space:nowrap;"),
-            *pills,
-            ui.HTML(
-                '<span style="font-size:10px; color:var(--text-tertiary); margin-left:4px; white-space:nowrap;">'
-                "● vol &nbsp;◑ gedeeltelijk &nbsp;○ geen biometrie"
-                ' &nbsp;<span title="'
-                "● Vol — volledige Garmin biometrie (stress + hartslag per minuut)&#10;"
-                "◑ Gedeeltelijk — gedeeltelijke data (ontbrekende sensor of beperkte export)&#10;"
-                "○ Geen — alleen stemming-check-ins, geen wearable"
-                '" style="cursor:help; font-style:normal;">ⓘ</span>'
-                "</span>"
-            ),
-            style="display:flex; flex-wrap:wrap; align-items:center; gap:6px; "
-                  "padding:8px var(--page-margin, 80px); "
-                  "border-bottom:1px solid var(--border-default);",
-        )
+        _SECTION_TO_TAB = {
+            "home":          "Home",
+            "profiel":       "Jouw Profiel",
+            "aanbevelingen": "Aanbevelingen",
+            "achtergrond":   "Achtergrond",
+        }
+        tab_name = _SECTION_TO_TAB.get(section)
+        if tab_name:
+            ui.update_navset("main_nav", selected=tab_name, session=session)
+        if sub:
+            if section == "profiel":
+                if sub in ("Resultaten", "Herstelanalyse"):
+                    ui.update_navset("profiel_pills", selected="Sessie-inzichten", session=session)
+                else:
+                    ui.update_navset("profiel_pills", selected=sub, session=session)
+            elif section == "achtergrond":
+                ui.update_navset("achtergrond_pills", selected=sub, session=session)
 
-    home.server("home",       app_data=APP_DATA, now_playing=now_playing,
-                              selected_participant=selected_participant)
+    # ── Custom navbar: participant selector ───────────────────────────────
+    @reactive.Effect
+    @reactive.event(input.mt_participant_nav)
+    def _handle_participant():
+        p = input.mt_participant_nav()
+        if p and p in PARTICIPANTS:
+            selected_participant.set(p)
+
+    # ── Module servers ─────────────────────────────────────────────────────
+    home.server("home",         app_data=APP_DATA, now_playing=now_playing,
+                                selected_participant=selected_participant)
     science.server("science")
-    pipeline.server("pipeline",   app_data=APP_DATA)
-    circadian.server("circadian", app_data=APP_DATA, selected_participant=selected_participant)
-    recommendation.server("rec",  app_data=APP_DATA, selected_participant=selected_participant)
+    pipeline.server("pipeline",     app_data=APP_DATA)
+    circadian.server("circadian",   app_data=APP_DATA, selected_participant=selected_participant)
+    recommendation.server("rec",    app_data=APP_DATA, selected_participant=selected_participant)
     session_replay.server("replay", app_data=APP_DATA, selected_participant=selected_participant)
-    results.server("results",   app_data=APP_DATA, selected_participant=selected_participant)
-    model.server("model",       app_data=APP_DATA)
-    recovery.server("recovery", app_data=APP_DATA, selected_participant=selected_participant)
-    music_browser.server("music", app_data=APP_DATA, selected_participant=selected_participant)
+    results.server("results",       app_data=APP_DATA, selected_participant=selected_participant)
+    model.server("model",           app_data=APP_DATA)
+    recovery.server("recovery",     app_data=APP_DATA, selected_participant=selected_participant)
+    music_browser.server("music",   app_data=APP_DATA, selected_participant=selected_participant)
 
+    # ── Now-playing bar ────────────────────────────────────────────────────
     @output
     @render.ui
     def now_playing_title():
+        import pandas as pd
         state = now_playing()
         if state is None:
-            return ui.div("Selecteer een afspeellijst", class_="now-playing-title")
+            p        = selected_participant()
+            emoji    = _FRUIT_EMOJI.get(p, "🎵")
+            data_tip = _DATA_LEVEL_TIP.get(p, "")
+            return ui.TagList(
+                ui.HTML('<script>(function(){ var b = document.querySelector(".now-playing-bar"); if(b) b.removeAttribute("data-playlist"); })();</script>'),
+                ui.div(
+                    ui.div(
+                        style="width:44px; height:44px; border-radius:6px; flex-shrink:0; "
+                              "background:var(--bg-card); border:1px solid var(--border-subtle);",
+                    ),
+                    ui.HTML('<div class="now-playing-wave"><span></span><span></span><span></span></div>'),
+                    ui.div(
+                        ui.div("PROJECT R.E.M. · MoodTune", class_="now-playing-title"),
+                        ui.div(
+                            "Muziek als hulpmiddel voor stressregulatie",
+                            class_="now-playing-artist",
+                        ),
+                        class_="mt-track-meta",
+                    ),
+                    class_="now-playing-track",
+                ),
+                # Center: quick nav links
+                ui.div(
+                    ui.tags.a(
+                        "Wetenschap",
+                        href="#",
+                        class_="mt-footer-link",
+                        onclick="mtNavTo('achtergrond','Wetenschap'); return false;",
+                    ),
+                    ui.tags.span("·", style="color:var(--border-default);"),
+                    ui.tags.a(
+                        "Model & Data",
+                        href="#",
+                        class_="mt-footer-link",
+                        onclick="mtNavTo('achtergrond','Model & Data'); return false;",
+                    ),
+                    ui.tags.span("·", style="color:var(--border-default);"),
+                    ui.tags.a(
+                        "Pipeline",
+                        href="#",
+                        class_="mt-footer-link",
+                        onclick="mtNavTo('achtergrond','Pipeline'); return false;",
+                    ),
+                    class_="mt-now-playing-center",
+                ),
+                ui.div(
+                    ui.div(
+                        ui.span(
+                            f"{emoji} {p.capitalize()}",
+                            style="font-weight:600; color:var(--text-primary); margin-right:8px;",
+                        ),
+                        ui.span(data_tip, style="font-size:var(--font-size-xs); color:var(--text-tertiary);"),
+                        style="margin-bottom:2px;",
+                    ),
+                    ui.div(
+                        ui.tags.span(
+                            "Geanonimiseerde data · ",
+                            style="font-size:var(--font-size-xs); color:var(--text-tertiary);",
+                        ),
+                        ui.tags.a(
+                            "rem.studie@gmail.com",
+                            href="mailto:rem.studie@gmail.com",
+                            class_="mt-footer-link",
+                        ),
+                    ),
+                    class_="mt-now-playing-end",
+                ),
+            )
+
+        pl_type    = state["playlist_type"]
+        pl_lower   = pl_type.lower()
         playlist_nl = {
             "Calm":    "Kalme afspeellijst",
             "Neutral": "Neutrale afspeellijst",
             "Energy":  "Energieke afspeellijst",
-        }.get(state["playlist_type"], state["playlist_type"])
-        return ui.div(
-            f"{playlist_nl} — {state['participant'].capitalize()}",
-            class_="now-playing-title",
+        }.get(pl_type, pl_type)
+
+        _COVER_GRAD = {
+            "Calm":    "linear-gradient(135deg, #1a2a4a, #0a1525)",
+            "Neutral": "linear-gradient(135deg, #2a1a4a, #160a2f)",
+            "Energy":  "linear-gradient(135deg, #4a2a1a, #2f1508)",
+        }
+        _PL_COLORS = {"calm": "var(--calm-color)", "neutral": "var(--neutral-color)", "energy": "var(--energy-color)"}
+
+        df = state.get("df")
+        if df is not None and not df.empty:
+            n_tracks = len(df)
+            try:
+                total_min = int(pd.to_numeric(df["duration_ms"], errors="coerce").sum() / 60000)
+                meta_str  = f"{n_tracks} nrs · {total_min} min"
+            except Exception:
+                meta_str  = f"{n_tracks} nrs"
+        else:
+            meta_str = ""
+
+        pl_color = _PL_COLORS.get(pl_lower, "var(--accent)")
+
+        js_attr = ui.HTML(
+            f'<script>(function(){{ var b = document.querySelector(".now-playing-bar"); '
+            f'if(b) b.setAttribute("data-playlist", "{pl_lower}"); }})();</script>'
+        )
+
+        return ui.TagList(
+            js_attr,
+            ui.div(
+                ui.span(
+                    "🎵",
+                    class_="mt-now-playing-cover",
+                    style=f"background:{_COVER_GRAD.get(pl_type, _COVER_GRAD['Calm'])};",
+                ),
+                ui.HTML('<div class="now-playing-wave"><span></span><span></span><span></span></div>'),
+                ui.div(
+                    ui.div(
+                        ui.span(playlist_nl, class_="now-playing-title",
+                                style=f"color:{pl_color}; font-weight:600;"),
+                    ),
+                    ui.div(
+                        f"{_FRUIT_EMOJI.get(state['participant'], '')} "
+                        f"{state['participant'].capitalize()}"
+                        + (f"  ·  {meta_str}" if meta_str else ""),
+                        class_="now-playing-artist",
+                    ),
+                    class_="mt-track-meta",
+                ),
+                class_="now-playing-track",
+            ),
+            ui.div(
+                ui.span(
+                    f"{_FRUIT_EMOJI.get(state['participant'], '')} "
+                    f"{state['participant'].capitalize()}",
+                    style="font-size:var(--font-size-sm); color:var(--text-secondary);",
+                ),
+                class_="mt-now-playing-end",
+            ),
         )
 
 

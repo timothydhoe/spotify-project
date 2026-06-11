@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 from shiny import module, reactive, render, ui as _ui
 from shinywidgets import output_widget, render_widget
 
-from utils.chart_helpers import ACCENT, GRID_COLOR, PLAYLIST_COLORS, STRESS_RED, TEXT_SECONDARY, dark_layout, empty_figure
+from utils.chart_helpers import ACCENT, AXIS_DEFAULTS, GRID_COLOR, PLAYLIST_COLORS, STRESS_RED, TEXT_SECONDARY, chart_layout, empty_figure
 from utils.data_loader import PARTICIPANTS, AppData
 from utils.mood_valence import mood_is_improvement
 
@@ -74,7 +74,12 @@ _ISO_FASE_FILLS  = [
 ]
 
 
-def _biometric_chart(trace_df: pd.DataFrame, playlist: str) -> go.Figure:
+def _biometric_chart(
+    trace_df: pd.DataFrame, playlist: str,
+    baseline_stress: float | None = None,
+    baseline_std: float | None = None,
+    session_hour: int | None = None,
+) -> go.Figure:
     if trace_df.empty or "minutes_relative" not in trace_df.columns:
         return empty_figure(
             "Geen per-minuut trace beschikbaar — "
@@ -82,17 +87,38 @@ def _biometric_chart(trace_df: pd.DataFrame, playlist: str) -> go.Figure:
         )
 
     color = PLAYLIST_COLORS.get(playlist, ACCENT)
-    t = trace_df["minutes_relative"]
+    t     = trace_df["minutes_relative"]
 
     fig = go.Figure()
 
+    # Baseline stress band (2.4) — drawn first so it appears behind the data
+    if baseline_stress is not None and baseline_std is not None:
+        fig.add_hrect(
+            y0=max(0, baseline_stress - baseline_std),
+            y1=min(100, baseline_stress + baseline_std),
+            fillcolor="rgba(34,197,94,0.06)", line_width=0,
+        )
+        hour_label = f" {session_hour:02d}:00" if session_hour is not None else ""
+        fig.add_hline(
+            y=baseline_stress,
+            line_dash="dot",
+            line_color="rgba(34,197,94,0.45)",
+            line_width=1.5,
+            annotation_text=f"Jouw basislijn{hour_label} ({baseline_stress:.0f} pt)",
+            annotation_position="top right",
+            annotation_font_size=10,
+            annotation_font_color="rgba(34,197,94,0.8)",
+        )
+
     # Tijdens-sessie: ISO fase-overlay (4 gelijke segmenten)
+    during_end = None
     if "phase" in trace_df.columns:
         during = trace_df[trace_df["phase"] == "during"]
         if not during.empty:
             t0  = float(during["minutes_relative"].min())
             t1  = float(during["minutes_relative"].max())
             dur = t1 - t0
+            during_end = t1
             for i, (label, fill) in enumerate(zip(_ISO_FASE_LABELS, _ISO_FASE_FILLS)):
                 seg_t0 = t0 + i * dur / 4
                 seg_t1 = t0 + (i + 1) * dur / 4
@@ -132,39 +158,95 @@ def _biometric_chart(trace_df: pd.DataFrame, playlist: str) -> go.Figure:
 
     yaxis1_title = "Stress (0-100)" if has_stress else "—"
     yaxis2_cfg   = dict(
+        **AXIS_DEFAULTS,
         title="Hartslag (bpm)", overlaying="y", side="right",
         range=[40, 130], showgrid=False,
     ) if has_hr else dict(visible=False, overlaying="y", side="right", showgrid=False)
 
-    fig.update_layout(**dark_layout(
-        xaxis=dict(title="Minuten t.o.v. sessiestart", gridcolor=GRID_COLOR, zeroline=False),
+    # 2.2 Set x-axis to ±30 min around the session
+    x_range = None
+    if during_end is not None:
+        x_range = [-30, during_end + 30]
+    elif not t.empty:
+        x_range = [max(t.min(), t.min()), t.max()]
+
+    fig.update_layout(**chart_layout(
+        xaxis=dict(
+            title="Minuten t.o.v. sessiestart (tijdvenster: ±30 min)",
+            gridcolor=GRID_COLOR, zeroline=False,
+            **({"range": x_range} if x_range else {}),
+        ),
         yaxis=dict(title=yaxis1_title, range=[0, 100] if has_stress else None,
                    gridcolor=GRID_COLOR, visible=has_stress),
         yaxis2=yaxis2_cfg,
-        height=320,
+        height=340,
         legend=dict(orientation="h", y=-0.25),
     ))
     return fig
 
 
-def _coverage_badge(trace_df: pd.DataFrame) -> _ui.Tag:
-    """Color-coded data-fill indicator for the biometric chart."""
-    if trace_df.empty or "stress" not in trace_df.columns:
+def _data_quality_note(trace_df: pd.DataFrame) -> _ui.Tag:
+    """2.3 — Explain data coverage and gap causes for the biometric chart."""
+    if trace_df.empty:
         return _ui.div()
-    during = trace_df[trace_df["phase"] == "during"] if "phase" in trace_df.columns else trace_df
-    if during.empty:
-        return _ui.div()
-    filled_pct = during["stress"].notna().mean() * 100
-    color = "#22c55e" if filled_pct > 80 else ("#f59e0b" if filled_pct > 50 else "#ef4444")
-    note = (
-        "Stressdata: volledig" if filled_pct > 90
-        else "Stressdata: mogelijk horloge afgedaan of opladen tijdens sessie" if filled_pct < 50
-        else "Stressdata: gedeeltelijk beschikbaar"
+
+    has_stress = "stress" in trace_df.columns
+    has_hr     = "heart_rate" in trace_df.columns
+    during     = trace_df[trace_df["phase"] == "during"] if "phase" in trace_df.columns else trace_df
+
+    lines = []
+
+    # Stress coverage
+    if not has_stress:
+        lines.append(_ui.div(
+            "⚠ Stressdata volledig afwezig — dit Garmin-model beschikt mogelijk niet over een stresssensor, "
+            "of het horloge is niet gedragen tijdens deze sessie.",
+            style="color:#f59e0b; font-size:11px;",
+        ))
+    elif not during.empty:
+        filled_pct = during["stress"].notna().mean() * 100
+        color = "#22c55e" if filled_pct > 80 else ("#f59e0b" if filled_pct > 50 else "#ef4444")
+        if filled_pct < 90:
+            reason = "horloge afgedaan of aan het opladen" if filled_pct < 50 else "korte onderbrekingen in sensorcontact"
+            lines.append(_ui.div(
+                f"Stressdata: {filled_pct:.0f}% beschikbaar — gaten door {reason}.",
+                style=f"color:{color}; font-size:11px;",
+            ))
+        else:
+            lines.append(_ui.div(
+                f"Stressdata: volledig ({filled_pct:.0f}%)",
+                style="color:#22c55e; font-size:11px;",
+            ))
+
+    # HR coverage
+    if not has_hr:
+        lines.append(_ui.div(
+            "⚠ Hartslagdata afwezig voor deze sessie.",
+            style="color:#f59e0b; font-size:11px;",
+        ))
+
+    # Data transparency details (always shown, collapsed)
+    details_html = (
+        '<details class="mt-details" style="margin-top:8px;">'
+        '<summary style="font-size:11px; color:var(--text-tertiary); cursor:pointer;">Over de datakwaliteit</summary>'
+        '<div class="mt-details-body" style="font-size:11px; color:var(--text-tertiary); margin-top:6px; line-height:1.6;">'
+        '<b>Stress:</b> Garmin meet elke 3 minuten — daartussen zijn geen waarden (gaten zijn normaal). '
+        'Bij afdoen of opladen ontstaan langere gaten.<br>'
+        '<b>Hartslag:</b> Continu gemeten maar kan ontbreken bij slechte huidcontact of intense beweging.<br>'
+        '<b>Geen interpolatie:</b> De data is exact zoals gemeten — niets is gesimuleerd of aangevuld.'
+        '</div></details>'
     )
+
+    if not lines:
+        return _ui.div(
+            _ui.HTML(details_html),
+            style="margin-top:6px;",
+        )
+
     return _ui.div(
-        _ui.span(f"{filled_pct:.0f}% stressdata gevuld (sessie)", style=f"color:{color};"),
-        _ui.span(f" — {note}", style="color:var(--text-tertiary);"),
-        style="font-size:11px; margin-top:6px; font-style:italic;",
+        *lines,
+        _ui.HTML(details_html),
+        style="margin-top:8px;",
     )
 
 
@@ -317,7 +399,7 @@ def _recovery_badge(row: pd.Series) -> _ui.Tag:
     except (TypeError, ValueError):
         pass
 
-    badge_color = "#6b7280" if not r2_ok else color
+    badge_color = "rgba(255,255,255,0.45)" if not r2_ok else color
 
     # Build technical footnote as a collapsible details element
     if footnote:
@@ -358,32 +440,41 @@ def _recovery_badge(row: pd.Series) -> _ui.Tag:
 @module.ui
 def ui():
     return _ui.div(
-        # Sessieselector
+        # Page hero — aligns to home page pattern
+        _ui.div(
+            _ui.div("Sessie Replay", class_="mt-h1"),
+            _ui.p(
+                "Jouw biometrische boog per sessie — stress en hartslag voor, tijdens en na het luisteren.",
+                class_="mt-body mt-secondary",
+                style="margin-top:8px; max-width:520px; margin-left:auto; margin-right:auto;",
+            ),
+            class_="mt-page-hero",
+        ),
+
+        # 2.1 Sessieselector — consistent padding
         _ui.div(
             _ui.div("Selecteer sessie", class_="mt-h3", style="margin-bottom:16px;"),
             _ui.div(
-                _ui.div(
-                    _ui.output_ui("nav_prev_btn"),
-                    _ui.input_select("session_date", None, choices=[], width="280px"),
-                    _ui.output_ui("nav_next_btn"),
-                    _ui.output_ui("session_badge"),
-                    style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;",
-                ),
+                _ui.output_ui("nav_prev_btn"),
+                _ui.input_select("session_date", None, choices=[], width="280px"),
+                _ui.output_ui("nav_next_btn"),
+                _ui.output_ui("session_badge"),
+                style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;",
             ),
             class_="mt-section-card",
-            style="margin:32px var(--page-margin); padding:24px 32px;",
+            style="margin:32px var(--page-margin); padding:28px 40px;",
         ),
 
         # Sessie-samenvatting
         _ui.div(
             _ui.output_ui("session_summary"),
-            style="padding:0 var(--page-margin) 16px;",
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # Sessie-uitkomst banner
         _ui.div(
             _ui.output_ui("outcome_banner"),
-            style="padding:0 var(--page-margin) 12px;",
+            style="padding:0 var(--page-margin) 20px;",
         ),
 
         # Tijdlijnkoptekst
@@ -395,25 +486,19 @@ def ui():
         # Biometrische grafiek
         _ui.div(
             output_widget("biometric_chart"),
-            _ui.output_ui("coverage_badge_ui"),
+            _ui.output_ui("data_quality_ui"),
             class_="mt-section-card",
-            style="margin:0 var(--page-margin); border-radius:0 0 12px 12px;",
+            style="margin:0 var(--page-margin); border-radius:0 0 12px 12px; padding:24px 32px;",
         ),
 
-        # Stemming-arc
-        _ui.output_ui("mood_arc_ui"),
-
-        # Herstelbadge
+        # 2.5 Stemming & herstel — grouped into one card
         _ui.div(
+            _ui.div("Stemming & herstel", class_="mt-h3", style="margin-bottom:20px;"),
+            _ui.output_ui("mood_arc_ui"),
+            _ui.div(style="margin-top:20px;"),
             _ui.output_ui("recovery_badge_ui"),
-            style="padding:8px var(--page-margin) 32px;",
-        ),
-
-        # Transparantienota
-        _ui.div(
-            _ui.em("Dit zijn jouw werkelijke fysiologische gegevens. Niets is gesimuleerd of geinterpoleerd.",
-                   class_="mt-caption mt-secondary"),
-            style="text-align:center; padding-bottom:48px;",
+            class_="mt-section-card",
+            style="margin:16px var(--page-margin); padding:28px 36px;",
         ),
     )
 
@@ -594,7 +679,7 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                     _ui.div("Afspeellijst", class_="mt-session-summary-label", style="margin-top:6px;"),
                     class_="mt-session-summary-item",
                 ),
-                class_="mt-session-summary-card",
+                class_=f"mt-session-summary-card mt-card-{pl.lower()}",
             ),
             _mood_bio_comparison(row),
             style="margin:0 var(--page-margin);",
@@ -659,8 +744,8 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             icon   = "✗"
             txt    = f"Stemming gedaald ({sign} pt)"
         else:
-            bg     = "rgba(255,255,255,0.05)"
-            border = "rgba(255,255,255,0.15)"
+            bg     = "var(--bg-elevated)"
+            border = "var(--text-tertiary)"
             icon   = "–"
             txt    = "Stemming onveranderd"
         return _ui.div(
@@ -676,12 +761,23 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
     @output
     @render_widget
     def biometric_chart():
-        return _biometric_chart(current_trace(), current_playlist())
+        from utils.data_loader import expected_stress
+        trace = current_trace()
+        row   = current_bio_row()
+        bl_mean, bl_std, hour = None, None, None
+        if not row.empty:
+            try:
+                hour = int(row.get("hour_of_day", 17))
+            except (TypeError, ValueError):
+                hour = None
+            if hour is not None:
+                bl_mean, bl_std = expected_stress(app_data, sel(), hour)
+        return _biometric_chart(trace, current_playlist(), bl_mean, bl_std, hour)
 
     @output
     @render.ui
-    def coverage_badge_ui():
-        return _coverage_badge(current_trace())
+    def data_quality_ui():
+        return _data_quality_note(current_trace())
 
     @output
     @render.ui

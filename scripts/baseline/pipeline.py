@@ -69,6 +69,11 @@ def run_participant(code: str, root: Path, force: bool) -> None:
         print(f"[{code}] No processed data found at {proc_dir} — skipping")
         return
 
+    has_stress = any((proc_dir / name).exists() for name in _STRESS_CSVS)
+    if not has_stress:
+        print(f"[{code}] No minute-level stress data in {proc_dir} — skipping (run extraction first)")
+        return
+
     print(f"\n{'='*60}")
     print(f"  {code}")
     print(f"{'='*60}")

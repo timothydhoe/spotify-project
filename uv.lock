@@ -2734,20 +2734,11 @@ name = "spotify-project"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "arviz" },
-    { name = "fitparse" },
-    { name = "ipykernel" },
-    { name = "jax" },
     { name = "matplotlib" },
-    { name = "nbconvert" },
     { name = "numpy" },
-    { name = "numpyro" },
     { name = "pandas" },
     { name = "pillow" },
     { name = "plotly" },
-    { name = "pymc" },
-    { name = "questionary" },
-    { name = "rich" },
     { name = "scikit-learn" },
     { name = "scipy" },
     { name = "seaborn" },
@@ -2755,31 +2746,33 @@ dependencies = [
     { name = "shiny" },
     { name = "shinywidgets" },
     { name = "statsmodels" },
-    { name = "tensorflow" },
-    { name = "torch" },
 ]
 
 [package.dev-dependencies]
+analysis = [
+    { name = "arviz" },
+    { name = "fitparse" },
+    { name = "jax" },
+    { name = "numpyro" },
+    { name = "pymc" },
+    { name = "questionary" },
+    { name = "rich" },
+    { name = "tensorflow" },
+    { name = "torch" },
+]
 dev = [
+    { name = "ipykernel" },
+    { name = "nbconvert" },
     { name = "nbformat" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "arviz", specifier = ">=0.23.0" },
-    { name = "fitparse", specifier = ">=1.2.0" },
-    { name = "ipykernel", specifier = ">=7.1.0" },
-    { name = "jax", extras = ["cpu"], specifier = ">=0.6.0" },
     { name = "matplotlib", specifier = ">=3.10.8" },
-    { name = "nbconvert", specifier = ">=7.17.1" },
     { name = "numpy", specifier = ">=2.3.5" },
-    { name = "numpyro", specifier = ">=0.18.0" },
     { name = "pandas", specifier = ">=2.3.3" },
     { name = "pillow", specifier = ">=11.0.0" },
     { name = "plotly", specifier = ">=6.7.0" },
-    { name = "pymc", specifier = ">=5.28.0" },
-    { name = "questionary", specifier = ">=2.1.1" },
-    { name = "rich", specifier = ">=14.2.0" },
     { name = "scikit-learn", specifier = ">=1.8.0" },
     { name = "scipy", specifier = ">=1.16.3" },
     { name = "seaborn", specifier = ">=0.13.2" },
@@ -2787,12 +2780,25 @@ requires-dist = [
     { name = "shiny", specifier = ">=1.6.2" },
     { name = "shinywidgets", specifier = ">=0.8.1" },
     { name = "statsmodels", specifier = ">=0.14.6" },
-    { name = "tensorflow", specifier = ">=2.16.0" },
-    { name = "torch", specifier = ">=2.12.0" },
 ]
 
 [package.metadata.requires-dev]
-dev = [{ name = "nbformat", specifier = ">=5.10.4" }]
+analysis = [
+    { name = "arviz", specifier = ">=0.23.0" },
+    { name = "fitparse", specifier = ">=1.2.0" },
+    { name = "jax", extras = ["cpu"], specifier = ">=0.6.0" },
+    { name = "numpyro", specifier = ">=0.18.0" },
+    { name = "pymc", specifier = ">=5.28.0" },
+    { name = "questionary", specifier = ">=2.1.1" },
+    { name = "rich", specifier = ">=14.2.0" },
+    { name = "tensorflow", specifier = ">=2.16.0" },
+    { name = "torch", specifier = ">=2.12.0" },
+]
+dev = [
+    { name = "ipykernel", specifier = ">=7.1.0" },
+    { name = "nbconvert", specifier = ">=7.17.1" },
+    { name = "nbformat", specifier = ">=5.10.4" },
+]
 
 [[package]]
 name = "stack-data"

@@ -164,3 +164,15 @@ __marimo__/
 
 # Playwright MCP session files (browser automation artifacts)
 .playwright-mcp/
+
+# Verification screenshots (temporary, created during review sessions)
+verify-*.png
+
+# Planning / audit docs (not part of the codebase)
+ml-audit.md
+ml-cleanup.md
+ml-shiny.md
+ui-overhaul.md
+
+# Favicon design source (not needed at runtime)
+ui/www/logo/favicon-note.svg

@@ -352,8 +352,9 @@ def main() -> None:
         p = s["participant"]
         status = s["status"]
         if status == "ok":
+            mean_adv = s.get('mean_advantage_min') or 0
             print(f"  {p:<15} OK  {s['n_sessions']} sessions, "
-                  f"mean advantage {s.get('mean_advantage_min', 0):+.1f} min")
+                  f"mean advantage {mean_adv:+.1f} min")
         else:
             print(f"  {p:<15} --  {status}")
 

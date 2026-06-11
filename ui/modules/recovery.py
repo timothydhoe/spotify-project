@@ -15,7 +15,7 @@ except ImportError:
 
 from utils.chart_helpers import (
     ACCENT, GRID_COLOR, PLAYLIST_COLORS, STRESS_RED, TEXT_SECONDARY,
-    dark_layout, empty_figure,
+    chart_layout, empty_figure,
 )
 from utils.data_loader import AppData
 
@@ -23,7 +23,7 @@ ROOT = Path(__file__).parent.parent.parent
 DATA = ROOT / "data"
 
 _PLAYLIST_NL = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}
-_PL_COLORS   = {"Calm": "#3b82f6", "Neutral": "#a855f7", "Energy": "#f97316"}
+_PL_COLORS   = {"Calm": "#56B4E9", "Neutral": "#009E73", "Energy": "#E69F00"}
 
 
 def _img_b64(path: Path) -> str:
@@ -32,85 +32,184 @@ def _img_b64(path: Path) -> str:
     return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode()
 
 
+def _safe_cd(row: dict) -> list:
+    """Convert a customdata row to plain Python types — avoids numpy JSON issues."""
+    out = []
+    for v in row:
+        if hasattr(v, "item"):
+            out.append(v.item())
+        elif v != v:
+            out.append("—")
+        elif v is None or (isinstance(v, float) and not v == v):
+            out.append("—")
+        else:
+            out.append(str(v) if isinstance(v, (pd.Timestamp, pd.NaT.__class__)) else v)
+    return out
+
+
+def _failure_reason(row: pd.Series) -> str:
+    """Return a human-readable Dutch string explaining why a session is unreliable."""
+    reasons = []
+    r2 = row.get("r2_actual")
+    pre = row.get("pre_stress_mean")
+    asym = row.get("asymptote")
+
+    if pd.isna(r2):
+        reasons.append("herstelkromme kon niet worden berekend (te weinig data)")
+    elif float(r2) <= 0.05:
+        reasons.append(f"herstelkromme past slecht (R²={float(r2):.3f} ≤ 0.05)")
+
+    if not pd.isna(pre) and not pd.isna(asym):
+        if float(pre) < float(asym):
+            reasons.append(
+                f"stress niet hoog genoeg bij aanvang "
+                f"({float(pre):.0f} < drempel {float(asym):.0f})"
+            )
+
+    return " · ".join(reasons) if reasons else "reden onbekend"
+
+
 def _recovery_scatter(df: pd.DataFrame) -> go.Figure:
     """Per-session advantage scatter: x=session date, y=advantage (min), colour=playlist."""
     if df.empty or "advantage" not in df.columns:
         return empty_figure("Geen hersteldata beschikbaar")
 
     df = df.copy()
-    df["_date"] = pd.to_datetime(df["session_date"], errors="coerce")
-    # Drop rows with NaN advantage — Plotly's JSON encoder rejects float nan
-    df = df.dropna(subset=["advantage"]).sort_values("_date")
+    df["_date_str"] = df["session_date"].astype(str).str[:10]
+    df["_adv"]      = pd.to_numeric(df["advantage"], errors="coerce")
+    df = df.dropna(subset=["_adv"]).sort_values("_date_str")
 
-    reliable    = df[df["reliable"] == True]   # noqa: E712
-    unreliable  = df[df["reliable"] != True]
+    if df.empty:
+        return empty_figure("Geen hersteldata beschikbaar")
+
+    adv_vals = df["_adv"]
+    n_total  = len(adv_vals)
+    if n_total >= 4:
+        y_lo = float(adv_vals.quantile(0.05)) - 15
+        y_hi = float(adv_vals.quantile(0.95)) + 15
+    else:
+        y_lo = float(adv_vals.min()) - 10
+        y_hi = float(adv_vals.max()) + 10
+
+    n_clipped = int(((adv_vals < y_lo) | (adv_vals > y_hi)).sum())
+
+    x_all  = pd.to_datetime(df["_date_str"])
+    x_pad  = pd.Timedelta(days=5)
+    x_lo   = (x_all.min() - x_pad).strftime("%Y-%m-%d")
+    x_hi   = (x_all.max() + x_pad).strftime("%Y-%m-%d")
+
+    reliable   = df[df["reliable"] == True]   # noqa: E712
+    unreliable = df[df["reliable"] != True]
 
     fig = go.Figure()
+    fig.add_hline(y=0, line=dict(color="rgba(255,255,255,0.12)", width=1, dash="dot"))
 
-    # Reference line at 0
-    fig.add_hline(y=0, line=dict(color="rgba(255,255,255,0.2)", width=1, dash="dot"))
-
-    # Unreliable sessions (faded)
+    # Unreliable sessions — hollow, faded, with specific failure reason in tooltip
     for pl in ["Calm", "Neutral", "Energy"]:
         grp = unreliable[unreliable["playlist"] == pl] if "playlist" in unreliable.columns else pd.DataFrame()
         if grp.empty:
             continue
+        cd = [
+            [
+                str(row["_date_str"]),
+                _PLAYLIST_NL.get(str(row.get("playlist", "")), str(row.get("playlist", ""))),
+                float(row.get("r2_actual", 0)) if pd.notna(row.get("r2_actual")) else "—",
+                _failure_reason(row),
+            ]
+            for _, row in grp.iterrows()
+        ]
         fig.add_trace(go.Scatter(
-            x=grp["_date"],
-            y=grp["advantage"],
+            x=grp["_date_str"].tolist(),
+            y=[float(v) for v in grp["_adv"].tolist()],
             mode="markers",
-            name=f"{_PLAYLIST_NL.get(pl, pl)} (lage r²)",
+            name=f"{_PLAYLIST_NL.get(pl, pl)} — niet meegeteld",
             marker=dict(
                 size=9,
                 color=_PL_COLORS.get(pl, ACCENT),
-                opacity=0.25,
+                opacity=0.30,
                 line=dict(width=1.5, color=_PL_COLORS.get(pl, ACCENT)),
                 symbol="circle-open",
             ),
-            customdata=grp[["session_date", "playlist", "r2_actual"]].values,
+            customdata=cd,
             hovertemplate=(
                 "<b>%{customdata[0]}</b><br>"
                 "Playlist: %{customdata[1]}<br>"
                 "Voordeel: %{y:+.1f} min<br>"
-                "r² = %{customdata[2]:.3f} (laag, onbetrouwbaar)<extra></extra>"
+                "<span style='color:#f87171'>Niet meegeteld — %{customdata[3]}</span>"
+                "<extra></extra>"
             ),
             showlegend=True,
         ))
 
-    # Reliable sessions (opaque)
+    # Reliable sessions — filled, larger, full tooltip
     for pl in ["Calm", "Neutral", "Energy"]:
         grp = reliable[reliable["playlist"] == pl] if "playlist" in reliable.columns else pd.DataFrame()
         if grp.empty:
             continue
+        cd = [
+            [
+                str(row["_date_str"]),
+                _PLAYLIST_NL.get(str(row.get("playlist", "")), str(row.get("playlist", ""))),
+                float(row.get("r2_actual", 0)) if pd.notna(row.get("r2_actual")) else "—",
+                str(row.get("pre_state", "—")),
+                float(row.get("pre_stress_mean", 0)) if pd.notna(row.get("pre_stress_mean")) else "—",
+            ]
+            for _, row in grp.iterrows()
+        ]
         fig.add_trace(go.Scatter(
-            x=grp["_date"],
-            y=grp["advantage"],
+            x=grp["_date_str"].tolist(),
+            y=[float(v) for v in grp["_adv"].tolist()],
             mode="markers",
-            name=_PLAYLIST_NL.get(pl, pl),
+            name=f"{_PLAYLIST_NL.get(pl, pl)} — betrouwbaar",
             marker=dict(
-                size=13,
+                size=14,
                 color=_PL_COLORS.get(pl, ACCENT),
                 opacity=0.9,
-                line=dict(width=2, color="rgba(0,0,0,0.2)"),
+                line=dict(width=2, color="rgba(255,255,255,0.18)"),
             ),
-            customdata=grp[["session_date", "playlist", "r2_actual", "pre_state"]].fillna("—").values,
+            customdata=cd,
             hovertemplate=(
                 "<b>%{customdata[0]}</b><br>"
                 "Playlist: %{customdata[1]}<br>"
                 "Voordeel: %{y:+.1f} min<br>"
-                "r² = %{customdata[2]:.3f} · "
-                "Pre-staat: %{customdata[3]}<extra></extra>"
+                "R² = %{customdata[2]:.3f} · Pre-staat: %{customdata[3]}<br>"
+                "Pre-stress: %{customdata[4]}"
+                "<extra></extra>"
             ),
         ))
 
-    fig.update_layout(**dark_layout(
-        xaxis=dict(title="Sessiedatum", gridcolor=GRID_COLOR),
-        yaxis=dict(title="Herstelvoordeel (min)", gridcolor=GRID_COLOR, zeroline=False),
-        height=320,
-        margin=dict(l=64, r=32, t=16, b=48),
+    if n_clipped > 0:
+        fig.add_annotation(
+            text=(
+                f"<i>{n_clipped} sessie(s) vallen buiten het weergegeven bereik "
+                f"(uitschieters ingekort voor leesbaarheid)</i>"
+            ),
+            xref="paper", yref="paper",
+            x=0.5, y=-0.30,
+            showarrow=False,
+            font=dict(size=10, color=TEXT_SECONDARY),
+            align="center",
+        )
+
+    b_margin = 64 if n_clipped > 0 else 48
+    fig.update_layout(**chart_layout(
+        xaxis=dict(
+            title="Sessiedatum",
+            gridcolor=GRID_COLOR,
+            tickformat="%d %b",
+            range=[x_lo, x_hi],
+        ),
+        yaxis=dict(
+            title="Herstelvoordeel (min)",
+            gridcolor=GRID_COLOR,
+            zeroline=False,
+            range=[y_lo, y_hi],
+        ),
+        height=340,
+        margin=dict(l=64, r=32, t=16, b=b_margin),
         legend=dict(
             orientation="h",
-            y=-0.22,
+            y=-0.32 if n_clipped > 0 else -0.22,
             x=0.5,
             xanchor="center",
             font=dict(size=11),
@@ -121,10 +220,7 @@ def _recovery_scatter(df: pd.DataFrame) -> go.Figure:
 
 def _stat_card(label: str, value: str, sub: str = "", color: str = "var(--accent)") -> _ui.Tag:
     return _ui.div(
-        _ui.div(value, style=(
-            f"font-family:'Sora',sans-serif; font-weight:700; font-size:2rem; "
-            f"color:{color}; line-height:1; margin-bottom:6px;"
-        )),
+        _ui.div(value, class_="mt-stat-value", style=f"color:{color};"),
         _ui.div(label, class_="mt-stat-label"),
         _ui.div(sub, class_="mt-caption mt-tertiary", style="margin-top:4px;") if sub else _ui.div(),
         class_="mt-stat-card",
@@ -138,44 +234,49 @@ def _stat_card(label: str, value: str, sub: str = "", color: str = "var(--accent
 @module.ui
 def ui():
     return _ui.div(
-        # Header
+        # Page hero
         _ui.div(
             _ui.div(
                 _ui.span("Herstelanalyse", class_="mt-h1"),
-                _ui.span("RQ1 · RQ2", class_="rq-badge"),
-                style="display:inline-flex; align-items:center; gap:8px;",
+                _ui.span("RQ1 · RQ2", class_="rq-badge", style="vertical-align:middle;"),
+                style="display:inline-flex; align-items:center; gap:8px; justify-content:center;",
             ),
             _ui.p(
                 "Herstelt het lichaam sneller als je naar muziek luistert? "
                 "Herstelvoordeel = verwachte τ (basislijn) − werkelijke τ (sessie). "
                 "Positief = sneller herstel.",
                 class_="mt-body mt-secondary",
-                style="margin-top:8px; max-width:640px;",
+                style="margin-top:8px; max-width:560px; margin-left:auto; margin-right:auto;",
             ),
-            class_="mt-wrapped-hero",
-            style="margin-bottom:24px;",
+            class_="mt-page-hero",
+        ),
+
+        # Concept explanation + data funnel — always visible
+        _ui.div(
+            _ui.output_ui("concept_explanation"),
+            class_="mt-page-pad-x", style="padding-bottom:48px;",
         ),
 
         # Stat row
         _ui.div(
             _ui.output_ui("recovery_stats"),
-            style="padding:0 var(--page-margin) 24px;",
+            class_="mt-page-pad-x", style="padding-bottom:56px;",
         ),
 
         # Per-session scatter chart
         _ui.div(
             _ui.div(
-                _ui.div("Herstelvoordeel per sessie", class_="mt-h2", style="margin-bottom:8px;"),
+                _ui.div("Herstelvoordeel per sessie", class_="mt-h2", style="margin-bottom:4px;"),
                 _ui.div(
-                    "Grote gevulde stippen = betrouwbare sessies (r²>0.05 én pre_stress≥asymptoot). "
-                    "Holle stippen = lage modelfit, minder betrouwbaar.",
+                    "Grote gevulde stippen = betrouwbare sessies (goede kromme én stress hoog genoeg). "
+                    "Holle stippen = niet meegeteld — zweef over een stip voor de reden.",
                     class_="mt-caption mt-secondary", style="margin-bottom:16px;",
                 ),
                 output_widget("recovery_chart"),
                 _ui.output_ui("honest_framing"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            class_="mt-page-pad-x", style="padding-bottom:56px;",
         ),
 
         # Combined group PNGs (collapsible)
@@ -193,7 +294,7 @@ def ui():
                 _ui.output_ui("group_plots"),
                 class_="mt-section-card",
             ),
-            style="padding:0 var(--page-margin) 24px;",
+            class_="mt-page-pad-x", style="padding-bottom:56px;",
         ),
     )
 
@@ -216,14 +317,23 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
 
     @reactive.Calc
     def _participant_data():
-        p = sel()
+        p  = sel()
         rf = app_data.recovery_features
-        if rf.empty or "participant" not in rf.columns:
+        if rf is None or not hasattr(rf, "empty") or rf.empty or "participant" not in rf.columns:
             return pd.DataFrame()
-        return rf[rf["participant"] == p].copy()
+        df = rf[rf["participant"] == p].copy()
+        if "advantage" not in df.columns and "tau_advantage" in df.columns:
+            df = df.rename(columns={"tau_advantage": "advantage"})
+        return df
+
+    def _total_sessions(p: str) -> int | None:
+        """Total biometric sessions recorded for participant p."""
+        sb = app_data.session_biometrics.get(p)
+        if sb is None or not hasattr(sb, "__len__"):
+            return None
+        return len(sb)
 
     def _group_stats():
-        """Compute group-wide recovery stats across all participants from the loaded data."""
         rf = app_data.recovery_features
         if rf.empty:
             return None
@@ -241,6 +351,43 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
 
     @output
     @render.ui
+    def concept_explanation():
+        p = sel()
+        df = _participant_data()
+        total = _total_sessions(p)
+        n_in_analysis = len(df) if not df.empty else 0
+        n_reliable = int((df["reliable"] == True).sum()) if not df.empty and "reliable" in df.columns else 0  # noqa: E712
+
+        total_str = f"Van {total}" if total is not None else "Van alle"
+
+        return _ui.div(
+            _ui.p(
+                _ui.strong("Herstelvoordeel (min): "),
+                "Na elke sessie modelleren we hoe snel jouw stress daalde (tijdconstante τ) en "
+                "vergelijken dat met jouw normale herstelsnelheid op dat uur van de dag. "
+                "Positief = sneller herstel dan normaal.",
+                style="margin:0 0 10px;",
+            ),
+            _ui.p(
+                _ui.strong("Een sessie telt alleen mee als: "),
+                "(1) de stresscurve een duidelijke exponentiële daling volgde (R² > 0.05) "
+                "én (2) de beginspanning hoog genoeg was boven het rustniveau. "
+                "Holle stippen in de grafiek voldoen niet — zweef erover voor de reden.",
+                style="margin:0 0 10px;",
+            ),
+            _ui.p(
+                f"{total_str} totale sessies hadden ",
+                _ui.strong(str(n_in_analysis)),
+                " voldoende stressdata voor herstelberekening, waarvan ",
+                _ui.strong(str(n_reliable)),
+                " betrouwbaar.",
+                style="margin:0; color:var(--text-tertiary);",
+            ),
+            class_="mt-callout",
+        )
+
+    @output
+    @render.ui
     def recovery_stats():
         df = _participant_data()
         if df.empty:
@@ -250,7 +397,6 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                 style="min-height:80px;",
             )
 
-        # Per-participant stats (shown in cards)
         n_total    = len(df)
         reliable   = df[df["reliable"] == True] if "reliable" in df.columns else pd.DataFrame()  # noqa: E712
         n_reliable = len(reliable)
@@ -258,12 +404,22 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         if n_reliable > 0 and "advantage" in reliable.columns:
             mean_adv  = pd.to_numeric(reliable["advantage"], errors="coerce").mean()
             adv_str   = f"+{mean_adv:.0f} min" if mean_adv >= 0 else f"{mean_adv:.0f} min"
-            adv_color = ACCENT if mean_adv >= 0 else STRESS_RED
+            adv_color = "var(--accent)" if mean_adv >= 0 else STRESS_RED
         else:
             adv_str   = "—"
             adv_color = TEXT_SECONDARY
 
-        # Group-level p-value (computed from full recovery_features.csv across all participants)
+        # Count per failure mode for the subtitle
+        unreliable = df[df["reliable"] != True] if "reliable" in df.columns else df
+        n_bad_fit  = int((pd.to_numeric(df.get("r2_actual", pd.Series(dtype=float)), errors="coerce").fillna(-1) <= 0.05).sum()) if not df.empty else 0
+        n_low_pre  = 0
+        if "pre_stress_mean" in df.columns and "asymptote" in df.columns:
+            n_low_pre = int((
+                df["pre_stress_mean"].notna() & df["asymptote"].notna() &
+                (df["pre_stress_mean"] < df["asymptote"])
+            ).sum())
+
+        # Group-level p-value
         gs = _group_stats()
         if gs and gs["p_val"] is not None:
             p_str = f"{gs['p_val']:.4f}"
@@ -273,19 +429,47 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             p_sub = "scipy niet beschikbaar"
 
         return _ui.div(
-            _stat_card(f"Gem. herstelvoordeel ({sel().capitalize()})", adv_str,
-                       f"betrouwbare sessies (n={n_reliable})", color=adv_color),
-            _stat_card("Geldige sessies", str(n_total), "deelnemer · r²>0.05 filter"),
-            _stat_card("Betrouwbaar", f"{n_reliable}/{n_total}",
-                       "pre_stress ≥ asymptoot + r²>0.05"),
-            _stat_card("p-waarde (groep)", p_str, p_sub, color=TEXT_SECONDARY),
+            _stat_card(
+                "Gem. herstelvoordeel",
+                adv_str,
+                f"gemiddeld over {n_reliable} betrouwbare sessies",
+                color=adv_color,
+            ),
+            _stat_card(
+                "Sessies met hersteldata",
+                str(n_total),
+                "sessies waarvoor τ kon worden berekend",
+            ),
+            _stat_card(
+                "Betrouwbare sessies",
+                f"{n_reliable}/{n_total}",
+                f"slechte fit: {n_bad_fit} · stress te laag: {n_low_pre}",
+            ),
+            _stat_card(
+                "p-waarde (groep)",
+                p_str,
+                p_sub,
+                color=TEXT_SECONDARY,
+            ),
             class_="mt-recovery-stat-row",
         )
 
     @output
     @render_widget
     def recovery_chart():
-        return _recovery_scatter(_participant_data())
+        df = _participant_data()
+        if df.empty:
+            return empty_figure(
+                "Hersteldata niet beschikbaar voor deze deelnemer. "
+                "Herstelanalyse vereist een Garmin stresssensor — "
+                "alleen beschikbaar voor bosbes, kokosnoot en limoen."
+            )
+        if "advantage" not in df.columns:
+            available = ", ".join(df.columns.tolist()[:8])
+            return empty_figure(
+                f"Kolom 'advantage' ontbreekt. Beschikbare kolommen: {available}."
+            )
+        return go.FigureWidget(_recovery_scatter(df))
 
     @output
     @render.ui
@@ -294,7 +478,6 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         if df.empty:
             return _ui.div()
 
-        # Compute all figures from the actual data — no hardcoded values
         gs = _group_stats()
         if gs:
             n_rel   = gs["n_reliable"]
@@ -308,12 +491,10 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
 
         return _ui.div(
             _ui.span("Eerlijk beeld (groep): ", style="font-weight:600;"),
-            f"Over alle deelnemers zijn {n_rel} van {n_tot} geldige sessies betrouwbaar "
-            f"(r²>0.05 én pre_stress≥asymptoot). "
+            f"Over alle deelnemers zijn {n_rel} van {n_tot} sessies betrouwbaar. "
             f"Gemiddeld groepsvoordeel: {adv_str} — {p_str}, {sig_str}. "
-            "De deelnemerspecifieke kaart hierboven toont het voordeel voor deze deelnemer. "
-            "Interpreteer als richting, niet als bewijs.",
-            class_="mt-honesty-callout",
+            "Interpreteer als richting, niet als bewijs — N is te klein voor conclusies.",
+            class_="mt-callout",
             style="margin-top:16px;",
         )
 
@@ -335,7 +516,7 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                     _ui.div(caption, class_="mt-caption mt-secondary", style="margin-bottom:6px;"),
                     _ui.div(
                         _ui.img(src=src, style="max-width:100%; border-radius:6px;"),
-                        style="background:#111827; border-radius:10px; padding:12px;",
+                        class_="data-terminal",
                     ),
                 ))
         if not items:

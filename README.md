@@ -7,27 +7,205 @@ VDO Data Scientist Eindwerk
 
 ## Overview
 
-This project generates personalized music playlists to support emotion regulation research. The system creates three playlist types (calm, neutral, upbeat) based on participants' Spotify listening data.
+Project R.E.M. studies whether personalized, ISO-ordered music playlists can measurably
+regulate emotional states. The system generates three playlist types — **calm**, **neutral**, and **energy** — from each participant's own Spotify library, then cross-references session outcomes with smartwatch biometrics and self-reported mood check-ins.
 
-**Key Features:**
-- Automated playlist generation from Spotify data
-- ISO principle-based song ordering
-- Validation and quality analysis
-- Privacy-preserving participant management (fruit codenames)
+**Research questions:**
+1. Can ISO-ordered playlists measurably reduce physiological stress?
+2. Does reduced stress correlate with improved self-reported mood?
+3. Can we classify playlist type from biometric signals alone?
+4. Can we predict mood outcome from physiological state + playlist type?
+
+Participants are anonymized with fruit codenames: `bosbes`, `kokosnoot`, `limoen`, `peer`, `kiwi`, `watermeloen`, `aardbei`, `citroen`.
+
+---
+
+## Prerequisites
+
+- **Python 3.12+** and **[uv](https://github.com/astral-sh/uv)** (package manager)
+- **Windows:** run shell scripts in [Git Bash](https://git-scm.com/download/win) or WSL
+
+Install uv if you don't have it:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+### Windows: dependency groups
+
+Several packages in the `analysis` group (`jax`, `tensorflow`, `pymc`, `torch`) have limited Windows support and may fail to install. If you only need to run the app, skip them:
+
+```bat
+uv sync --no-group analysis
+```
+
+To install everything (required for the biometric pipeline and ML notebooks), use WSL or a Linux/macOS machine.
 
 ---
 
 ## Quick Start
 
 ```bash
-# Install dependencies
-uv sync
+# 1. Clone and set up
+git clone <repo-url>
+cd spotify-project
+./bootstrap.sh
 
-# Generate playlists for a participant
-python scripts/playlists/spotify_cli.py all aardbei
+# 2. Place your data files (see Data Setup below)
+
+# 3. Run the biometric pipeline
+./scripts/pipeline.sh --all
+
+# 4. Regenerate ML outputs (CSVs, plots, recommendations)
+./scripts/notebooks.sh
+
+# 5. Launch the app
+./ui/run_app.sh
 ```
 
-See [QUICKSTART.md](scripts/playlists/QUICKSTART.md) for detailed instructions.
+**Windows (app only):**
+```bat
+uv sync --no-group analysis
+uv run shiny run ui/app.py --reload
+```
+For the full pipeline (biometric processing + ML notebooks), use WSL or Git Bash and run `./bootstrap.sh`.
+
+> **Do I always need to run `notebooks.sh`?**</br>
+> Only on a fresh clone (since `data/` is gitignored). The four ML notebooks
+> write their outputs — model results, SHAP plots, Bayesian posteriors, music
+> classifications — to `data/analysis/`. Once those files exist locally,
+> re-running the notebooks is only needed when the underlying wearable data changes.
+> Saved models (`models/`) are committed to git, so `notebooks.sh` is fast by default
+> (~1–3 min): it loads existing models and re-exports all CSV/JSON/PNG outputs.
+
+---
+
+## Bootstrap Scripts
+
+| Script | What it does |
+|--------|-------------|
+| `./bootstrap.sh` | First-time setup: checks uv, installs dependencies, creates data directories |
+| `./scripts/pipeline.sh` | Biometric pipeline (extraction → baseline → sessions) |
+| `./scripts/notebooks.sh` | ML notebooks → app outputs (model results, SHAP, posteriors, music classification) |
+| `./scripts/playlists.sh` | Generates playlists for a participant |
+| `./ui/run_app.sh` | Launches the Shiny app |
+
+All scripts support `--help`.
+
+---
+
+## Data Setup
+
+Place data files in the right locations before running the pipeline:
+
+```
+data/
+├── checkins/
+│   └── Check-in_formulier_REM.csv        ← Google Forms export
+├── playlists/
+│   └── <codename>/                        ← Exportify CSVs per participant
+└── wearables/
+    └── <codename>/
+        └── raw/export/                    ← Garmin ZIPs or Huawei JSONs
+```
+
+Run `./bootstrap.sh --check` to verify your directory structure at any time.
+
+---
+
+## Running the Pipeline
+
+The pipeline has three stages that run in sequence:
+
+| Stage | Script | What it does |
+|-------|--------|-------------|
+| 1. Extraction | `scripts/extraction/pipeline.py` | Raw wearable exports → per-minute stress/HR CSVs |
+| 2. Baseline | `scripts/baseline/pipeline.py` | Circadian baselines + recovery curves |
+| 3. Sessions | `scripts/sessions/pipeline.py` | Session effects, arc analysis, significance tests |
+
+Each stage skips work that's already up to date (freshness checks on output files).
+
+```bash
+# Run all participants through all stages
+./scripts/pipeline.sh --all
+
+# Run specific participants
+./scripts/pipeline.sh bosbes peer
+
+# Force a full re-run, ignoring cached outputs
+./scripts/pipeline.sh --all --force
+
+# Skip a stage (e.g. when extraction is already done)
+./scripts/pipeline.sh --all --skip-extraction
+
+# Combine options
+./scripts/pipeline.sh bosbes --skip-baseline --force
+```
+
+---
+
+## Running the Notebooks
+
+The four notebooks in `notebooks/ml/` produce all ML outputs the app reads.
+Run them after the biometric pipeline has completed.
+
+```bash
+# Fast (default) — load committed models, re-export CSV/JSON/PNG outputs (~1–3 min)
+./scripts/notebooks.sh
+
+# Full refit — retrain every model from scratch (~10 min)
+./scripts/notebooks.sh --fresh
+```
+
+| Notebook | Produces | App page |
+|----------|----------|----------|
+| `1_circadian_ml.ipynb` | Ridge/RF/GBM results, SHAP plots, Bootstrap CI, RQ3 confusion matrix | Model & Data (RQ3, RQ4) |
+| `2_bayesian_recommender.ipynb` | Bayesian posteriors, `recommendations.json`, MCMC diagnostics | Aanbevelingen, Model & Data (RQ4c) |
+| `3_music_class_supervised.ipynb` | `classified_songs.csv` per participant (arousal scores) | Jouw Muziek |
+| `4_music_class_unsupervised.ipynb` | GMM cluster assignments, PCA scatter | Jouw Muziek (cluster plot) |
+
+The notebooks run in dependency order: notebook 1 must complete before 3 and 4
+(they need `feature_matrix.csv` which is built by the biometric pipeline, not by notebook 1 itself).
+Notebook 2 is independent.
+
+---
+
+## Generating Playlists
+
+Playlists are generated from a participant's Exportify CSV export using the ISO principle (gradual BPM/energy transitions toward the target state).
+
+```bash
+# Full workflow: prepare → generate → analyse
+./scripts/playlists.sh bosbes
+
+# Single step
+./scripts/playlists.sh bosbes generate
+
+# With parameter overrides
+./scripts/playlists.sh bosbes generate --calm-tempo-max 95 --upbeat-energy-min 0.7
+
+# Full CLI help
+uv run python scripts/playlists/spotify_cli.py --help
+```
+
+Outputs land in `data/playlists/<codename>/playlists_generated/`.
+
+---
+
+## Launching the App
+
+The results are presented in a **Shiny for Python** app styled like Spotify Wrapped.
+
+```bash
+# Default (http://127.0.0.1:8000)
+./ui/run_app.sh
+
+# Custom port
+./ui/run_app.sh --port=8080
+
+# Dev mode with hot-reload
+./ui/run_app.sh --reload
+```
 
 ---
 
@@ -35,21 +213,26 @@ See [QUICKSTART.md](scripts/playlists/QUICKSTART.md) for detailed instructions.
 
 ```
 spotify-project/
-├── data/
-│   └── playlists/
-│       └── [participant]/           # Participant data (fruit codenames)
-│           ├── *.csv                # Input: Exportify CSVs
-│           └── playlists_generated/ # Output: Generated playlists
-├── docs/
-│   ├── info_deelnemers/             # Participant information
-│   └── research_muziek/             # Research documentation
+├── bootstrap.sh               ← First-time setup (Mac/Linux)
+├── bootstrap.bat              ← First-time setup (Windows, delegates to .sh)
 ├── scripts/
-│   └── playlists/
-│       ├── spotify_cli.py           # Main CLI
-│       ├── spotify_modules/         # Core playlist logic
-│       ├── QUICKSTART.md            # Getting started guide
-│       └── README.md                # Full documentation
-└── tests/                           # Unit tests
+│   ├── main.py                ← Master pipeline orchestrator
+│   ├── pipeline.sh            ← Shell wrapper for main.py
+│   ├── notebooks.sh           ← Runs all 4 ML notebooks → app outputs
+│   ├── playlists.sh           ← Shell wrapper for playlist generation
+│   ├── extraction/            ← Stage 1: raw wearable data → processed CSVs
+│   ├── baseline/              ← Stage 2: circadian baselines + recovery curves
+│   ├── sessions/              ← Stage 3: session effects + significance tests
+│   ├── playlists/             ← Playlist generation (spotify_cli.py)
+│   └── analysis/              ← Standalone analysis scripts (Bayesian, LSTM, etc.)
+├── notebooks/
+│   ├── ml/                    ← ML model development (Ridge, RF, GBR, Bayesian)
+│   └── experimental/          ← Exploratory analysis
+├── ui/
+│   ├── app.py                 ← Shiny app entry point
+│   ├── run_app.sh             ← Shell wrapper to launch the app
+│   └── modules/               ← Per-page Shiny modules
+└── data/                      ← Gitignored raw data; processed outputs committed
 ```
 
 ---
@@ -58,110 +241,64 @@ spotify-project/
 
 ### Check-in date swapped on mobile (day/month reversed)
 
-When participants fill in the Google Form on a mobile device, the date picker can present fields in MM-DD-YYYY order instead of DD-MM-YYYY. The result is that day and month are swapped in the `Welke dag deed je een check-in?` column — for example, March 10 gets recorded as `3-10-2026`, which is parsed as October 3.
+When participants fill in the Google Form on a mobile device, the date picker can present fields in MM-DD-YYYY order instead of DD-MM-YYYY. The result is that day and month are swapped — for example, March 10 gets recorded as `3-10-2026`, parsed as October 3.
 
-**Detection:** The `Tijdstempel` column is the server-side submission timestamp and is always reliable. A check-in date that falls after the submission timestamp is physically impossible, making it a reliable signal that the date is swapped.
+**Detection:** The `Tijdstempel` column is the server-side submission timestamp and is always reliable. A check-in date that falls after the submission timestamp is a reliable signal that day/month are swapped.
 
-**Fix:** `scripts/wearables/checkin_utils.py` provides a `fix_checkin_dates()` function used by all wearables pipeline scripts. It compares each check-in date against the submission timestamp, and if the date is suspiciously in the future, swaps day and month and re-parses. A `UserWarning` is emitted for every corrected row so the researcher is always informed. See `scripts/wearables/README.md` for details.
+**Fix:** `scripts/wearables/checkin_utils.py` provides `fix_checkin_dates()`, used by all wearables pipeline scripts. It compares each check-in date against the submission timestamp, swaps day/month if suspicious, and emits a `UserWarning` for every corrected row.
 
 ---
 
 ## Participant Codenames
 
-Participants are assigned fruit codenames for privacy:
-
-| Code | Fruit | Status |
-|------|-------|--------|
-| peer | Pear | - |
-| bosbes | Blueberry | - |
-| limoen | Lime | - |
+| Code | Fruit | Biometric data |
+|------|-------|----------------|
+| bosbes | Blueberry | Full (stress + HR + activity) |
+| kokosnoot | Coconut | Full (stress + HR + activity) |
+| limoen | Lime | Partial (no stress sensor) |
+| peer | Pear | Partial (mood check-ins only) |
+| kiwi | Kiwi | Mood check-ins only |
+| watermeloen | Watermelon | Mood check-ins only |
 | aardbei | Strawberry | - |
-| watermeloen | Watermelon | - |
-
-Full list: cherry, grape, peach, orange, lemon, pineapple, banana, apple, kiwi, mango, coconut
-
----
-
-## Workflow
-
-### Data Collection
-1. Participant exports Spotify data via [Exportify.net](https://exportify.net)
-2. CSV files placed in `data/playlists/[codename]/`
-3. Playlists generated via CLI
-4. Outputs delivered to participant
-
-### Development
-```bash
-# Create feature branch
-git checkout -b feature/your-feature
-
-# Make changes, commit, push
-git push origin feature/your-feature
-
-# Create Pull Request on GitHub
-```
-
-See [contributing.md](contributing.md) for full workflow.
-
----
-
-## Key Commands
-
-```bash
-# Generate playlists (complete workflow)
-python scripts/playlists/spotify_cli.py all [codename]
-
-# Step-by-step
-python scripts/playlists/spotify_cli.py prepare [codename]
-python scripts/playlists/spotify_cli.py generate [codename]
-python scripts/playlists/spotify_cli.py analyse [codename]
-
-# Quick analysis
-python scripts/playlists/quick_playlist_analysis.py \
-  --calm path/to/calm.csv \
-  --upbeat path/to/upbeat.csv \
-  --id [codename]
-```
-
----
-
-## Documentation
-
-- **QUICKSTART.md** - Quick getting started guide
-- **README.md** (in scripts/playlists/) - Full CLI documentation
-- **docs/info_deelnemers/** - Participant information materials
-- **docs/research_muziek/** - Research methodology
+| citroen | Lemon | - |
 
 ---
 
 ## Contributing
 
-### Branch Strategy
-- `main` - Stable production code
-- `feature/*` - New features
-- `fix/*` - Bug fixes
-- `docs/*` - Documentation updates
+### Branch strategy
+
+- `main` — stable code
+- `feature/*` — new features
+- `fix/*` — bug fixes
+- `docs/*` — documentation
 
 ### Workflow
-1. Pull latest: `git pull origin main`
-2. Create branch: `git checkout -b feature/description`
-3. Make changes and commit
-4. Push: `git push origin feature/description`
-5. Create Pull Request on GitHub
-6. After merge: Delete branch and pull main
 
-### Commit Messages
-- Use descriptive messages: `Add email validation for participants`
-- Not: `fix stuff`, `updates`, `wip`
+```bash
+git pull origin main
+git checkout -b feature/your-description
+# ... make changes ...
+git push origin feature/your-description
+# Open a Pull Request on GitHub
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
+
+### Syntax check (no test suite yet)
+
+```bash
+uv run python -m py_compile scripts/playlists/spotify_cli.py
+```
 
 ---
 
 ## Contact
 
-**Study Contact:** rem.studie@gmail.com
+**Study:** rem.studie@gmail.com
 
 ---
 
 ## License
 
-Research project - Hogeschool Vives
+Research project — Hogeschool Vives

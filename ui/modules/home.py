@@ -9,7 +9,7 @@ from shiny import module, reactive, render, ui as _ui
 from utils.chart_helpers import ACCENT, PLAYLIST_COLORS
 from utils.data_loader import PARTICIPANTS, AppData, best_playlist_for, live_recommend
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).parent.parent.parent
 DATA = ROOT / "data"
 
 _ISO_LABEL = {
@@ -29,6 +29,66 @@ _MONTHS_NL = ["jan", "feb", "mrt", "apr", "mei", "jun",
                "jul", "aug", "sep", "okt", "nov", "dec"]
 
 _PLAYLIST_NL = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}
+
+_PRED_COLORS = {
+    "Calm":    ("var(--calm-color)",    "var(--calm-color)"),
+    "Neutral": ("var(--neutral-color)", "var(--neutral-color)"),
+    "Energy":  ("var(--energy-color)",  "var(--energy-color)"),
+}
+
+
+def _mini_prediction_bars(predictions: dict) -> "_ui.Tag":
+    """Compact ranked prediction breakdown for the rec panel (Phase 1-C)."""
+    if not predictions:
+        return _ui.div()
+    max_abs = max(abs(v) for v in predictions.values()) or 1.0
+    rows = []
+    for pl in sorted(predictions, key=lambda k: predictions[k], reverse=True):
+        val = predictions[pl]
+        css_var, fallback = _PRED_COLORS.get(pl, ("var(--accent)", "#22c55e"))
+        bar_pct = min(abs(val) / max_abs * 100, 100)
+        bar_color = css_var if val >= 0 else "var(--stress-red)"
+        sign = "+" if val >= 0 else ""
+        nl = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}.get(pl, pl)
+        rows.append(_ui.div(
+            _ui.span(nl, class_="mt-pred-label", style=f"color:{fallback};"),
+            _ui.div(
+                _ui.div(
+                    class_="mt-pred-bar-fill",
+                    style=f"width:{bar_pct:.0f}%; background:{bar_color};",
+                ),
+                class_="mt-pred-bar-bg",
+            ),
+            _ui.span(f"{sign}{val:.1f} pt", class_="mt-pred-value"),
+            class_="mt-pred-row",
+        ))
+    return _ui.div(
+        _ui.div("Voorspelde stemmingswinst", class_="mt-caption mt-tertiary",
+                style="margin-bottom:8px; font-style:italic;"),
+        *rows,
+        style=(
+            "margin-top:16px; padding-top:16px; "
+            "border-top:1px solid var(--border-subtle);"
+        ),
+    )
+
+
+def _ring_svg(pct: float, color: str) -> str:
+    """36×36px SVG ring gauge. pct is 0.0–1.0. (Phase 2-A)"""
+    r = 14
+    cx = cy = 18
+    circumference = 2 * 3.14159 * r
+    filled = circumference * min(max(pct, 0.0), 1.0)
+    gap = circumference - filled
+    return (
+        f'<svg width="36" height="36" viewBox="0 0 36 36" class="mt-ring-svg">'
+        f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" '
+        f'stroke="var(--bg-elevated)" stroke-width="4"/>'
+        f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="none" '
+        f'stroke="{color}" stroke-width="4" stroke-linecap="round" '
+        f'stroke-dasharray="{filled:.2f} {gap:.2f}"/>'
+        f'</svg>'
+    )
 
 
 def _format_date_nl(date_str: str) -> str:
@@ -109,6 +169,15 @@ def _track_row(i: int, row: pd.Series, is_playing: bool = False) -> _ui.Tag:
         valence_pct = int(float(row.get("valence", 0)) * 100)
     except Exception:
         valence_pct = 0
+    try:
+        danceability_pct = int(float(row.get("danceability", 0)) * 100)
+    except Exception:
+        danceability_pct = 0
+    try:
+        loudness_db  = float(row.get("loudness", 0))
+        loudness_str = f"{loudness_db:.1f} dB"
+    except Exception:
+        loudness_str = None
     dur = _track_duration(row.get("duration_ms", 0))
 
     row_class = "track-row" + (" playing" if is_playing else "")
@@ -120,13 +189,28 @@ def _track_row(i: int, row: pd.Series, is_playing: bool = False) -> _ui.Tag:
         f"background:linear-gradient(135deg, hsl({hue},40%,20%), hsl({(hue+60)%360},30%,12%));"
     )
 
-    audio_badges = _ui.div(
-        _ui.span(f"♦ {acousticness_pct}% akoestisch",
-                 style="font-size:10px; color:var(--text-tertiary); margin-right:8px;"),
-        _ui.span(f"♡ {valence_pct}% valentie",
-                 style="font-size:10px; color:var(--text-tertiary);"),
-        style="margin-top:2px;",
-    ) if (acousticness_pct > 0 or valence_pct > 0) else _ui.div()
+    badge_parts = []
+    if valence_pct > 0:
+        badge_parts.append(_ui.span(
+            f"● {valence_pct}% valentie",
+            style="font-size:10px; color:#F5DD90; margin-right:8px;",
+        ))
+    if danceability_pct > 0:
+        badge_parts.append(_ui.span(
+            f"● {danceability_pct}% dans",
+            style="font-size:10px; color:#C4A0F5; margin-right:8px;",
+        ))
+    if acousticness_pct > 0:
+        badge_parts.append(_ui.span(
+            f"● {acousticness_pct}% akoestisch",
+            style="font-size:10px; color:#7DD3C0; margin-right:8px;",
+        ))
+    if loudness_str:
+        badge_parts.append(_ui.span(
+            loudness_str,
+            style="font-size:10px; color:rgba(255,255,255,0.30);",
+        ))
+    audio_badges = _ui.div(*badge_parts, style="margin-top:2px;") if badge_parts else _ui.div()
 
     return _ui.div(
         _ui.div(num_display, class_="track-number"),
@@ -168,7 +252,7 @@ def _bpm_sparkline(df: pd.DataFrame, playlist_type: str) -> _ui.Tag:
     xs = [pad + (i / (len(tempos) - 1)) * (w - 2 * pad) for i in range(len(tempos))]
     ys = [h - pad - ((t - lo) / rng) * (h - 2 * pad) for t in tempos]
     points = " ".join(f"{x:.1f},{y:.1f}" for x, y in zip(xs, ys))
-    color_map = {"Calm": "#3b82f6", "Neutral": "#a855f7", "Energy": "#f97316"}
+    color_map = {"Calm": "#56B4E9", "Neutral": "#009E73", "Energy": "#E69F00"}
     color = color_map.get(playlist_type, "#22c55e")
     return _ui.HTML(
         f'<svg width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
@@ -261,74 +345,82 @@ def _build_playlist_view(df: pd.DataFrame, playlist_type: str, participant: str,
 @module.ui
 def ui():
     return _ui.div(
-        # Page header
+        # --- FULL-HEIGHT HERO ---
         _ui.div(
-            _ui.div("PROJECT R.E.M.", class_="mt-eyebrow", style="margin-bottom:8px;"),
-            _ui.div("MoodTune", class_="mt-h1",
-                    style="font-family:'Sora',sans-serif; font-size:2rem; margin-bottom:8px;"),
+            _ui.div("PROJECT R.E.M.", class_="mt-eyebrow",
+                    style="margin-bottom:16px; text-align:center;"),
+            _ui.div("MoodTune", class_="mt-h1 mt-home-title",
+                    style="font-family:'Sora',sans-serif; font-size:4rem; text-align:center; margin-bottom:20px;"),
             _ui.p(
-                "Kies een willekeurig moment uit de wearables-data. Het ML-model berekent op "
-                "basis van de biometrische staat op dat moment welk afspeellijsttype de beste "
-                "stemmingsverbetering zou opleveren.",
+                "Kies een willekeurig moment. Het ML-model berekent "
+                "welk afspeellijsttype de beste stemmingsverbetering zou opleveren.",
                 class_="mt-body",
-                style="color:var(--text-secondary); max-width:560px; margin-bottom:24px;",
+                style="max-width:440px; text-align:center; margin:0 auto 32px;",
+            ),
+            _ui.output_ui("hero_stats"),
+            _ui.div("↓", style=(
+                "font-size:1.5rem; color:rgba(255,255,255,0.25); margin-top:40px; "
+                "animation:fadeInUp 1s ease 0.5s both;"
+            )),
+            style=(
+                "min-height:50vh; display:flex; flex-direction:column; "
+                "justify-content:center; align-items:center; position:relative; z-index:1; "
+                "padding:0 var(--page-margin);"
             ),
         ),
 
-        # Two-column panel: moment selector (left) + recommendation (right)
+        # --- CARDS BELOW (scroll to reveal) ---
         _ui.div(
-            # Left: date/hour picker + biometric state
+            # Two-column panel: moment selector (left) + recommendation (right)
             _ui.div(
-                _ui.div("Kies een moment", class_="mt-h3", style="margin-bottom:8px;"),
-                _ui.p(
-                    "Selecteer een datum en uur. Het model zoekt de werkelijke biometrische "
-                    "waarden op uit de wearables-data.",
-                    class_="mt-caption mt-secondary",
-                    style="margin-bottom:16px;",
-                ),
-                _ui.input_date(
-                    "home_date", "Datum",
-                    value="2026-01-01",
-                    width="100%",
-                ),
-                _ui.div(style="height:12px;"),
-                _ui.input_slider(
-                    "home_hour", "Uur van de dag",
-                    min=0, max=23, value=8, step=1,
-                    post="h",
-                    width="100%",
-                ),
+                # Left: glassmorphic date/hour picker
                 _ui.div(
-                    _ui.input_action_button(
-                        "random_btn", "Willekeurig moment",
-                        class_="mt-btn-secondary",
-                        style="width:100%; margin-top:12px;",
+                    _ui.div("Kies een moment", class_="mt-h3", style="margin-bottom:8px;"),
+                    _ui.p(
+                        "Selecteer een datum en uur. Het model zoekt de werkelijke biometrische "
+                        "waarden op uit de wearables-data.",
+                        class_="mt-caption mt-secondary",
+                        style="margin-bottom:16px;",
                     ),
+                    _ui.input_date(
+                        "home_date", "Datum",
+                        value="2026-01-01",
+                        width="100%",
+                    ),
+                    _ui.div(style="height:12px;"),
+                    _ui.input_select(
+                        "home_hour", "Uur van de dag",
+                        choices={str(h): f"{h:02d}:00" for h in range(24)},
+                        selected="8",
+                        width="100%",
+                    ),
+                    _ui.div(
+                        _ui.input_action_button(
+                            "random_btn", "↺ Willekeurig moment",
+                            class_="mt-btn-secondary",
+                            style="margin-top:12px;",
+                        ),
+                    ),
+                    _ui.output_ui("moment_state_ui"),
+                    class_="mt-glass-card",
+                    style="flex:1; min-width:0;",
                 ),
-                _ui.output_ui("moment_state_ui"),
-                class_="mt-card-elevated",
-                style="flex:1; min-width:0; padding:24px;",
+                # Right: glassmorphic recommendation panel
+                _ui.div(
+                    _ui.output_ui("rec_panel_ui"),
+                    class_="mt-glass-card",
+                    style="flex:1; min-width:0;",
+                ),
+                style="display:flex; gap:20px; margin-bottom:32px; align-items:stretch;",
             ),
-            # Right: recommendation panel
-            _ui.div(
-                _ui.output_ui("rec_panel_ui"),
-                class_="mt-card-elevated",
-                style="flex:1; min-width:0; padding:24px;",
-            ),
-            style="display:flex; gap:16px; margin-bottom:24px; align-items:flex-start;",
+
+            # Playlist (appears after generate click)
+            _ui.div(_ui.output_ui("player_ui")),
+
+            class_="mt-home-content fade-in",
         ),
 
-        # Generate button
-        _ui.div(
-            _ui.input_action_button("generate_btn", "Genereer afspeellijst",
-                                    class_="mt-btn-primary"),
-            style="margin-bottom:32px;",
-        ),
-
-        # Playlist (appears after generate click)
-        _ui.div(_ui.output_ui("player_ui")),
-
-        class_="fade-in",
+        class_="mt-home-dark",
     )
 
 
@@ -345,6 +437,44 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
     def _reset_on_participant_change():
         sel()
         player_state.set(None)
+
+    # ── Hero stats (Phase 6) — computed once from APP_DATA at render time ─────
+
+    @output
+    @render.ui
+    def hero_stats():
+        fm = app_data.feature_matrix
+        # Total sessions across all participants
+        n_sessions = len(fm) if (fm is not None and not fm.empty) else None
+        # Average mood delta
+        avg_delta = None
+        if n_sessions and "mood_delta" in fm.columns:
+            avg_delta = pd.to_numeric(fm["mood_delta"], errors="coerce").dropna().mean()
+        # Participants with full biometric data
+        n_full = sum(1 for v in app_data.has_sessions.values() if v)
+
+        def _hero_stat(value: str, label: str, color: str = "var(--text-accent)") -> _ui.Tag:
+            return _ui.div(
+                _ui.div(value, class_="mt-hero-stat-value", style=f"color:{color};"),
+                _ui.div(label, class_="mt-stat-label", style="margin-top:6px; font-size:0.625rem;"),
+            )
+
+        n_str     = str(n_sessions) if n_sessions else "—"
+        delta_str = (f"+{avg_delta:.1f} pt" if avg_delta and avg_delta >= 0
+                     else f"{avg_delta:.1f} pt" if avg_delta is not None else "—")  # DATA GAP if no feature_matrix
+        delta_clr = "var(--accent)" if (avg_delta or 0) >= 0 else "var(--stress-red)"
+        full_str  = str(n_full) if n_full else "—"
+
+        _sep = "width:1px; height:60px; background:rgba(255,255,255,0.10); flex-shrink:0;"
+        return _ui.div(
+            _ui.div(style=f"{_sep} margin-right:24px;"),
+            _hero_stat(n_str, "sessies"),
+            _ui.div(style=f"{_sep} margin:0 24px;"),
+            _hero_stat(delta_str, "gem. Δstemming", delta_clr),
+            _ui.div(style=f"{_sep} margin:0 24px;"),
+            _hero_stat(full_str, "deeln. met data"),
+            style="display:flex; align-items:center;",
+        )
 
     # ── Garmin per-minute data ────────────────────────────────────────────
 
@@ -380,12 +510,12 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
                 if not valid.empty:
                     ts = valid.iloc[random.randint(0, len(valid) - 1)]["timestamp"]
                     _ui.update_date("home_date", value=str(ts.date()), session=session)
-                    _ui.update_slider("home_hour", value=int(ts.hour), session=session)
+                    _ui.update_select("home_hour", selected=str(ts.hour), session=session)
                     return
         # fallback: pick any row
         ts = gm.iloc[random.randint(0, len(gm) - 1)]["timestamp"]
         _ui.update_date("home_date", value=str(ts.date()), session=session)
-        _ui.update_slider("home_hour", value=int(ts.hour), session=session)
+        _ui.update_select("home_hour", selected=str(ts.hour), session=session)
 
     # ── Moment biometric lookup ───────────────────────────────────────────
 
@@ -489,6 +619,7 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
                 style="margin-top:16px;",
             )
 
+        # items: (label, display_val, color, ring_pct_or_None)
         items = []
         pre_stress   = bio.get("pre_stress_mean")
         pre_hr       = bio.get("pre_hr_mean")
@@ -498,18 +629,18 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
         if pre_stress is not None and not pd.isna(pre_stress):
             v = float(pre_stress)
             c = "#ef4444" if v > 60 else ("#f59e0b" if v > 40 else "#22c55e")
-            items.append(("Stress", f"{v:.0f}/100", c))
+            items.append(("Stress", f"{v:.0f}%", c, v / 100))
         if pre_hr is not None and not pd.isna(pre_hr):
-            items.append(("Hartslag", f"{float(pre_hr):.0f} bpm", "var(--text-primary)"))
+            items.append(("Hartslag", f"{float(pre_hr):.0f} bpm", "#f472b6", None))
         if bb is not None and not pd.isna(bb):
             v = float(bb)
             c = "#ef4444" if v < 30 else ("#f59e0b" if v < 50 else "#22c55e")
-            items.append(("Body Battery", f"{v:.0f}%", c))
+            items.append(("Body Battery", f"{v:.0f}%", c, v / 100))
         if baseline_dev is not None and not pd.isna(baseline_dev):
             v   = float(baseline_dev)
             sgn = "+" if v >= 0 else ""
             c   = "#ef4444" if v > 10 else ("#f59e0b" if v > 5 else "#22c55e")
-            items.append(("Circad. afwijking", f"{sgn}{v:.1f}", c))
+            items.append(("Circad. afwijking", f"{sgn}{v:.1f}", c, min(abs(v) / 30, 1.0)))
 
         if not items:
             return _ui.div(
@@ -518,13 +649,24 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
                 style="margin-top:16px;",
             )
 
-        stat_els = [
-            _ui.div(
-                _ui.div(val, style=f"font-weight:700; color:{color}; font-size:1.05rem; line-height:1;"),
-                _ui.div(label, class_="mt-caption mt-secondary", style="font-size:11px; margin-top:3px;"),
-            )
-            for label, val, color in items
-        ]
+        stat_els = []
+        for label, val, color, ring_pct in items:
+            ring = _ui.HTML(_ring_svg(ring_pct, color)) if ring_pct is not None else _ui.div()
+            if label == "Hartslag":
+                val_el = _ui.HTML(
+                    f'<div style="font-weight:700; color:{color}; font-size:1.05rem; line-height:1;">'
+                    f'<span class="mt-heart-beat">♥</span>{val}</div>'
+                )
+            else:
+                val_el = _ui.div(val, style=f"font-weight:700; color:{color}; font-size:1.05rem; line-height:1;")
+            stat_els.append(_ui.div(
+                ring,
+                _ui.div(
+                    val_el,
+                    _ui.div(label, class_="mt-caption mt-secondary", style="font-size:11px; margin-top:3px;"),
+                ),
+                style="display:flex; align-items:center; gap:10px;",
+            ))
 
         return _ui.div(
             _ui.div(
@@ -560,43 +702,66 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
 
         nl_name  = _PLAYLIST_NL.get(playlist_type, playlist_type)
         _, iso_dir, badge_cls = _ISO_LABEL.get(playlist_type, ("Afspeellijst", "ISO", "calm"))
-        color_map = {"calm": "#3b82f6", "neutral": "#a855f7", "energy": "#f97316"}
+        color_map = {"calm": "#56B4E9", "neutral": "#009E73", "energy": "#E69F00"}
         color = color_map.get(badge_cls, "#22c55e")
 
-        reason_parts = []
-        if predictions:
-            nl = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}
-            sorted_types = sorted(predictions, key=lambda k: predictions[k], reverse=True)
-            preds_str = "  ·  ".join(
-                f"{nl.get(t, t)}: {'+' if predictions[t] >= 0 else ''}{predictions[t]:.1f} pt"
-                for t in sorted_types
-            )
-            reason_parts.append(f"Voorspelde stemmingswinst — {preds_str}")
-        elif no_data:
-            reason_parts.append("Geen wearables-data op dit tijdstip — standaard Bayesiaanse aanbeveling.")
+        # Human-readable "why" explanation
+        why_text = None
+        if not no_data:
+            pre_stress   = bio_row.get("pre_stress_mean")
+            baseline_dev = bio_row.get("baseline_deviation_entry")
+            try:
+                v = float(pre_stress) if pre_stress is not None else None
+            except (TypeError, ValueError):
+                v = None
+            if v is not None and not pd.isna(v):
+                if v > 60:
+                    why_text = "Hoge stress gedetecteerd — kalme muziek helpt ontspannen."
+                elif v < 40 and playlist_type == "Energy":
+                    why_text = "Lage basisstress — energieke muziek voor extra motivatie."
+                elif v < 40 and playlist_type == "Calm":
+                    why_text = "Lage stress — kalme muziek houdt je ontspannen."
+            if why_text is None and baseline_dev is not None:
+                try:
+                    dev = float(baseline_dev)
+                    if not pd.isna(dev):
+                        if dev > 5:
+                            why_text = f"Je bent +{dev:.0f} pt meer gestresseerd dan normaal op dit uur."
+                        elif dev < -5:
+                            why_text = f"Je bent {abs(dev):.0f} pt minder gestresseerd dan normaal."
+                except (TypeError, ValueError):
+                    pass
+            if why_text is None:
+                why_text = "Op basis van je biometrische status op dit moment."
         else:
-            reason_parts.append(f"Bayesiaans model op basis van alle sessies van {p.capitalize()}.")
+            why_text = "Geen wearables-data — standaard Bayesiaanse aanbeveling."
 
         return _ui.div(
             _ui.div(source_label, class_="mt-eyebrow", style="margin-bottom:12px;"),
             _ui.div(
-                _ui.div(
-                    nl_name.upper(),
-                    style=(
-                        f"font-family:'Sora',sans-serif; font-weight:700; font-size:2rem; "
-                        f"letter-spacing:-0.02em; color:{color}; line-height:1;"
-                    ),
-                ),
-                _ui.div(f"ISO — {iso_dir}", class_="mt-body mt-secondary", style="margin-top:4px;"),
-                style="margin-bottom:10px;",
+                _ui.div(nl_name.upper(), class_=f"mt-rec-hero-type {badge_cls}",
+                        style="font-size:2rem; line-height:1;"),
+                _ui.div(f"ISO — {iso_dir}", class_="mt-rec-hero-iso",
+                        style="margin-top:6px;"),
+                class_=f"mt-rec-badge-hero {badge_cls}",
+                style="margin-bottom:12px;",
             ),
             _ui.div(
-                " ".join(reason_parts),
-                class_="mt-caption mt-secondary",
+                why_text,
                 style=(
-                    "border-left:2px solid var(--border-default); padding-left:8px; "
-                    "font-style:italic;"
+                    "font-size:0.875rem; color:rgba(255,255,255,0.65); line-height:1.55; "
+                    "padding:10px 12px; border-left:2px solid var(--border-default); "
+                    "background:rgba(255,255,255,0.03); border-radius:0 8px 8px 0; margin-bottom:4px;"
                 ),
+            ),
+            _mini_prediction_bars(predictions),
+            _ui.div(
+                _ui.input_action_button(
+                    "generate_btn", "Genereer afspeellijst",
+                    class_=f"mt-btn-primary mt-btn-{badge_cls}",
+                    style="width:100%;",
+                ),
+                style="margin-top:20px;",
             ),
         )
 
@@ -625,8 +790,7 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
             "confidence":    confidence,
         }
         player_state.set(state)
-        if now_playing is not None:
-            now_playing.set(state)
+        # Intentionally do NOT update now_playing — footer stays as project info
 
     # ── Playlist view ─────────────────────────────────────────────────────
 
@@ -653,28 +817,29 @@ def server(input, output, session, app_data: AppData, now_playing=None, selected
             style="color:var(--text-tertiary); margin-top:8px; text-align:center;",
         )
         cta = _ui.div(
+            _ui.div("Wat wil je nu doen?", class_="mt-eyebrow",
+                    style="margin-bottom:14px; color:var(--text-tertiary);"),
             _ui.div(
-                _ui.div("Wat nu?", class_="mt-caption mt-secondary", style="margin-bottom:8px;"),
                 _ui.div(
-                    _ui.div(
-                        _ui.div("Bekijk een echte sessie", class_="mt-body"),
-                        _ui.div("Biometrische boog + herstelcurve →", class_="mt-caption mt-secondary"),
-                        _ui.div("Navigeer naar Sessie-replay", class_="mt-caption",
-                                style="color:var(--accent); margin-top:4px;"),
-                        class_="mt-card-elevated",
-                        style="padding:16px; cursor:default;",
-                    ),
-                    _ui.div(
-                        _ui.div("Persoonlijke aanbeveling", class_="mt-body"),
-                        _ui.div("Bayesiaans model + circadiane context →", class_="mt-caption mt-secondary"),
-                        _ui.div("Navigeer naar Aanbevelingen", class_="mt-caption",
-                                style="color:var(--accent); margin-top:4px;"),
-                        class_="mt-card-elevated",
-                        style="padding:16px; cursor:default;",
-                    ),
-                    style="display:grid; grid-template-columns:1fr 1fr; gap:12px;",
+                    _ui.div("Bekijk een echte sessie →",
+                            class_="mt-home-cta-title",
+                            style="font-weight:600; font-size:0.9375rem; color:var(--text-primary);"),
+                    _ui.div("Biometrische boog + herstelcurve", class_="mt-caption mt-tertiary",
+                            style="margin-top:3px;"),
+                    class_="mt-home-cta-link",
+                    onclick="mtNavTo('profiel','Sessie-replay'); return false;",
                 ),
+                _ui.div(
+                    _ui.div("Persoonlijke aanbeveling →",
+                            class_="mt-home-cta-title",
+                            style="font-weight:600; font-size:0.9375rem; color:var(--text-primary);"),
+                    _ui.div("Bayesiaans model + circadiane context", class_="mt-caption mt-tertiary",
+                            style="margin-top:3px;"),
+                    class_="mt-home-cta-link",
+                    onclick="mtNavTo('aanbevelingen'); return false;",
+                ),
+                style="display:flex; flex-direction:column; gap:8px;",
             ),
-            style="margin-top:24px; max-width:640px;",
+            style="margin-top:24px; max-width:480px;",
         )
         return _ui.div(view, caption, cta)

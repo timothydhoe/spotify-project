@@ -129,8 +129,13 @@ def run_participant(
     print(f"  {code}  ({device})")
     print(f"{'='*60}")
 
-    # Skip extraction if outputs are fresh
-    if not force and outputs_are_fresh(processed_dir, export_dir, device):
+    # Skip extraction if outputs are fresh; also re-run if session_biometrics.csv
+    # is missing but a checkin file is available (e.g. path bug was previously active).
+    session_bio_missing = (
+        checkin_path is not None
+        and not (processed_dir / "session_biometrics.csv").exists()
+    )
+    if not force and outputs_are_fresh(processed_dir, export_dir, device) and not session_bio_missing:
         print(f"  [{code}] Processed files up-to-date — skipping extraction (use --force to re-run)")
     else:
         if device == "garmin":
@@ -178,7 +183,7 @@ def main():
     if not (root / "data").exists():
         sys.exit(f"✗ Can't find project root (tried {root}). Use --root.")
 
-    checkin = args.checkin or next((root / "data" / "check_in").glob("*.csv"), None)
+    checkin = args.checkin or next((root / "data" / "checkins").glob("[!_]*.csv"), None)
 
     targets = PARTICIPANTS if args.all else args.participants
     if not targets:

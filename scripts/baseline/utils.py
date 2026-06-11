@@ -31,7 +31,13 @@ def local_to_utc(date, time_str: str) -> pd.Timestamp:
 
 def get_session_dates(proc_dir: Path) -> set:
     """Load session dates from session_biometrics.csv as a set of date objects."""
-    sessions_df = pd.read_csv(proc_dir / "session_biometrics.csv")
+    path = proc_dir / "session_biometrics.csv"
+    if not path.exists():
+        raise FileNotFoundError(
+            f"session_biometrics.csv not found at {path} — "
+            "re-run extraction/pipeline.py with --force to regenerate it"
+        )
+    sessions_df = pd.read_csv(path)
     return set(pd.to_datetime(sessions_df["date"]).dt.date)
 
 

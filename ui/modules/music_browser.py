@@ -14,9 +14,9 @@ DATA = ROOT / "data"
 
 _PAGE_SIZE   = 25
 _CLASS_NL    = {"calm": "Kalm", "energy": "Energiek", "other": "Overig"}
-_CLASS_COLOR = {"calm": "#1d4ed8", "energy": "#c2560a", "other": "#6b7280"}
-_CLASS_BG    = {"calm": "rgba(37,99,235,0.10)", "energy": "rgba(234,108,10,0.10)", "other": "rgba(107,114,128,0.10)"}
-_CLASS_BORDER = {"calm": "rgba(37,99,235,0.22)", "energy": "rgba(234,108,10,0.22)", "other": "rgba(107,114,128,0.22)"}
+_CLASS_COLOR = {"calm": "var(--calm-color)", "energy": "var(--energy-color)", "other": "var(--text-secondary)"}
+_CLASS_BG    = {"calm": "rgba(86,180,233,0.06)",  "energy": "rgba(230,159,0,0.06)",  "other": "rgba(156,163,175,0.04)"}
+_CLASS_BORDER = {"calm": "rgba(86,180,233,0.20)", "energy": "rgba(230,159,0,0.20)", "other": "rgba(156,163,175,0.14)"}
 
 
 def _img_b64(path: Path) -> str:
@@ -136,27 +136,33 @@ def _song_table(df: pd.DataFrame, page: int) -> _ui.Tag:
 @module.ui
 def ui():
     return _ui.div(
-        # Header
+        # Header — aligned to home page hero pattern
         _ui.div(
             _ui.div(
                 _ui.span("Jouw Muziek", class_="mt-h1"),
-                _ui.span("RQ5", class_="rq-badge"),
-                style="display:inline-flex; align-items:center; gap:8px;",
+                _ui.span("RQ5", class_="rq-badge", style="vertical-align:middle;"),
+                style="display:inline-flex; align-items:center; gap:8px; justify-content:center;",
             ),
             _ui.p(
-                "Jouw Spotify-bibliotheek door de lens van de arousal-classifier. "
-                "Kalm / Energiek / Overig — op basis van tempo, energie, loudness en acousticness.",
+                "Jouw Spotify-bibliotheek geclassificeerd via een deterministisch arousal-score model. "
+                "Kalm / Energiek / Overig — score = 35% energie + 30% tempo + 20% loudness "
+                "− 10% acousticness + 5% danceability (MinMaxScaler per deelnemer).",
                 class_="mt-body mt-secondary",
-                style="margin-top:8px; max-width:640px;",
+                style="margin-top:8px; max-width:560px; margin-left:auto; margin-right:auto;",
             ),
-            class_="mt-wrapped-hero",
-            style="margin-bottom:24px;",
+            class_="mt-page-hero",
+        ),
+
+        # 5.2 Muziekmix-samenvatting (vervangt de collapsible clustering-sectie)
+        _ui.div(
+            _ui.output_ui("music_mix_summary"),
+            style="padding:0 var(--page-margin) 56px;",
         ),
 
         # Class distribution pills + controls
         _ui.div(
             _ui.output_ui("class_summary"),
-            style="padding:0 var(--page-margin) 16px;",
+            style="padding:0 var(--page-margin) 48px;",
         ),
 
         # Filter + sort row
@@ -197,26 +203,7 @@ def ui():
                 class_="mt-section-card",
                 style="padding:0;",
             ),
-            style="padding:0 var(--page-margin) 24px;",
-        ),
-
-        # Clustering context (collapsible)
-        _ui.div(
-            _ui.div(
-                _ui.div(
-                    _ui.div("Wat zegt data-gedreven clustering?", class_="mt-h2",
-                            style="margin-bottom:4px;"),
-                    _ui.input_action_button("toggle_cluster", "▼ Toon analyse",
-                                            class_="mt-expand-trigger",
-                                            style="margin-left:auto; font-size:12px;"),
-                    style="display:flex; align-items:center; margin-bottom:8px;",
-                ),
-                _ui.div("GMM Gaussian Mixture Model op Spotify audio-kenmerken (N=2.777 nummers)",
-                        class_="mt-caption mt-secondary", style="margin-bottom:12px;"),
-                _ui.output_ui("cluster_section"),
-                class_="mt-section-card",
-            ),
-            style="padding:0 var(--page-margin) 24px;",
+            style="padding:0 var(--page-margin) 32px;",
         ),
     )
 
@@ -227,9 +214,8 @@ def ui():
 
 @module.server
 def server(input, output, session, app_data: AppData, selected_participant=None):
-    sel          = selected_participant if selected_participant is not None else reactive.Value("bosbes")
-    page_num     = reactive.Value(1)
-    show_cluster = reactive.Value(False)
+    sel      = selected_participant if selected_participant is not None else reactive.Value("bosbes")
+    page_num = reactive.Value(1)
 
     @reactive.Effect
     @reactive.event(input.song_prev)
@@ -251,13 +237,6 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         _ = input.sort_order()
         _ = sel()
         page_num.set(1)
-
-    @reactive.Effect
-    @reactive.event(input.toggle_cluster)
-    def _toggle_cluster():
-        show_cluster.set(not show_cluster())
-        label = "▲ Verberg analyse" if show_cluster() else "▼ Toon analyse"
-        _ui.update_action_button("toggle_cluster", label=label, session=session)
 
     @reactive.Calc
     def _base_df() -> pd.DataFrame:
@@ -355,62 +334,73 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
 
     @output
     @render.ui
-    def cluster_section():
-        if not show_cluster():
+    def music_mix_summary():
+        """5.2 — Replace clustering section with a personal music mix overview."""
+        df = _base_df()
+        p  = sel()
+
+        if df.empty or "class" not in df.columns:
             return _ui.div()
 
-        items = [
-            # Value box row
-            _ui.div(
-                _ui.div(
-                    _ui.div("k=3", style="font-family:'Sora',sans-serif; font-weight:700; font-size:1.5rem; color:var(--accent);"),
-                    _ui.div("Silhouette = 0.101", class_="mt-stat-label"),
-                    _ui.div("Marginale scheiding", class_="mt-caption mt-tertiary"),
-                    class_="mt-stat-card",
-                ),
-                _ui.div(
-                    _ui.div("k=9", style="font-family:'Sora',sans-serif; font-weight:700; font-size:1.5rem; color:var(--text-secondary);"),
-                    _ui.div("Silhouette = −0.001", class_="mt-stat-label"),
-                    _ui.div("BIC-optimaal maar geen scheiding", class_="mt-caption mt-tertiary"),
-                    class_="mt-stat-card",
-                ),
-                _ui.div(
-                    _ui.div("−1696", style="font-family:'Sora',sans-serif; font-weight:700; font-size:1.5rem; color:var(--text-secondary);"),
-                    _ui.div("BIC-verschil (k=9 vs k=3)", class_="mt-stat-label"),
-                    _ui.div("Betere fit, maar clusters overlappen", class_="mt-caption mt-tertiary"),
-                    class_="mt-stat-card",
-                ),
-                style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:16px;",
-            ),
-        ]
+        counts = df["class"].str.lower().value_counts().to_dict()
+        total  = len(df)
 
-        # PCA scatter PNG
-        pca_src = _img_b64(DATA / "analysis" / "music_unsupervised" / "pca_scatter_k3_vs_k9.png")
+        def _class_stat(cls, icon):
+            n   = counts.get(cls, 0)
+            pct = n / total * 100 if total > 0 else 0
+            col = _CLASS_COLOR.get(cls, TEXT_SECONDARY)
+            bg  = _CLASS_BG.get(cls, "transparent")
+            brd = _CLASS_BORDER.get(cls, "transparent")
+            nl  = _CLASS_NL.get(cls, cls.capitalize())
+            return _ui.div(
+                _ui.div(icon, style="font-size:2rem; margin-bottom:8px;"),
+                _ui.div(str(n), class_="mt-stat-value", style=f"color:{col};"),
+                _ui.div(nl, style="font-size:var(--font-size-sm); font-weight:600; text-transform:uppercase; letter-spacing:0.04em; margin-top:4px; color:var(--text-secondary);"),
+                _ui.div(f"{pct:.0f}% van bibliotheek", class_="mt-caption mt-tertiary", style="margin-top:2px;"),
+                style=(
+                    f"flex:1; text-align:center; padding:20px 16px; border-radius:calc(var(--radius-card) - 4px); "
+                    f"background:{bg}; border:1px solid {brd};"
+                ),
+            )
+
+        # PCA scatter PNG — shown inline, no dropdown
+        pca_src = _img_b64(DATA / "analysis" / "music_classification" / "pca_scatter_k3.png")
+        pca_block = _ui.div()
         if pca_src:
-            items.append(_ui.div(
-                _ui.div("PCA-projectie: k=3 (handmatig) vs. k=9 (BIC-optimaal)",
-                        class_="mt-caption mt-secondary", style="margin-bottom:6px;"),
+            pca_block = _ui.div(
                 _ui.div(
-                    _ui.img(src=pca_src, style="max-width:100%; border-radius:6px;"),
-                    style="background:#111827; border-radius:10px; padding:12px;",
+                    _ui.img(
+                        src=pca_src,
+                        style="max-width:100%; border-radius:8px; display:block; margin:0 auto;",
+                    ),
+                    style="background:#111827; border-radius:10px; padding:16px; margin-top:20px;",
                 ),
-            ))
-        else:
-            items.append(_ui.div(
-                "PCA-grafiek ontbreekt — voeg een save-cel toe aan notebook 4 "
-                "(`fig.savefig(DATA / 'analysis' / 'music_unsupervised' / 'pca_scatter_k3_vs_k9.png')`).",
-                class_="mt-caption mt-tertiary",
-                style="font-style:italic; padding:8px 0;",
-            ))
+                _ui.p(
+                    "k=3 clustering op alle nummers (PCA-projectie). "
+                    "Elke stip is één nummer. Kleur = GMM-cluster. "
+                    "De overlap laat zien dat muziek een continu spectrum is — "
+                    "de arousal-classifier kiest de meest passende groep.",
+                    class_="mt-caption mt-secondary",
+                    style="margin-top:10px; text-align:center;",
+                ),
+            )
 
-        items.append(_ui.div(
-            _ui.span("Conclusie: ", style="font-weight:600;"),
-            "De audio-feature ruimte is een continu spectrum — er zijn geen werkelijk discrete categorieën. "
-            "k=9 past beter op de data (BIC) maar clusters overlappen volledig (silhouette ≈ 0). "
-            "De handmatige driedeling Kalm/Neutraal/Energiek benadert een gradiënt en blijft de "
-            "praktische keuze voor playlist-generatie.",
-            class_="mt-honesty-callout",
-            style="margin-top:8px;",
-        ))
-
-        return _ui.div(*items)
+        return _ui.div(
+            _ui.div("Jouw muziekmix", class_="mt-h2", style="margin-bottom:12px;"),
+            _ui.div(
+                _class_stat("calm",   "🎵"),
+                _class_stat("energy", "⚡"),
+                _class_stat("other",  "○"),
+                style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:16px;",
+            ),
+            _ui.p(
+                "Arousal-score per nummer: 35% energie + 30% tempo + 20% loudness − 10% acousticness + 5% danceability "
+                "(genormaliseerd op jouw bibliotheekreeks). "
+                "Score < 0.35 (én valence ≥ 0.25) → Kalm. Score > 0.65 → Energiek. Tussenin → Overig.",
+                class_="mt-body mt-secondary",
+                style="margin:0;",
+            ),
+            pca_block,
+            class_="mt-section-card",
+            style="padding:24px 32px;",
+        )

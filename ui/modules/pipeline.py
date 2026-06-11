@@ -8,7 +8,7 @@ from shiny import module, reactive, render, ui as _ui
 from utils.chart_helpers import TEXT_SECONDARY
 from utils.data_loader import AppData
 
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).parent.parent.parent
 DATA = ROOT / "data"
 
 # ---------------------------------------------------------------------------
@@ -432,9 +432,9 @@ def _io_block(io: dict) -> _ui.Tag:
     return _ui.div(
         _ui.div(
             _ui.div(
-                _ui.div("Invoer", style="font-size:10px; font-weight:600; color:#3b82f6; "
+                _ui.div("Invoer", style="font-size:10px; font-weight:600; color:#56B4E9; "
                         "letter-spacing:0.08em; text-transform:uppercase; margin-bottom:5px;"),
-                _pill_list(io["in"], "#3b82f6"),
+                _pill_list(io["in"], "#56B4E9"),
                 style="flex:1;",
             ),
             _ui.div("→", style=(
@@ -545,55 +545,88 @@ def ui():
             _ui.div("De Datapipeline", class_="mt-h1"),
             _ui.p(
                 "Hoe ruwe Spotify- en Garmin-gegevens worden omgezet naar "
-                "gepersonaliseerde afspeellijstaanbevelingen.",
+                "gepersonaliseerde afspeellijstaanbevelingen. Klik op een stap voor details.",
                 class_="mt-body mt-secondary",
                 style="margin-top:8px; max-width:640px;",
             ),
-            style="text-align:center; padding:48px 80px 32px;",
+            style="text-align:center; padding:32px var(--page-margin) 24px;",
         ),
 
-        # Hoofdkaart
+        # Split panel — node graph left (40%), detail right (60%)
         _ui.div(
+            # Left: dotted-canvas node list
             _ui.div(
-                # Modus-schakelaar
-                _ui.div(
-                    _ui.output_ui("mode_pills"),
-                    style="margin-bottom:32px;",
-                ),
-
-                # Diagram
                 _ui.output_ui("pipeline_diagram"),
-
-                # Detail-paneel
-                _ui.output_ui("step_detail"),
-
-                class_="mt-section-card",
-                style="padding:48px 64px;",
+                style="flex:0 0 38%; min-width:0;",
             ),
-            style="padding:0 80px 32px;",
+            # Right: detail panel
+            _ui.div(
+                _ui.output_ui("step_detail"),
+                style="flex:1; min-width:0;",
+            ),
+            style=(
+                "display:flex; gap:24px; align-items:flex-start; "
+                "padding:0 var(--page-margin) 32px;"
+            ),
         ),
 
-        # Connector-uitleg
+        # Drie parallelle tracks
         _ui.div(
             _ui.div(
-                _ui.div("Waarom twee aparte tracks?", class_="mt-h3", style="margin-bottom:12px;"),
-                _ui.p(
-                    "De muziek wordt samengesteld op basis van audiokenmerken — "
-                    "los van je biometrische data. "
-                    "Zo kunnen we later meten of het de muziek was die je stemming beïnvloedde, niet andersom. "
-                    "Als we biometrische feedback hadden gebruikt om de afspeellijst te genereren, "
-                    "zouden we het zelfstandige effect van de muziek niet meer kunnen meten. "
-                    "In de analysetrack worden beide samengevoegd om dit effect te kwantificeren.",
-                    class_="mt-body mt-secondary",
-                    style="margin-bottom:16px;",
+                _ui.div("Drie parallelle tracks", class_="mt-h3",
+                        style="margin-bottom:16px; text-align:center;"),
+                _ui.div(
+                    _ui.div(
+                        _ui.div("🎵 Muziektrack", class_="mt-h3",
+                                style="color:var(--calm-color); margin-bottom:8px;"),
+                        _ui.p(
+                            "Spotify Exportify-bibliotheek → audiokenmerken filteren op BPM en energie → "
+                            "ISO-sortering → drie afspeellijsten per deelnemer.",
+                            class_="mt-body mt-secondary", style="font-size:0.875rem;",
+                        ),
+                        _ui.div("Geen biometriedata nodig", class_="mt-caption mt-tertiary",
+                                style="margin-top:8px; font-style:italic;"),
+                        class_="mt-card-elevated",
+                        style="flex:1; padding:20px; border-top:3px solid var(--calm-color);",
+                    ),
+                    _ui.div(
+                        _ui.div("⌚ Biometrietrack", class_="mt-h3",
+                                style="color:var(--stress-red); margin-bottom:8px;"),
+                        _ui.p(
+                            "Garmin GDPR-export → FIT-bestanden decoderen → per-minuut stress, hartslag "
+                            "en body battery → fase-gemiddelden per sessie (voor/tijdens/na).",
+                            class_="mt-body mt-secondary", style="font-size:0.875rem;",
+                        ),
+                        _ui.div("Geen audiodata nodig", class_="mt-caption mt-tertiary",
+                                style="margin-top:8px; font-style:italic;"),
+                        class_="mt-card-elevated",
+                        style="flex:1; padding:20px; border-top:3px solid var(--stress-red);",
+                    ),
+                    _ui.div(
+                        _ui.div("🧮 Analysetrack", class_="mt-h3",
+                                style="color:var(--accent); margin-bottom:8px;"),
+                        _ui.p(
+                            "Muziek- en biometriedata samengevoegd via check-in tijden → "
+                            "28-koloms feature-matrix → ML-modellen (Ridge, RF, GB) + "
+                            "Bayesiaans model → gepersonaliseerde aanbeveling.",
+                            class_="mt-body mt-secondary", style="font-size:0.875rem;",
+                        ),
+                        _ui.div("Beide tracks samengevoegd", class_="mt-caption mt-tertiary",
+                                style="margin-top:8px; font-style:italic;"),
+                        class_="mt-card-elevated",
+                        style="flex:1; padding:20px; border-top:3px solid var(--accent);",
+                    ),
+                    style="display:flex; gap:16px; flex-wrap:wrap;",
                 ),
                 _ui.div(
-                    _ui.div("Klik op een stap in het diagram om de details te bekijken.", class_="mt-caption mt-secondary"),
-                    class_="mt-callout",
+                    "Muziek en biometrie worden bewust gescheiden gehouden — "
+                    "zo meten we of het de muziek was die de stemming beïnvloedde, en niet andersom.",
+                    class_="mt-caption mt-secondary",
+                    style="margin-top:16px; text-align:center; font-style:italic;",
                 ),
                 class_="mt-section-card",
             ),
-            style="padding:0 80px 64px;",
+            style="padding:0 var(--page-margin) 64px;",
         ),
     )
 
@@ -605,17 +638,6 @@ def ui():
 @module.server
 def server(input, output, session, app_data: AppData):
     selected_step: reactive.Value = reactive.Value(None)
-    show_detail: reactive.Value = reactive.Value(False)
-
-    @reactive.Effect
-    @reactive.event(input.mode_overview)
-    def _():
-        show_detail.set(False)
-
-    @reactive.Effect
-    @reactive.event(input.mode_detail)
-    def _():
-        show_detail.set(True)
 
     for _s in _STEPS:
         def _make_obs(step=_s):
@@ -627,38 +649,65 @@ def server(input, output, session, app_data: AppData):
 
     @output
     @render.ui
-    def mode_pills():
-        show = show_detail()
-        return _ui.div(
-            _ui.input_action_button(
-                "mode_overview", "Diagram",
-                class_="pill-btn" + ("" if show else " active"),
-            ),
-            _ui.input_action_button(
-                "mode_detail", "Gegevens",
-                class_="pill-btn" + (" active" if show else ""),
-            ),
-            class_="pill-group",
-        )
-
-    @output
-    @render.ui
     def pipeline_diagram():
+        """Vertical node graph on a dotted canvas (Phase 5)."""
         sel = selected_step() or ""
-        connector = _ui.div(class_="mt-pipeline-connector")
-        return _ui.div(
-            _track_row("muziek",    sel),
-            connector,
-            _track_row("biometrie", sel),
-            connector,
-            _track_row("analyse",   sel),
-            _ui.div(
-                "Klik op een stap voor uitleg en een voorbeeld.",
-                class_="mt-caption mt-secondary",
-                style="margin-top:12px;",
-            ) if not sel else _ui.div(),
-            style="margin-bottom:8px;",
-        )
+        _TRACK_ORDER = ["muziek", "biometrie", "analyse"]
+        _TRACK_LABELS = {"muziek": "🎵 Muziek", "biometrie": "⌚ Biometrie", "analyse": "🧮 Analyse"}
+
+        nodes = []
+        for track in _TRACK_ORDER:
+            track_steps = [s for s in _STEPS if s.get("track") == track]
+            if not track_steps:
+                continue
+
+            # Track section label
+            nodes.append(_ui.div(
+                _TRACK_LABELS[track],
+                class_=f"mt-pipeline-track-label {track}",
+            ))
+
+            for i, step in enumerate(track_steps):
+                is_active = step["id"] == sel
+                node_class = "mt-pipeline-node" + (" active" if is_active else "")
+                status = _STEP_STATUSES.get(step["id"], "amber")
+                status_color = {"green": "#22c55e", "amber": "#f59e0b", "red": "#ef4444"}.get(status, "#f59e0b")
+                count = _RECORD_COUNTS.get(step["id"])
+
+                nodes.append(_ui.div(
+                    # Status dot
+                    _ui.span("●", style=(
+                        f"color:{status_color}; font-size:8px; flex-shrink:0; margin-top:1px;"
+                    )),
+                    # Icon + name
+                    _ui.div(
+                        _ui.div(
+                            _ui.span(step["icon"], style="font-size:16px; margin-right:8px;"),
+                            _ui.span(step["label"], style="font-size:0.875rem; font-weight:500; color:var(--text-primary);"),
+                        ),
+                        _ui.div(count, style="font-size:11px; color:var(--text-tertiary); margin-top:2px;") if count else _ui.div(),
+                        style="min-width:0; flex:1;",
+                    ),
+                    _ui.input_action_button(
+                        f"step_{step['id']}", "",
+                        style="position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%;",
+                    ),
+                    class_=node_class,
+                    **{"data-track": track},
+                    style="position:relative; margin-bottom:0;",
+                ))
+
+                # Dashed connector (not after last node in a track)
+                if i < len(track_steps) - 1:
+                    nodes.append(_ui.div(class_="mt-pipeline-connector-v"))
+
+        nodes.append(_ui.div(
+            "← Klik een stap",
+            class_="mt-caption mt-tertiary",
+            style="text-align:center; margin-top:16px; font-style:italic;",
+        ) if not sel else _ui.div())
+
+        return _ui.div(*nodes, class_="mt-pipeline-canvas")
 
     @output
     @render.ui

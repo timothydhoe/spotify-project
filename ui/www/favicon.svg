@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Music note abstraction: two circles (note heads) + connecting stem -->
-  <circle cx="9" cy="22" r="5.5" fill="#15803d"/>
-  <circle cx="22" cy="17" r="4" fill="#16a34a"/>
-  <!-- Stem connecting both note heads -->
-  <line x1="14.3" y1="22" x2="25.8" y2="10.5" stroke="#15803d" stroke-width="2.2" stroke-linecap="round"/>
-  <!-- Flag on upper note -->
-  <path d="M25.8 10.5 Q29 12 27 16" stroke="#16a34a" stroke-width="2" fill="none" stroke-linecap="round"/>
-</svg>

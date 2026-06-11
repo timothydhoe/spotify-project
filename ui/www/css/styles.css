@@ -1,75 +1,8 @@
 /* =====================================================
-   MoodTune — Design System
-   Tokens from update-app/design-system.md
+   MoodTune — Component Styles
    ===================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap');
-
-/* ---------- Design Tokens ---------- */
-:root {
-  /* Backgrounds — dark forest-black */
-  --bg-base:        #090f0a;
-  --bg-surface:     #101a12;
-  --bg-card:        rgba(255, 255, 255, 0.04);
-  --bg-card-hover:  rgba(255, 255, 255, 0.07);
-  --bg-elevated:    rgba(255, 255, 255, 0.08);
-  --bg-input:       rgba(255, 255, 255, 0.07);
-  --bg-glass:       rgba(255, 255, 255, 0.05);
-  --bg-glass-hover: rgba(255, 255, 255, 0.09);
-
-  /* Text */
-  --text-primary:   rgba(255, 255, 255, 0.92);
-  --text-secondary: rgba(255, 255, 255, 0.55);
-  --text-tertiary:  rgba(255, 255, 255, 0.35);
-  --text-accent:    #86efac;   /* light mint — AA on dark bg */
-
-  /* Accent — green (semantic/stable) */
-  --accent:         #16a34a;
-  --accent-hover:   #22c55e;
-  --accent-muted:   rgba(22, 163, 74, 0.15);
-  --accent-glow:    rgba(22, 163, 74, 0.22);
-
-  /* Accent — lime (CTA / active indicator) */
-  --accent-lime:        #a3e635;
-  --accent-lime-hover:  #84cc16;
-  --accent-lime-muted:  rgba(163, 230, 53, 0.12);
-  --accent-lime-glow:   rgba(163, 230, 53, 0.20);
-
-  /* Semantic — Okabe-Ito colorblind-safe (matches notebooks/ml/*.ipynb) */
-  --energy-color:   #E69F00;   /* Okabe orange */
-  --calm-color:     #56B4E9;   /* Okabe sky blue */
-  --neutral-color:  #009E73;   /* Okabe bluish green */
-  --stress-red:     #f87171;   /* softer red on dark */
-
-  /* Borders */
-  --border-subtle:  rgba(255, 255, 255, 0.05);
-  --border-default: rgba(255, 255, 255, 0.10);
-  --border-strong:  rgba(255, 255, 255, 0.18);
-  --border-color:   rgba(255, 255, 255, 0.10);
-
-  /* Shadows (stronger on dark) */
-  --shadow-sm:  0 1px 4px rgba(0, 0, 0, 0.30), 0 2px 8px rgba(0, 0, 0, 0.20);
-  --shadow-md:  0 2px 8px rgba(0, 0, 0, 0.40), 0 4px 16px rgba(0, 0, 0, 0.28);
-  --shadow-lg:  0 4px 16px rgba(0, 0, 0, 0.50), 0 8px 32px rgba(0, 0, 0, 0.35);
-  --shadow-glow: 0 0 24px var(--accent-lime-glow);
-
-  /* Responsive page margin */
-  --page-margin: clamp(12px, 4vw, 80px);
-
-  /* Legacy aliases */
-  --bg-primary:    #090f0a;
-  --accent-green:  #16a34a;
-  --calm-blue:     #56B4E9;
-  --neutral-grey:  #009E73;
-  --energy-orange: #E69F00;
-  --border:        rgba(255, 255, 255, 0.10);
-  --radius-card:   16px;
-  --radius-btn:    999px;
-  --radius-badge:  999px;
-  --radius-input:  8px;
-  --space-1: 8px;  --space-2: 16px; --space-3: 24px; --space-4: 32px;
-  --space-6: 48px; --space-8: 64px; --space-12: 96px;
-}
+@import './tokens.css';
 
 /* ---------- Reset & Base ---------- */
 *, *::before, *::after { box-sizing: border-box; }
@@ -238,6 +171,15 @@ body > .container-fluid,
   padding: 64px 0 0 !important;   /* 64px = custom navbar height */
   background: var(--bg-base) !important;
 }
+/* When embedded sub-nav is visible the navbar is ~108px (64 + 44) */
+body.mt-subnav-active > .container-fluid,
+body.mt-subnav-active .navbar ~ .container-fluid {
+  padding-top: 108px !important;
+}
+/* Hide Bootstrap pills — replaced by the embedded sub-nav row */
+body.mt-subnav-active .nav-pills {
+  display: none !important;
+}
 
 .tab-content {
   background: var(--bg-base) !important;
@@ -326,7 +268,7 @@ body > .container-fluid,
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-default);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -336,6 +278,7 @@ body > .container-fluid,
   background: var(--bg-card-hover);
   border-color: var(--border-strong);
   box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .mt-card-elevated {
@@ -343,12 +286,15 @@ body > .container-fluid,
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
 }
 .mt-card-elevated:hover {
   border-color: var(--border-default);
+  background: var(--bg-glass-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .mt-card-glass {
@@ -356,7 +302,7 @@ body > .container-fluid,
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 24px;
 }
 
@@ -365,8 +311,7 @@ body > .container-fluid,
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-default);
-  border-left: 3px solid var(--accent);
-  border-radius: 12px;
+  border-radius: calc(var(--radius-card) - 4px);
   padding: 20px 24px;
   box-shadow: var(--shadow-sm);
   transition: all 0.2s ease;
@@ -374,7 +319,9 @@ body > .container-fluid,
 
 .mt-stat-card:hover {
   background: var(--bg-card-hover);
+  border-color: var(--border-strong);
   box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 /* ---------- Stat Values ---------- */
@@ -558,7 +505,7 @@ body > .container-fluid,
   justify-content: center;
   width: 200px;
   height: 80px;
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   margin: 0 auto;
 }
 
@@ -570,7 +517,7 @@ body > .container-fluid,
 .tracklist-section {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   overflow: hidden;
 }
 
@@ -1013,7 +960,7 @@ label { color: var(--text-secondary) !important; }
 
 /* ---------- Section Layout ---------- */
 .mt-section      { padding: 24px var(--page-margin); }
-.mt-section-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: 16px; padding: 40px; box-shadow: var(--shadow-sm); margin-bottom: 24px; }
+.mt-section-card { background: var(--bg-card); border: 1px solid var(--border-default); border-radius: var(--radius-card); padding: 40px; box-shadow: var(--shadow-sm); margin-bottom: 24px; }
 
 /* ---------- Hero Section (Science etc) ---------- */
 .mt-hero {
@@ -1036,7 +983,7 @@ label { color: var(--text-secondary) !important; }
   padding: 0 32px;
   height: 88px;
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   margin-bottom: 24px;
 }
 
@@ -1047,7 +994,7 @@ label { color: var(--text-secondary) !important; }
 .mt-flow {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 32px;
 }
 
@@ -1127,7 +1074,7 @@ label { color: var(--text-secondary) !important; }
 /* ---------- Music Player (Homepage) ---------- */
 .mt-player-card {
   background: var(--bg-card);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   overflow: hidden;
   border: 1px solid var(--border-subtle);
 }
@@ -1197,7 +1144,7 @@ label { color: var(--text-secondary) !important; }
   background-size: 20px 20px;
   background-color: var(--bg-base);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 20px 16px;
   min-height: 480px;
   overflow-y: auto;
@@ -1350,9 +1297,16 @@ label { color: var(--text-secondary) !important; }
   gap: 16px;
   padding: 20px 24px;
   background: var(--bg-elevated);
-  border-radius: 12px;
+  border-radius: calc(var(--radius-card) - 4px);
   margin-bottom: 16px;
   border: 1px solid var(--border-subtle);
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+.mt-session-summary-card:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
 }
 
 .mt-session-summary-item  { text-align: center; }
@@ -1364,7 +1318,7 @@ label { color: var(--text-secondary) !important; }
   text-align: center;
   padding: 32px 32px 24px;
   background: linear-gradient(180deg, rgba(34,197,94,0.06) 0%, transparent 100%);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   border: 1px solid var(--border-subtle);
   margin-bottom: 32px;
 }
@@ -1586,7 +1540,7 @@ label {
   align-items: center;
   justify-content: center;
   padding: 28px 56px;
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   opacity: 0.55;
   transition: opacity 0.2s ease;
 }
@@ -1990,12 +1944,14 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
 .mt-navbar {
   position: fixed;
   top: 0; left: 0; right: 0;
-  height: 64px;
+  height: auto;
+  min-height: 64px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: 64px auto;
   align-items: center;
   gap: 0;
-  padding: 0 var(--page-margin);
+  padding: 0;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-default);
   z-index: 300;
@@ -2009,7 +1965,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   gap: 10px;
   background: none;
   border: none;
-  padding: 0;
+  padding: 0 0 0 var(--page-margin);
   cursor: pointer;
   text-decoration: none;
   color: var(--text-primary);
@@ -2045,27 +2001,26 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  height: 64px;
+  height: 36px;
   padding: 0 14px;
   background: none;
   border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;          /* sit flush on navbar border */
+  border-radius: 999px;
   color: var(--text-secondary);
   font-family: 'DM Sans', sans-serif;
   font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
   white-space: nowrap;
-  transition: color 0.15s ease, border-bottom-color 0.15s ease;
+  transition: color 0.15s ease, background 0.15s ease;
   text-decoration: none;
   line-height: 1;
 }
-.mt-nav-trigger:hover   { color: var(--text-primary); }
+.mt-nav-trigger:hover   { color: var(--text-primary); background: var(--bg-glass-hover); }
 .mt-nav-trigger.active  {
   color: var(--accent-lime);
   font-weight: 600;
-  border-bottom-color: var(--accent-lime);
+  background: var(--accent-lime-muted);
 }
 
 /* Animated chevron */
@@ -2156,6 +2111,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  padding-right: var(--page-margin);
 }
 
 .mt-nav-participant-label {
@@ -2172,27 +2128,65 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
 .mt-nav-participant-select {
   appearance: none;
   -webkit-appearance: none;
-  background: var(--bg-input);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='rgba(255,255,255,0.45)' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background: var(--bg-elevated);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.40)' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   border: 1px solid var(--border-default);
-  border-radius: 8px;
+  border-radius: 999px;
   color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  padding: 6px 32px 6px 10px;
+  padding: 5px 28px 5px 12px;
   cursor: pointer;
-  min-width: 140px;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  min-width: 120px;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
-.mt-nav-participant-select:hover  { border-color: var(--border-strong); }
+.mt-nav-participant-select:hover  { border-color: var(--border-strong); background: var(--bg-glass-hover); }
 .mt-nav-participant-select:focus  {
   outline: none;
   border-color: var(--accent-lime);
   box-shadow: 0 0 0 2px var(--accent-lime-muted);
 }
+
+/* ── Embedded sub-nav second row ────────────────────────────────────────── */
+.mt-navbar-subnav {
+  grid-column: 1 / -1;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 5px var(--page-margin) 7px;
+  border-top: 1px solid var(--border-subtle);
+}
+.mt-navbar-subnav.visible { display: flex; }
+
+.mt-subnav-group {
+  display: none;
+  align-items: center;
+  gap: 2px;
+}
+.mt-subnav-group.active { display: flex; }
+
+.mt-subnav-pill {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: none;
+  background: none;
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.mt-subnav-pill:hover  { color: var(--text-primary); background: var(--bg-glass-hover); }
+.mt-subnav-pill.active { background: var(--accent-lime-muted); color: var(--accent-lime); font-weight: 600; }
 
 /* ── Hamburger button (mobile only) ─────────────────────────────────────── */
 .mt-hamburger {
@@ -2284,11 +2278,12 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   /* Collapse to logo + hamburger only */
   .mt-navbar {
     grid-template-columns: 1fr auto;
+    grid-template-rows: 64px;        /* single row — no sub-nav on mobile */
   }
   .mt-navbar-center             { display: none; }
-  .mt-nav-participant-label,
   .mt-nav-participant-select    { display: none; }
   .mt-hamburger                 { display: flex; }
+  .mt-navbar-subnav             { display: none !important; }
 }
 
 @media (min-width: 861px) {
@@ -2437,14 +2432,15 @@ body.mt-home-active .mt-navbar {
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border: 1px solid rgba(255, 255, 255, 0.11);
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   padding: 28px;
-  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 .mt-glass-card:hover {
   background: rgba(255, 255, 255, 0.085);
   border-color: rgba(255, 255, 255, 0.20);
-  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  transform: translateY(-2px);
 }
 .mt-glass-card .mt-h3 {
   color: rgba(255, 255, 255, 0.92) !important;
@@ -2665,7 +2661,7 @@ body.mt-home-active .mt-navbar {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
+  border-radius: var(--radius-card);
   padding: 28px;
   box-shadow:
     0 0 80px rgba(22, 163, 74, 0.05),
@@ -2688,4 +2684,175 @@ body.mt-home-active .mt-navbar {
   font-size: 2.5rem;
   line-height: 1;
   letter-spacing: -0.03em;
+}
+
+/* ---------- Extracted component classes (Phase 3) ---------- */
+
+/* Stat card value typography (recovery.py _stat_card) */
+.mt-stat-value {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+/* Prediction bar rows (home.py _pred_bars) */
+.mt-pred-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.mt-pred-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  min-width: 64px;
+  flex-shrink: 0;
+}
+.mt-pred-value {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+  min-width: 48px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.mt-pred-bar-bg {
+  flex: 1;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+.mt-pred-bar-fill {
+  height: 4px;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  /* width is set inline — it's dynamic */
+}
+
+/* Footer / now-playing navigation links (app.py now_playing_title idle state) */
+.mt-footer-link {
+  color: var(--text-tertiary);
+  font-size: var(--font-size-xs);
+  text-decoration: none;
+  margin: 0 8px;
+  transition: color 0.15s;
+}
+.mt-footer-link:hover { color: var(--text-secondary); }
+
+/* Horizontal page-margin padding utility (recovery.py section wrappers) */
+.mt-page-pad-x {
+  padding-left: var(--page-margin);
+  padding-right: var(--page-margin);
+}
+
+/* Now-playing bar structural helpers (app.py both states) */
+.mt-now-playing-cover {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  /* background is set inline — it's dynamic per playlist type */
+}
+.mt-now-playing-end    { text-align: right; flex-shrink: 0; align-self: center; }
+.mt-now-playing-center { display: flex; align-items: center; gap: 2px; justify-content: center; }
+.mt-track-meta         { min-width: 0; }
+
+/* SVG ring gauge (home.py _ring_svg) */
+.mt-ring-svg { flex-shrink: 0; transform: rotate(-90deg); }
+
+/* ---------- Section header (Item 3) ---------- */
+/* Consistent flex row for section titles + optional right-side actions.     */
+/* Usage: wrap .mt-h2 title + any right-side badges/controls in this div.   */
+.mt-section-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.mt-section-header-left  { flex: 1; min-width: 0; }
+.mt-section-header-title { margin-bottom: 4px; }
+.mt-section-header-sub   { font-size: var(--font-size-xs); color: var(--text-tertiary); margin-top: 4px; }
+.mt-section-header-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; padding-top: 3px; }
+
+/* ---------- Metric chips (Item 4) ---------- */
+/* Compact horizontal stat strip replacing large stat-card grids in heroes.  */
+.mt-metric-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.mt-metric-chip {
+  background: var(--bg-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-card);
+  padding: 12px 20px;
+  min-width: 120px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+.mt-metric-chip:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
+}
+.mt-metric-chip-value {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 1.375rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.mt-metric-chip-label { font-size: var(--font-size-xs); color: var(--text-secondary); font-weight: 500; }
+.mt-metric-chip-sub   { font-size: 0.6875rem; color: var(--text-tertiary); margin-top: 2px; }
+
+/* ---------- Semantic playlist tints (Item 1 — reference design) ---------- */
+/*                                                                            */
+/* Two mechanisms:                                                            */
+/*   A) .mt-card-{type} modifier class — applied directly where playlist     */
+/*      type is known at Python render time (session summary card, music      */
+/*      browser distribution cards, playlist view)                            */
+/*   B) CSS :has() — parent glass card reads the type from its reactive       */
+/*      child content (home recommendation panel, session replay selector)    */
+
+/* A) Modifier classes */
+.mt-card-calm    { background: rgba(86,  180, 233, 0.05) !important; border-color: rgba(86,  180, 233, 0.20) !important; }
+.mt-card-neutral { background: rgba(0,   158, 115, 0.05) !important; border-color: rgba(0,   158, 115, 0.20) !important; }
+.mt-card-energy  { background: rgba(230, 159, 0,   0.05) !important; border-color: rgba(230, 159, 0,   0.20) !important; }
+.mt-card-other   { background: rgba(156, 163, 175, 0.04) !important; border-color: rgba(156, 163, 175, 0.14) !important; }
+
+.mt-card-calm:hover    { background: rgba(86,  180, 233, 0.09) !important; border-color: rgba(86,  180, 233, 0.30) !important; }
+.mt-card-neutral:hover { background: rgba(0,   158, 115, 0.09) !important; border-color: rgba(0,   158, 115, 0.30) !important; }
+.mt-card-energy:hover  { background: rgba(230, 159, 0,   0.09) !important; border-color: rgba(230, 159, 0,   0.30) !important; }
+.mt-card-other:hover   { background: rgba(156, 163, 175, 0.07) !important; border-color: rgba(156, 163, 175, 0.22) !important; }
+
+/* B) :has() — glass card adopts tint from reactive child content            */
+/* Targets: home recommendation panel, any glass card wrapping a rec badge   */
+.mt-glass-card:has(.mt-rec-badge-hero.calm)    { background: rgba(86,  180, 233, 0.06); border-color: rgba(86,  180, 233, 0.22); }
+.mt-glass-card:has(.mt-rec-badge-hero.neutral) { background: rgba(0,   158, 115, 0.06); border-color: rgba(0,   158, 115, 0.22); }
+.mt-glass-card:has(.mt-rec-badge-hero.energy)  { background: rgba(230, 159, 0,   0.06); border-color: rgba(230, 159, 0,   0.22); }
+
+.mt-glass-card:has(.mt-rec-badge-hero.calm):hover    { background: rgba(86,  180, 233, 0.10); border-color: rgba(86,  180, 233, 0.32); }
+.mt-glass-card:has(.mt-rec-badge-hero.neutral):hover { background: rgba(0,   158, 115, 0.10); border-color: rgba(0,   158, 115, 0.32); }
+.mt-glass-card:has(.mt-rec-badge-hero.energy):hover  { background: rgba(230, 159, 0,   0.10); border-color: rgba(230, 159, 0,   0.32); }
+
+/* ── Page / tab transition fade-in ──────────────────────────────────────── */
+/* Incoming pane fades in and rises 4 px; outgoing disappears instantly      */
+/* (Bootstrap handles hide via display:none — no lingering needed here).     */
+.tab-pane.active {
+  animation: mt-tab-fade-in 0.18s ease both;
+}
+
+@keyframes mt-tab-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-pane.active { animation: none; }
 }

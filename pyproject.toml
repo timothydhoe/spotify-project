@@ -5,32 +5,38 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "fitparse>=1.2.0",
-    "ipykernel>=7.1.0",
-    "matplotlib>=3.10.8",
+    # App runtime — all platforms
     "numpy>=2.3.5",
     "pandas>=2.3.3",
-    "questionary>=2.1.1",
-    "rich>=14.2.0",
     "scikit-learn>=1.8.0",
-    "scipy>=1.16.3",
-    "seaborn>=0.13.2",
-    "shap>=0.43.0",
-    "tensorflow>=2.16.0",
-    "pymc>=5.28.0",
-    "arviz>=0.23.0",
-    "pillow>=11.0.0",
-    "jax[cpu]>=0.6.0",
-    "numpyro>=0.18.0",
-    "statsmodels>=0.14.6",
     "shiny>=1.6.2",
     "plotly>=6.7.0",
     "shinywidgets>=0.8.1",
-    "torch>=2.12.0",
-    "nbconvert>=7.17.1",
+    "pillow>=11.0.0",
+    # Analysis scripts — widely supported on Windows
+    "matplotlib>=3.10.8",
+    "seaborn>=0.13.2",
+    "scipy>=1.16.3",
+    "statsmodels>=0.14.6",
+    "shap>=0.43.0",
 ]
 
 [dependency-groups]
 dev = [
     "nbformat>=5.10.4",
+    "nbconvert>=7.17.1",
+    "ipykernel>=7.1.0",
+]
+analysis = [
+    # Heavy ML / wearables dependencies — may fail on Windows; skip with:
+    #   uv sync --no-group analysis
+    "jax[cpu]>=0.6.0",
+    "numpyro>=0.18.0",
+    "pymc>=5.28.0",
+    "arviz>=0.23.0",
+    "tensorflow>=2.16.0",
+    "torch>=2.12.0",
+    "fitparse>=1.2.0",
+    "questionary>=2.1.1",
+    "rich>=14.2.0",
 ]

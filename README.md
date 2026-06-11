@@ -31,6 +31,16 @@ Install uv if you don't have it:
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
+### Windows: dependency groups
+
+Several packages in the `analysis` group (`jax`, `tensorflow`, `pymc`, `torch`) have limited Windows support and may fail to install. If you only need to run the app, skip them:
+
+```bat
+uv sync --no-group analysis
+```
+
+To install everything (required for the biometric pipeline and ML notebooks), use WSL or a Linux/macOS machine.
+
 ---
 
 ## Quick Start
@@ -53,11 +63,12 @@ cd spotify-project
 ./ui/run_app.sh
 ```
 
-**Windows:**
+**Windows (app only):**
 ```bat
-bootstrap.bat
+uv sync --no-group analysis
+uv run shiny run ui/app.py --reload
 ```
-Then use the same shell commands in Git Bash.
+For the full pipeline (biometric processing + ML notebooks), use WSL or Git Bash and run `./bootstrap.sh`.
 
 > **Do I always need to run `notebooks.sh`?**</br>
 > Only on a fresh clone (since `data/` is gitignored). The four ML notebooks

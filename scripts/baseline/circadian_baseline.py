@@ -15,7 +15,10 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from .utils import filter_non_session_days, get_session_dates, local_to_utc
+try:
+    from .utils import filter_non_session_days, get_session_dates, local_to_utc
+except ImportError:
+    from utils import filter_non_session_days, get_session_dates, local_to_utc
 
 
 MIN_OBS_PER_HOUR = 5  # Below this threshold, hourly baseline is set to NaN

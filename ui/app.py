@@ -72,159 +72,7 @@ def _build_navbar() -> ui.Tag:
             ),
         )
 
-    inline_js = ui.HTML("""
-<script>
-(function () {
-'use strict';
-
-/* ── Navigation ──────────────────────────────────────────────────────────── */
-window.mtNavTo = function (section, sub) {
-  if (window.Shiny && Shiny.setInputValue) {
-    Shiny.setInputValue('mt_nav_goto', {section: section, sub: sub || null}, {priority: 'event'});
-  }
-  // Highlight the matching trigger
-  document.querySelectorAll('.mt-nav-trigger').forEach(function (el) {
-    el.classList.toggle('active', el.getAttribute('data-section') === section);
-  });
-  // Close any open dropdown
-  _mtCloseDropdowns();
-};
-
-/* ── Dropdown toggle (click-based for keyboard/touch) ────────────────────── */
-window.mtToggleDropdown = function (btn) {
-  var parent = btn.closest('.mt-nav-dropdown');
-  var wasOpen = parent.classList.contains('open');
-  _mtCloseDropdowns();
-  if (!wasOpen) {
-    parent.classList.add('open');
-    btn.setAttribute('aria-expanded', 'true');
-  }
-};
-
-function _mtCloseDropdowns() {
-  document.querySelectorAll('.mt-nav-dropdown.open').forEach(function (el) {
-    el.classList.remove('open');
-    var btn = el.querySelector('.mt-nav-trigger');
-    if (btn) btn.setAttribute('aria-expanded', 'false');
-  });
-}
-
-// Close on outside click or Escape
-document.addEventListener('click', function (e) {
-  if (!e.target.closest('.mt-nav-dropdown')) _mtCloseDropdowns();
-});
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') _mtCloseDropdowns();
-});
-
-/* ── Participant selector ────────────────────────────────────────────────── */
-var _MT_EMOJI = {bosbes:'🫐',kokosnoot:'🥥',limoen:'🍋',peer:'🍐',kiwi:'🥝',watermeloen:'🍉'};
-
-window.mtSelectParticipant = function (val) {
-  if (window.Shiny && Shiny.setInputValue) {
-    Shiny.setInputValue('mt_participant_nav', val, {priority: 'event'});
-  }
-  // Update giant emoji background
-  var el = document.getElementById('home-emoji-bg');
-  if (el) {
-    el.textContent = _MT_EMOJI[val] || '🎵';
-    el.classList.remove('pop-in');
-    void el.offsetWidth; // force reflow to retrigger animation
-    el.classList.add('pop-in');
-  }
-};
-
-/* ── Mobile hamburger ───────────────────────────────────────────────────── */
-window.mtToggleMobileMenu = function () {
-  var menu = document.getElementById('mt-mobile-menu');
-  var btn  = document.getElementById('mt-hamburger-btn');
-  if (!menu || !btn) return;
-  var open = menu.classList.toggle('open');
-  btn.classList.toggle('open', open);
-  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-};
-
-window.mtCloseMobileMenu = function () {
-  var menu = document.getElementById('mt-mobile-menu');
-  var btn  = document.getElementById('mt-hamburger-btn');
-  if (menu) menu.classList.remove('open');
-  if (btn)  { btn.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
-};
-
-/* ── Sync active state when Bootstrap tab changes ───────────────────────── */
-document.addEventListener('DOMContentLoaded', function () {
-  // Home is the default tab — activate dark theme immediately
-  document.body.classList.add('mt-home-active');
-  // Inject emoji as direct body child so position:fixed escapes all stacking contexts
-  var initSel = document.getElementById('mt-p-desktop');
-  var initVal = initSel ? initSel.value : 'bosbes';
-  var initEl  = document.getElementById('home-emoji-bg');
-  if (!initEl) {
-    initEl = document.createElement('div');
-    initEl.id = 'home-emoji-bg';
-    initEl.className = 'mt-home-emoji-bg';
-    document.body.insertBefore(initEl, document.body.firstChild);
-  }
-  initEl.textContent = _MT_EMOJI[initVal] || '🫐';
-  initEl.classList.add('pop-in');
-
-  document.addEventListener('shown.bs.tab', function (e) {
-    if (!e.target) return;
-    var revMap = {
-      'Home': 'home', 'Jouw Profiel': 'profiel',
-      'Aanbevelingen': 'aanbevelingen', 'Achtergrond': 'achtergrond',
-    };
-    var label = e.target.textContent.trim();
-    var sec   = revMap[label];
-    if (sec) {
-      document.querySelectorAll('.mt-nav-trigger').forEach(function (el) {
-        el.classList.toggle('active', el.getAttribute('data-section') === sec);
-      });
-    }
-    // Dark theme is permanent — body.mt-home-active set at DOMContentLoaded and never removed
-  });
-});
-
-/* ── Emoji scroll-fade ────────────────────────────────────────────────────── */
-(function () {
-  var FADE_END     = 450;  // px of scroll to reach fully transparent (~4-5 wheel ticks)
-  var BASE_OPACITY = 0.16; // matches emojiSpring 100% keyframe in CSS
-  var _prevY       = -1;
-
-  function _applyFade(y) {
-    var el = document.getElementById('home-emoji-bg');
-    if (!el) return;
-    var t = Math.min(1, Math.max(0, y / FADE_END));
-    // Use setProperty('important') to always beat animation-fill-mode:forwards
-    el.style.setProperty('opacity', String(BASE_OPACITY * (1 - t)), 'important');
-  }
-
-  // rAF loop — runs at 60fps, only touches the DOM when scroll position changed.
-  // This is the primary mechanism and works regardless of which element fires scroll.
-  function _tick() {
-    var y = window.scrollY || document.documentElement.scrollTop || 0;
-    if (y !== _prevY) { _prevY = y; _applyFade(y); }
-    requestAnimationFrame(_tick);
-  }
-  requestAnimationFrame(_tick);
-
-  // Scroll event as supplementary trigger (fires even between rAF frames)
-  window.addEventListener('scroll', function () {
-    var y = window.scrollY || document.documentElement.scrollTop || 0;
-    _applyFade(y);
-  }, { passive: true });
-
-  // On any Bootstrap tab shown: scroll to top so emoji is fully visible
-  document.addEventListener('shown.bs.tab', function () {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-    _prevY = 0;
-    _applyFade(0);
-  });
-})();
-
-})();
-</script>
-""")
+    inline_js = ui.tags.script(src="js/main.js?v=2")
 
     return ui.tags.div(
         # ── Navbar strip ──────────────────────────────────────────────────────
@@ -302,11 +150,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             # Right: participant selector + hamburger
             ui.tags.div(
-                ui.tags.label(
-                    "Deelnemer:",
-                    **{"for": "mt-p-desktop"},
-                    class_="mt-nav-participant-label",
-                ),
                 _participant_opts("mt-p-desktop"),
                 ui.tags.button(
                     ui.tags.span("☰", class_="mt-hamburger-icon"),
@@ -318,6 +161,41 @@ document.addEventListener('DOMContentLoaded', function () {
                        "aria-controls": "mt-mobile-menu"},
                 ),
                 class_="mt-navbar-right",
+            ),
+
+            # Sub-nav second row (hidden by default; JS shows it when in profiel/achtergrond)
+            ui.tags.div(
+                ui.tags.div(
+                    ui.tags.button("Circadiaans ritme", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Circadiaans ritme"},
+                                   onclick="mtNavTo('profiel','Circadiaans ritme')"),
+                    ui.tags.button("Sessie-replay", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Sessie-replay"},
+                                   onclick="mtNavTo('profiel','Sessie-replay')"),
+                    ui.tags.button("Sessie-inzichten", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Sessie-inzichten"},
+                                   onclick="mtNavTo('profiel','Sessie-inzichten')"),
+                    ui.tags.button("Jouw Muziek", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Jouw Muziek"},
+                                   onclick="mtNavTo('profiel','Jouw Muziek')"),
+                    class_="mt-subnav-group",
+                    **{"data-section": "profiel"},
+                ),
+                ui.tags.div(
+                    ui.tags.button("Wetenschap", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Wetenschap"},
+                                   onclick="mtNavTo('achtergrond','Wetenschap')"),
+                    ui.tags.button("Model & Data", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Model & Data"},
+                                   onclick="mtNavTo('achtergrond','Model & Data')"),
+                    ui.tags.button("Pipeline", class_="mt-subnav-pill",
+                                   type="button", **{"data-sub": "Pipeline"},
+                                   onclick="mtNavTo('achtergrond','Pipeline')"),
+                    class_="mt-subnav-group",
+                    **{"data-section": "achtergrond"},
+                ),
+                class_="mt-navbar-subnav",
+                id="mt-subnav",
             ),
 
             class_="mt-navbar",
@@ -354,7 +232,6 @@ document.addEventListener('DOMContentLoaded', function () {
             ],
             ui.tags.hr(class_="mt-mobile-divider"),
             ui.tags.div(
-                ui.tags.label("Deelnemer:", class_="mt-nav-participant-label"),
                 _participant_opts("mt-p-mobile", extra_style="width:100%;"),
                 class_="mt-mobile-participant-row",
             ),
@@ -419,20 +296,8 @@ app_ui = ui.page_navbar(
     title=ui.span(),           # Custom navbar provides the brand
     header=ui.div(
         ui.tags.head(
-            ui.tags.link(
-                rel="icon", type="image/svg+xml",
-                # Inline data URI — bypasses browser favicon caching entirely.
-                # Vector eighth-note path on transparent background.
-                href=(
-                    "data:image/svg+xml,"
-                    "%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E"
-                    "%3Cpath fill='%2316a34a' d="
-                    "'M20 2v15.27A5 5 0 1 0 23 21V8h4V2H20z'"
-                    "/%3E"
-                    "%3C/svg%3E"
-                ),
-            ),
-            ui.tags.link(rel="stylesheet", href="styles.css"),
+            ui.tags.link(rel="icon", type="image/png", href="favicon.png?v=2"),
+            ui.tags.link(rel="stylesheet", href="css/styles.css"),
             ui.busy_indicators.use(spinners=True, pulse=True),
         ),
         _build_navbar(),
@@ -527,32 +392,33 @@ def server(input, output, session):
                             "Muziek als hulpmiddel voor stressregulatie",
                             class_="now-playing-artist",
                         ),
-                        style="min-width:0;",
+                        class_="mt-track-meta",
                     ),
                     class_="now-playing-track",
                 ),
                 # Center: quick nav links
                 ui.div(
-                    ui.HTML(
-                        '<a href="#" onclick="mtNavTo(\'achtergrond\',\'Wetenschap\'); return false;" '
-                        'style="color:var(--text-tertiary); font-size:0.75rem; text-decoration:none; '
-                        'margin:0 8px; transition:color 0.15s;" '
-                        'onmouseover="this.style.color=\'var(--text-secondary)\'" '
-                        'onmouseout="this.style.color=\'var(--text-tertiary)\'">Wetenschap</a>'
-                        '<span style="color:var(--border-default);">·</span>'
-                        '<a href="#" onclick="mtNavTo(\'achtergrond\',\'Model & Data\'); return false;" '
-                        'style="color:var(--text-tertiary); font-size:0.75rem; text-decoration:none; '
-                        'margin:0 8px; transition:color 0.15s;" '
-                        'onmouseover="this.style.color=\'var(--text-secondary)\'" '
-                        'onmouseout="this.style.color=\'var(--text-tertiary)\'">Model & Data</a>'
-                        '<span style="color:var(--border-default);">·</span>'
-                        '<a href="#" onclick="mtNavTo(\'achtergrond\',\'Pipeline\'); return false;" '
-                        'style="color:var(--text-tertiary); font-size:0.75rem; text-decoration:none; '
-                        'margin:0 8px; transition:color 0.15s;" '
-                        'onmouseover="this.style.color=\'var(--text-secondary)\'" '
-                        'onmouseout="this.style.color=\'var(--text-tertiary)\'">Pipeline</a>'
+                    ui.tags.a(
+                        "Wetenschap",
+                        href="#",
+                        class_="mt-footer-link",
+                        onclick="mtNavTo('achtergrond','Wetenschap'); return false;",
                     ),
-                    style="display:flex; align-items:center; gap:2px; justify-content:center;",
+                    ui.tags.span("·", style="color:var(--border-default);"),
+                    ui.tags.a(
+                        "Model & Data",
+                        href="#",
+                        class_="mt-footer-link",
+                        onclick="mtNavTo('achtergrond','Model & Data'); return false;",
+                    ),
+                    ui.tags.span("·", style="color:var(--border-default);"),
+                    ui.tags.a(
+                        "Pipeline",
+                        href="#",
+                        class_="mt-footer-link",
+                        onclick="mtNavTo('achtergrond','Pipeline'); return false;",
+                    ),
+                    class_="mt-now-playing-center",
                 ),
                 ui.div(
                     ui.div(
@@ -560,17 +426,21 @@ def server(input, output, session):
                             f"{emoji} {p.capitalize()}",
                             style="font-weight:600; color:var(--text-primary); margin-right:8px;",
                         ),
-                        ui.span(data_tip, style="font-size:0.75rem; color:var(--text-tertiary);"),
+                        ui.span(data_tip, style="font-size:var(--font-size-xs); color:var(--text-tertiary);"),
                         style="margin-bottom:2px;",
                     ),
                     ui.div(
-                        ui.HTML(
-                            '<span style="font-size:0.75rem; color:var(--text-tertiary);">Geanonimiseerde data · </span>'
-                            '<a href="mailto:rem.studie@gmail.com" style="font-size:0.75rem; color:var(--text-tertiary); text-decoration:none;" '
-                            'onmouseover="this.style.color=\'var(--text-secondary)\'" onmouseout="this.style.color=\'var(--text-tertiary)\'">rem.studie@gmail.com</a>'
+                        ui.tags.span(
+                            "Geanonimiseerde data · ",
+                            style="font-size:var(--font-size-xs); color:var(--text-tertiary);",
+                        ),
+                        ui.tags.a(
+                            "rem.studie@gmail.com",
+                            href="mailto:rem.studie@gmail.com",
+                            class_="mt-footer-link",
                         ),
                     ),
-                    style="text-align:right; flex-shrink:0; align-self:center;",
+                    class_="mt-now-playing-end",
                 ),
             )
 
@@ -587,7 +457,7 @@ def server(input, output, session):
             "Neutral": "linear-gradient(135deg, #2a1a4a, #160a2f)",
             "Energy":  "linear-gradient(135deg, #4a2a1a, #2f1508)",
         }
-        _PL_COLORS = {"calm": "#56B4E9", "neutral": "#009E73", "energy": "#E69F00"}
+        _PL_COLORS = {"calm": "var(--calm-color)", "neutral": "var(--neutral-color)", "energy": "var(--energy-color)"}
 
         df = state.get("df")
         if df is not None and not df.empty:
@@ -600,12 +470,7 @@ def server(input, output, session):
         else:
             meta_str = ""
 
-        art_style = (
-            f"width:44px; height:44px; border-radius:6px; flex-shrink:0; "
-            f"background:{_COVER_GRAD.get(pl_type, _COVER_GRAD['Calm'])}; "
-            f"display:flex; align-items:center; justify-content:center; font-size:1.25rem;"
-        )
-        pl_color = _PL_COLORS.get(pl_lower, "#16a34a")
+        pl_color = _PL_COLORS.get(pl_lower, "var(--accent)")
 
         js_attr = ui.HTML(
             f'<script>(function(){{ var b = document.querySelector(".now-playing-bar"); '
@@ -615,7 +480,11 @@ def server(input, output, session):
         return ui.TagList(
             js_attr,
             ui.div(
-                ui.span("🎵", style=art_style),
+                ui.span(
+                    "🎵",
+                    class_="mt-now-playing-cover",
+                    style=f"background:{_COVER_GRAD.get(pl_type, _COVER_GRAD['Calm'])};",
+                ),
                 ui.HTML('<div class="now-playing-wave"><span></span><span></span><span></span></div>'),
                 ui.div(
                     ui.div(
@@ -628,7 +497,7 @@ def server(input, output, session):
                         + (f"  ·  {meta_str}" if meta_str else ""),
                         class_="now-playing-artist",
                     ),
-                    style="min-width:0;",
+                    class_="mt-track-meta",
                 ),
                 class_="now-playing-track",
             ),
@@ -636,9 +505,9 @@ def server(input, output, session):
                 ui.span(
                     f"{_FRUIT_EMOJI.get(state['participant'], '')} "
                     f"{state['participant'].capitalize()}",
-                    style="font-size:0.8125rem; color:var(--text-secondary);",
+                    style="font-size:var(--font-size-sm); color:var(--text-secondary);",
                 ),
-                style="text-align:right; align-self:center; flex-shrink:0;",
+                class_="mt-now-playing-end",
             ),
         )
 

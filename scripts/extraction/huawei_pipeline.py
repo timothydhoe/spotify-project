@@ -127,6 +127,65 @@ def extract_health_detail(json_files: list[Path], date_range=None):
     return hr_df, stress_df, rhr_df
 
 
+# ── Extract: Google Health Connect Excel export ─────────────────────────────
+
+def extract_health_connect(xlsx_path: Path, date_range=None):
+    """Read HR, resting HR, and steps from a Google Health Connect Excel export.
+
+    Tested with the 'health_connect_for_thesis_partners' export format (openpyxl).
+    No stress data — Health Connect does not expose it.
+
+    Returns (hr_df, rhr_df, steps_df):
+      hr_df    — timestamp-indexed, 'heart_rate' column
+      rhr_df   — timestamp-indexed, 'resting_hr' column
+      steps_df — date-indexed, 'steps' column (daily totals)
+    """
+    try:
+        import openpyxl  # noqa: F401
+    except ImportError:
+        print("  ⚠ openpyxl not installed — skipping Health Connect xlsx")
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+    print(f"  Reading {xlsx_path.name} (this may take a moment)...")
+    xl = pd.ExcelFile(xlsx_path)
+
+    def _filter_range(df, ts_col):
+        if date_range is not None and not df.empty:
+            df = df[(df[ts_col] >= date_range[0]) & (df[ts_col] <= date_range[1])]
+        return df
+
+    # ── Heart rate samples: epoch_millis (UTC ms), beats_per_minute ──────────
+    hr_df = pd.DataFrame()
+    if "Heart rate (samples)" in xl.sheet_names:
+        df = xl.parse("Heart rate (samples)", usecols=["epoch_millis", "beats_per_minute"])
+        df["timestamp"] = pd.to_datetime(df["epoch_millis"], unit="ms", utc=True).dt.tz_localize(None)
+        df = df.rename(columns={"beats_per_minute": "heart_rate"})[["timestamp", "heart_rate"]].dropna()
+        df = df[(df["heart_rate"] > 30) & (df["heart_rate"] < 220)]
+        df = _filter_range(df, "timestamp")
+        hr_df = df.drop_duplicates("timestamp").sort_values("timestamp").set_index("timestamp")
+
+    # ── Resting heart rate: time (UTC ms), beats_per_minute ──────────────────
+    rhr_df = pd.DataFrame()
+    if "Resting heart rate" in xl.sheet_names:
+        df = xl.parse("Resting heart rate", usecols=["time", "beats_per_minute"])
+        df["timestamp"] = pd.to_datetime(df["time"], unit="ms", utc=True).dt.tz_localize(None)
+        df = df.rename(columns={"beats_per_minute": "resting_hr"})[["timestamp", "resting_hr"]].dropna()
+        df = df[(df["resting_hr"] > 30) & (df["resting_hr"] < 150)]
+        df = _filter_range(df, "timestamp")
+        rhr_df = df.drop_duplicates("timestamp").sort_values("timestamp").set_index("timestamp")
+
+    # ── Steps: aggregate count by local date ─────────────────────────────────
+    steps_df = pd.DataFrame()
+    if "Steps" in xl.sheet_names:
+        df = xl.parse("Steps", usecols=["start_local", "count"])
+        df["date"] = pd.to_datetime(df["start_local"]).dt.normalize()
+        if date_range is not None:
+            df = df[(df["date"] >= date_range[0]) & (df["date"] <= date_range[1])]
+        steps_df = df.groupby("date")[["count"]].sum().rename(columns={"count": "steps"})
+
+    return hr_df, rhr_df, steps_df
+
+
 # ── Extract: Sport per minute merged data ───────────────────────────────────
 
 def extract_sport_per_minute(json_files: list[Path], date_range=None):
@@ -420,6 +479,29 @@ def run(export_dir, out_dir, checkin_path=None, code=None, months=6):
     print("\n  Extracting sport per minute data...")
     sport_df = extract_sport_per_minute(sport_jsons, date_range=dr)
     print(f"  Sport: {len(sport_df)} days")
+
+    # 3c. Health Connect xlsx (optional supplement — merges HR, resting HR, steps)
+    hc_xlsx = next((f for f in export_dir.parent.glob("health_connect*.xlsx")), None)
+    if hc_xlsx:
+        hc_hr, hc_rhr, hc_steps = extract_health_connect(hc_xlsx, date_range=dr)
+        print(f"  HC HR: {len(hc_hr)} readings, RHR: {len(hc_rhr)}, Steps days: {len(hc_steps)}")
+
+        if not hc_hr.empty:
+            hr_df = pd.concat([hr_df, hc_hr]).sort_index()
+            hr_df = hr_df[~hr_df.index.duplicated(keep="first")]
+            print(f"  Merged HR total: {len(hr_df)} readings")
+
+        if not hc_rhr.empty:
+            rhr_df = pd.concat([rhr_df, hc_rhr]).sort_index()
+            rhr_df = rhr_df[~rhr_df.index.duplicated(keep="first")]
+
+        if not hc_steps.empty:
+            if sport_df is None or sport_df.empty:
+                sport_df = hc_steps
+            else:
+                missing_days = hc_steps.index.difference(sport_df.index)
+                if len(missing_days):
+                    sport_df = pd.concat([sport_df, hc_steps.loc[missing_days]]).sort_index()
 
     # 4. Build daily summary
     daily_df = build_daily(hr_df, stress_df, rhr_df, sport_df)

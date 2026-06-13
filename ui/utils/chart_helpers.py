@@ -1,17 +1,17 @@
 """Shared Plotly layout factories and color constants."""
 import plotly.graph_objects as go
 
-# Design system tokens — dark mode
-BG_BASE     = "#090f0a"
-BG_CARD     = "rgba(255,255,255,0.06)"
-BG_ELEVATED = "rgba(255,255,255,0.08)"
+# Design system tokens — warm dark v3 (solid card surfaces)
+BG_BASE     = "#111010"
+BG_CARD     = "rgba(255,235,200,0.09)"
+BG_ELEVATED = "rgba(255,235,200,0.13)"
 ACCENT      = "#16a34a"
-TEXT_PRIMARY   = "rgba(255,255,255,0.88)"
-TEXT_SECONDARY = "rgba(255,255,255,0.52)"
-TEXT_TERTIARY  = "rgba(255,255,255,0.32)"
-STRESS_RED  = "#f87171"
-GRID_COLOR  = "rgba(255,255,255,0.07)"
-ZERO_COLOR  = "rgba(255,255,255,0.12)"
+TEXT_PRIMARY   = "rgba(255,248,235,0.95)"
+TEXT_SECONDARY = "rgba(255,232,200,0.72)"
+TEXT_TERTIARY  = "rgba(255,215,165,0.50)"
+STRESS_RED  = "#fc8181"
+GRID_COLOR  = "rgba(255,210,150,0.09)"
+ZERO_COLOR  = "rgba(255,210,150,0.18)"
 
 # Legacy aliases
 BG_PRIMARY   = BG_BASE
@@ -21,9 +21,9 @@ BORDER       = "rgba(255,255,255,0.10)"
 # Okabe-Ito colorblind-safe palette — matches notebooks/ml/*.ipynb
 # Calm=#56B4E9 (sky blue), Neutral=#009E73 (bluish green), Energy=#E69F00 (orange)
 PLAYLIST_COLORS = {
-    "Calm":    "#56B4E9",
-    "Neutral": "#009E73",
-    "Energy":  "#E69F00",
+    "Calm":    "#63BFEE",   # Okabe sky blue — brightened
+    "Neutral": "#00B87B",   # Okabe teal-green — brightened
+    "Energy":  "#F5AC20",   # Okabe orange — brightened
 }
 
 # General Okabe-Ito sequence for non-playlist categorical charts
@@ -33,7 +33,7 @@ CHART_COLORS = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00"
 AXIS_DEFAULTS = dict(
     gridcolor=GRID_COLOR,
     zerolinecolor=ZERO_COLOR,
-    linecolor="rgba(255,255,255,0.08)",
+    linecolor="rgba(255,210,150,0.12)",
     tickfont=dict(color=TEXT_SECONDARY, size=11),
     title_font=dict(color=TEXT_SECONDARY, family="DM Sans, sans-serif", size=12),
 )
@@ -61,7 +61,7 @@ PLOTLY_LAYOUT = dict(
         borderwidth=0,
     ),
     hoverlabel=dict(
-        bgcolor="#141f15",
+        bgcolor="#28241f",
         font_color="rgba(255,255,255,0.90)",
         bordercolor="rgba(255,255,255,0.18)",
         font=dict(family="DM Sans, sans-serif", size=13),

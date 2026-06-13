@@ -7,6 +7,7 @@ from shinywidgets import output_widget, render_widget
 
 from utils.chart_helpers import ACCENT, GRID_COLOR, PLAYLIST_COLORS, TEXT_SECONDARY, chart_layout, empty_figure
 from utils.data_loader import PARTICIPANTS, AppData, expected_stress
+from utils.mood_valence import mood_is_improvement
 
 
 def _arc_path(h_start: float, h_end: float, r_outer: float, r_inner: float,
@@ -756,12 +757,6 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         except ValueError:
             pass
 
-        delta_color = (
-            "#22c55e" if delta_val is not None and delta_val > 0
-            else "#ef4444" if delta_val is not None and delta_val < 0
-            else "var(--text-tertiary)"
-        )
-
         if rows is not None and not rows.empty:
             row             = rows.iloc[0]
             mood_voor       = _safe(row, "mood_before_score")
@@ -770,6 +765,16 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             mood_label_na   = str(row.get("mood_after",  "—")) if hasattr(row, "get") else "—"
             pre_stress      = _safe(row, "pre_stress_mean")
             post_stress     = _safe(row, "post_stress_mean")
+            # Use valence-aware improvement: lower score is better for negative emotions
+            improved = mood_is_improvement(
+                mood_label_voor, row.get("mood_before_score"),
+                mood_label_na,   row.get("mood_after_score"),
+            )
+            delta_color = (
+                "#22c55e" if improved is True
+                else "#ef4444" if improved is False
+                else "var(--text-tertiary)"
+            )
         else:
             mood_voor       = "—"
             mood_na         = "—"
@@ -777,6 +782,12 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             mood_label_na   = "—"
             pre_stress      = f"{dot['pre_stress']:.1f}"
             post_stress     = dot.get("post_stress", "—")
+            # Fallback: no mood labels — use raw sign
+            delta_color = (
+                "#22c55e" if delta_val is not None and delta_val > 0
+                else "#ef4444" if delta_val is not None and delta_val < 0
+                else "var(--text-tertiary)"
+            )
 
         # 1.2 Compute circadian deviation for this session
         hour           = dot.get("hour", 17)

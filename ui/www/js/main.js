@@ -23,6 +23,8 @@ window.mtNavTo = function (section, sub) {
   _curSection = section;
   _curSub     = sub || (_MT_SUBNAV[section] ? _MT_SUBNAV[section][0] : null);
   _mtUpdateSubnav(section, _curSub);
+  // Emoji overlay and transparent bg only apply on the home page
+  document.body.classList.toggle('mt-home-active', section === 'home');
 };
 
 /* ── Dropdown trigger — click navigates to first sub-page ────────────────── */
@@ -151,6 +153,7 @@ document.addEventListener('DOMContentLoaded', function () {
         _curSub = _MT_SUBNAV[sec] ? _MT_SUBNAV[sec][0] : null;
       }
       _mtUpdateSubnav(sec, _curSub);
+      document.body.classList.toggle('mt-home-active', sec === 'home');
 
     } else if (_SUB_TO_SECTION[label]) {
       // Sub-tab changed (e.g., from Bootstrap pills or Shiny update_navset)

@@ -19,9 +19,9 @@ _ISO_LABEL = {
 }
 
 _COVER_GRADIENT = {
-    "Calm":    "linear-gradient(135deg, #1a2a4a, #0a1525)",
-    "Neutral": "linear-gradient(135deg, #2a1a4a, #160a2f)",
-    "Energy":  "linear-gradient(135deg, #4a2a1a, #2f1508)",
+    "Calm":    "linear-gradient(135deg, #1a2840, #0e1c2e)",
+    "Neutral": "linear-gradient(135deg, #1a2e24, #0e1c18)",
+    "Energy":  "linear-gradient(135deg, #3c1e0e, #221308)",
 }
 
 _DAYS_NL   = ["ma", "di", "wo", "do", "vr", "za", "zo"]

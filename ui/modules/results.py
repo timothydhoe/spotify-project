@@ -700,11 +700,27 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         if sel_s is None:
             return _ui.div()
         delta_str = f"{sel_s['delta']:+.1f} pt" if sel_s.get("delta") is not None else "—"
-        delta_color = (
-            "#22c55e" if sel_s.get("delta") and sel_s["delta"] > 0
-            else "#ef4444" if sel_s.get("delta") and sel_s["delta"] < 0
-            else "var(--text-tertiary)"
-        )
+        # Valence-aware color: look up mood labels from biometrics so that a
+        # lower score on a negative emotion (e.g. "moe") registers as improvement.
+        delta_color = "var(--text-tertiary)"
+        bio = app_data.session_biometrics.get(selected(), pd.DataFrame())
+        if not bio.empty and "date" in bio.columns and sel_s.get("date"):
+            rows = bio[bio["date"].astype(str).str[:10] == sel_s["date"][:10]]
+            if not rows.empty:
+                row = rows.iloc[0]
+                improved = mood_is_improvement(
+                    str(row.get("mood_before", "")), row.get("mood_before_score"),
+                    str(row.get("mood_after",  "")), row.get("mood_after_score"),
+                )
+                delta_color = (
+                    "#22c55e" if improved is True
+                    else "#ef4444" if improved is False
+                    else "var(--text-tertiary)"
+                )
+            elif sel_s.get("delta") is not None:
+                delta_color = "#22c55e" if sel_s["delta"] > 0 else "#ef4444" if sel_s["delta"] < 0 else "var(--text-tertiary)"
+        elif sel_s.get("delta") is not None:
+            delta_color = "#22c55e" if sel_s["delta"] > 0 else "#ef4444" if sel_s["delta"] < 0 else "var(--text-tertiary)"
         sign = "+" if sel_s["stress"] >= 0 else ""
         return _ui.div(
             _ui.div(

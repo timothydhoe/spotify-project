@@ -120,7 +120,7 @@ def run_participant(code: str, root: Path, force: bool) -> None:
     if summary.empty:
         print(f"  [{code}] No recovery curves fitted (insufficient transition data)")
     else:
-        out = analysis_dir / code / "circadian_baselines" / "recovery_curves.csv"
+        out = analysis_dir / code / "recovery_baselines.csv"
         summary.to_csv(out, index=False)
         print(f"  [{code}] → recovery_curves.csv ({len(summary)} curves)")
         print(summary.to_string(index=False))

@@ -1,104 +1,104 @@
 {
   "bosbes": {
     "Calm": {
-      "mean": 7.81,
-      "ci_low": 6.56,
-      "ci_high": 9.07
+      "mean": 7.99,
+      "ci_low": 7.72,
+      "ci_high": 8.25
     },
     "Neutral": {
-      "mean": 4.96,
-      "ci_low": 3.73,
-      "ci_high": 6.15
+      "mean": 4.99,
+      "ci_low": 4.68,
+      "ci_high": 5.31
     },
     "Energy": {
-      "mean": 8.03,
-      "ci_low": 7.16,
-      "ci_high": 8.91
+      "mean": 8.01,
+      "ci_low": 7.77,
+      "ci_high": 8.25
     }
   },
   "kiwi": {
     "Calm": {
-      "mean": -1.9,
-      "ci_low": -3.1,
-      "ci_high": -0.73
+      "mean": -1.99,
+      "ci_low": -2.43,
+      "ci_high": -1.55
     },
     "Neutral": {
-      "mean": -0.09,
-      "ci_low": -1.39,
-      "ci_high": 1.22
+      "mean": -0.05,
+      "ci_low": -0.52,
+      "ci_high": 0.44
     },
     "Energy": {
-      "mean": 1.08,
-      "ci_low": 0.35,
-      "ci_high": 1.8
+      "mean": 1.02,
+      "ci_low": 0.75,
+      "ci_high": 1.28
     }
   },
   "kokosnoot": {
     "Calm": {
-      "mean": 0.01,
-      "ci_low": -0.32,
-      "ci_high": 0.36
+      "mean": -0.01,
+      "ci_low": -0.12,
+      "ci_high": 0.12
     },
     "Neutral": {
-      "mean": 0.05,
-      "ci_low": -0.61,
-      "ci_high": 0.72
+      "mean": -0.0,
+      "ci_low": -0.24,
+      "ci_high": 0.23
     },
     "Energy": {
-      "mean": 11.98,
-      "ci_low": 11.69,
-      "ci_high": 12.28
+      "mean": 11.99,
+      "ci_low": 11.89,
+      "ci_high": 12.09
     }
   },
   "limoen": {
     "Calm": {
-      "mean": 7.03,
-      "ci_low": 5.79,
-      "ci_high": 8.28
+      "mean": 7.02,
+      "ci_low": 6.57,
+      "ci_high": 7.47
     },
     "Neutral": {
-      "mean": 8.94,
-      "ci_low": 8.18,
-      "ci_high": 9.7
+      "mean": 8.98,
+      "ci_low": 8.74,
+      "ci_high": 9.23
     },
     "Energy": {
-      "mean": 14.95,
-      "ci_low": 14.31,
-      "ci_high": 15.57
+      "mean": 14.99,
+      "ci_low": 14.79,
+      "ci_high": 15.2
     }
   },
   "peer": {
     "Calm": {
-      "mean": 3.98,
-      "ci_low": 3.53,
-      "ci_high": 4.44
+      "mean": 4.01,
+      "ci_low": 3.84,
+      "ci_high": 4.19
     },
     "Neutral": {
       "mean": 0.01,
-      "ci_low": -0.46,
-      "ci_high": 0.49
+      "ci_low": -0.17,
+      "ci_high": 0.18
     },
     "Energy": {
-      "mean": 4.01,
-      "ci_low": 3.57,
-      "ci_high": 4.45
+      "mean": 4.02,
+      "ci_low": 3.86,
+      "ci_high": 4.17
     }
   },
   "watermeloen": {
     "Calm": {
-      "mean": 0.0,
-      "ci_low": -1.28,
-      "ci_high": 1.28
+      "mean": -0.01,
+      "ci_low": -0.48,
+      "ci_high": 0.45
     },
     "Neutral": {
-      "mean": 0.01,
-      "ci_low": -0.87,
-      "ci_high": 0.88
+      "mean": -0.01,
+      "ci_low": -0.36,
+      "ci_high": 0.34
     },
     "Energy": {
-      "mean": 1.41,
-      "ci_low": 0.68,
-      "ci_high": 2.17
+      "mean": 6.0,
+      "ci_low": 5.72,
+      "ci_high": 6.28
     }
   }
 }

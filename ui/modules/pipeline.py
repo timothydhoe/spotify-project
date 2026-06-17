@@ -11,6 +11,15 @@ from utils.data_loader import AppData
 ROOT = Path(__file__).parent.parent.parent
 DATA = ROOT / "data"
 
+_CHECKIN_CANDIDATES = [
+    DATA / "check_in" / "check_in.csv",
+    DATA / "checkins" / "Check-in_formulier_REM.csv",
+]
+
+def _find_checkin_csv():
+    """Return whichever check-in CSV path exists, or the last candidate as fallback."""
+    return next((p for p in _CHECKIN_CANDIDATES if p.exists()), _CHECKIN_CANDIDATES[-1])
+
 # ---------------------------------------------------------------------------
 # Stap-definities
 # ---------------------------------------------------------------------------
@@ -348,7 +357,7 @@ def _count_records() -> dict[str, str]:
         counts["traces"]    = f"N={n_bio} sessies"
 
     # Check-ins
-    f = DATA / "checkins" / "Check-in_formulier_REM.csv"
+    f = _find_checkin_csv()
     if f.exists():
         try:
             n = sum(1 for _ in open(f)) - 1
@@ -392,7 +401,7 @@ def _step_status(step_id: str) -> str:
         "garmin":        DATA / "wearables",
         "wearables":     DATA / "wearables",
         "traces":        DATA / "wearables",
-        "checkins":      DATA / "checkins" / "Check-in_formulier_REM.csv",
+        "checkins":      _find_checkin_csv(),
         "feature_matrix": DATA / "analysis" / "circadian_baselines" / "feature_matrix.csv",
         "ml":            DATA / "analysis" / "circadian_baselines" / "model_results_mood_delta.csv",
         "bayesian":      DATA / "analysis" / "bayesian_recommender" / "recommendations.json",
@@ -746,7 +755,7 @@ def server(input, output, session, app_data: AppData):
 
         # File-size section for steps with known output files
         _FILE_OUTPUT_MAP = {
-            "checkins":      DATA / "checkins" / "Check-in_formulier_REM.csv",
+            "checkins":      _find_checkin_csv(),
             "feature_matrix": DATA / "analysis" / "circadian_baselines" / "feature_matrix.csv",
             "ml":            DATA / "analysis" / "circadian_baselines" / "model_results_mood_delta.csv",
             "bayesian":      DATA / "analysis" / "bayesian_recommender" / "recommendations.json",

@@ -36,6 +36,7 @@ TIMESTAMP_COL    = "Tijdstempel"
 # timestamp before it is flagged as suspicious.  One day covers midnight
 # submissions and minor clock-skew.
 _FUTURE_TOLERANCE = pd.Timedelta(days=1)
+_PAST_TOLERANCE   = pd.Timedelta(days=7)
 
 
 def fix_checkin_dates(sessions: pd.DataFrame) -> pd.Series:
@@ -58,28 +59,28 @@ def fix_checkin_dates(sessions: pd.DataFrame) -> pd.Series:
     """
 
     def _fix_row(row):
-        # Submission timestamp is server-generated (YYYY/MM/DD) — always unambiguous.
+        # Submission timestamp is server-generated in D-M-YYYY format — always correct.
         # Strip trailing timezone abbreviation (EET, EEST, …) before parsing;
         # pandas does not recognise these and will hard-error in a future version.
         ts_clean = re.sub(r"\s+[A-Z]{2,5}$", "", str(row[TIMESTAMP_COL]).strip())
-        submit_dt = pd.to_datetime(ts_clean, dayfirst=False)
+        # Tijdstempel = form-submission time (validation anchor only, not the session date).
+        submit_dt = pd.to_datetime(ts_clean, dayfirst=True)
         raw = str(row[CHECKIN_DATE_COL]).strip()
-        # Check-in dates are always YYYY-MM-DD — use explicit format to avoid
-        # pandas applying dayfirst and swapping month/day (e.g. 2026-04-01 → Jan 4).
-        checkin_dt = pd.to_datetime(raw, format="%Y-%m-%d")
+        # Check-in dates are D-M-YYYY as entered in the Google Form.
+        checkin_dt = pd.to_datetime(raw, format="%d-%m-%Y")
 
         # Happy path: date is on or before submission timestamp.
-        if checkin_dt <= submit_dt + _FUTURE_TOLERANCE:
+        if submit_dt - _PAST_TOLERANCE <= checkin_dt <= submit_dt + _FUTURE_TOLERANCE:
             return checkin_dt
 
-        # Suspicious: the check-in date is after the submission timestamp.
-        # Try swapping day and month (mobile form bug): YYYY-MM-DD → YYYY-DD-MM.
+        # Suspicious: check-in is outside plausible range (>7 days before or >1 day after
+        # submission). Try swapping D and M (mobile form bug: MM-DD picker on some devices).
         parts = raw.split("-")
         if len(parts) == 3:
-            swapped_raw = f"{parts[0]}-{parts[2]}-{parts[1]}"
+            swapped_raw = f"{parts[1]}-{parts[0]}-{parts[2]}"
             try:
-                swapped_dt = pd.to_datetime(swapped_raw, format="%Y-%m-%d")
-                if swapped_dt <= submit_dt + _FUTURE_TOLERANCE:
+                swapped_dt = pd.to_datetime(swapped_raw, format="%d-%m-%Y")
+                if submit_dt - _PAST_TOLERANCE <= swapped_dt <= submit_dt + _FUTURE_TOLERANCE:
                     warnings.warn(
                         f"[check-in date] Submitted {submit_dt.date()}: "
                         f"'{raw}' looks day/month-swapped (mobile bug) — "
@@ -92,7 +93,7 @@ def fix_checkin_dates(sessions: pd.DataFrame) -> pd.Series:
 
         warnings.warn(
             f"[check-in date] Submitted {submit_dt.date()}: "
-            f"date '{raw}' is after submission and could not be auto-corrected — "
+            f"date '{raw}' is outside plausible range and could not be auto-corrected — "
             f"please verify this row manually",
             stacklevel=2,
         )

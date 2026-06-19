@@ -1,76 +1,71 @@
 /* =====================================================
-   MoodTune — Design Tokens  (warm-dark v3)
+   MoodTune — Design Tokens  (warm-light v5 — vibrant)
    ===================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Figtree:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap');
 
 :root {
   /* ── Backgrounds ────────────────────────────────────────────────────────
-     bg-base and bg-surface are solid (used where no emoji bleed-through
-     is needed). bg-card and above stay semi-transparent so the home page
-     emoji shows through — but at much higher opacity than before so cards
-     are clearly visible on inner pages too.                                */
-  --bg-base:        #111010;         /* warm near-black — base canvas */
-  --bg-surface:     #1c1916;         /* navbar, flyout, footer — solid */
-  --bg-card:        rgba(255, 235, 200, 0.09);   /* ~#262421 on base — visible */
-  --bg-card-hover:  rgba(255, 235, 200, 0.15);   /* hover — noticeably lighter */
-  --bg-elevated:    rgba(255, 235, 200, 0.13);   /* stat blocks, dropdowns */
-  --bg-input:       rgba(255, 235, 200, 0.09);   /* form inputs */
-  --bg-glass:       rgba(255, 225, 170, 0.06);
-  --bg-glass-hover: rgba(255, 225, 170, 0.11);
+     Light cream canvas. bg-surface stays dark (navbar, player bar).       */
+  --bg-base:        #F5F0E8;                     /* warm cream — main page canvas */
+  --bg-surface:     #111110;                     /* DARK — navbar, footer, player */
+  --bg-card:        #FFFFFF;                     /* white cards */
+  --bg-card-hover:  #FAF7F2;                     /* subtle cream on hover */
+  --bg-elevated:    #EDE8DE;                     /* stat blocks, dropdowns */
+  --bg-input:       #FAF7F2;                     /* form inputs */
+  --bg-glass:       rgba(255, 255, 255, 0.80);   /* frosted white glass */
+  --bg-glass-hover: rgba(255, 255, 255, 0.95);
 
-  /* ── Text — warm white, high contrast ───────────────────────────────────
-     Secondary raised from 0.62→0.72, tertiary from 0.42→0.50
-     so labels and descriptions are comfortably readable.                   */
-  --text-primary:   rgba(255, 248, 235, 0.95);
-  --text-secondary: rgba(255, 232, 200, 0.72);
-  --text-tertiary:  rgba(255, 215, 165, 0.50);
-  --text-accent:    #fbbf24;   /* amber-gold — uplifting stat values */
+  /* ── Text — dark on light ─────────────────────────────────────────────*/
+  --text-primary:   #1A1412;
+  --text-secondary: rgba(26, 20, 18, 0.62);
+  --text-tertiary:  rgba(26, 20, 18, 0.40);
+  --text-accent:    #B45309;   /* warm amber-brown — stat values */
 
-  /* ── Accent — green brand (unchanged) ───────────────────────────────────*/
-  --accent:         #16a34a;
-  --accent-hover:   #22c55e;
-  --accent-muted:   rgba(22, 163, 74, 0.20);
-  --accent-glow:    rgba(22, 163, 74, 0.25);
+  /* ── Accent — vibrant emerald brand ──────────────────────────────────*/
+  --accent:         #059669;   /* emerald-600 — more vibrant than previous forest green */
+  --accent-hover:   #047857;   /* emerald-700 */
+  --accent-muted:   rgba(5, 150, 105, 0.10);
+  --accent-glow:    rgba(5, 150, 105, 0.20);
 
-  /* ── Accent — lime CTA (unchanged) ──────────────────────────────────────*/
-  --accent-lime:        #a3e635;
-  --accent-lime-hover:  #84cc16;
-  --accent-lime-muted:  rgba(163, 230, 53, 0.14);
-  --accent-lime-glow:   rgba(163, 230, 53, 0.22);
+  /* ── Accent — vibrant green CTA ──────────────────────────────────────*/
+  --accent-lime:        #16A34A;   /* green-600 — readable on white, punchy */
+  --accent-lime-hover:  #15803D;   /* green-700 */
+  --accent-lime-muted:  rgba(22, 163, 74, 0.10);
+  --accent-lime-glow:   rgba(22, 163, 74, 0.18);
 
-  /* ── Playlist — Okabe-Ito, +5% brightness boost ─────────────────────────*/
-  --energy-color:   #F5AC20;   /* Okabe orange  — brighter */
-  --calm-color:     #63BFEE;   /* Okabe sky blue — brighter */
-  --neutral-color:  #00B87B;   /* Okabe teal-green — brighter */
-  --stress-red:     #fc8181;
+  /* ── Playlist — Okabe-Ito, more vibrant for light bg ─────────────────*/
+  --energy-color:   #F59E0B;   /* amber-400  — warm, vibrant orange */
+  --calm-color:     #0EA5E9;   /* sky-500    — clear, vibrant blue */
+  --neutral-color:  #10B981;   /* emerald-400 — fresh, vibrant teal */
+  --stress-red:     #F43F5E;   /* rose-500   — vibrant, modern red */
 
-  /* ── Borders — warm amber tint, visibly higher opacity ──────────────────*/
-  --border-subtle:  rgba(255, 215, 160, 0.09);
-  --border-default: rgba(255, 210, 150, 0.16);
-  --border-strong:  rgba(255, 200, 130, 0.26);
-  --border-color:   rgba(255, 210, 150, 0.16);   /* alias */
+  /* ── Borders — warm amber tint ───────────────────────────────────────*/
+  --border-subtle:  rgba(180, 140, 80, 0.10);
+  --border-default: rgba(180, 140, 80, 0.22);
+  --border-strong:  rgba(180, 140, 80, 0.38);
+  --border-color:   rgba(180, 140, 80, 0.22);
 
-  /* ── Shadows — deeper, defined depth perception ─────────────────────────*/
-  --shadow-sm:  0 2px 4px rgba(0, 0, 0, 0.50), 0 4px 8px rgba(0, 0, 0, 0.30);
-  --shadow-md:  0 4px 12px rgba(0, 0, 0, 0.55), 0 8px 20px rgba(0, 0, 0, 0.40);
-  --shadow-lg:  0 8px 24px rgba(0, 0, 0, 0.60), 0 16px 40px rgba(0, 0, 0, 0.45);
-  --shadow-glow: 0 0 24px var(--accent-lime-glow);
+  /* ── Shadows — soft, warm-toned ──────────────────────────────────────*/
+  --shadow-sm:  0 1px 3px rgba(40, 25, 10, 0.08), 0 2px 6px rgba(40, 25, 10, 0.05);
+  --shadow-md:  0 4px 12px rgba(40, 25, 10, 0.10), 0 8px 20px rgba(40, 25, 10, 0.07);
+  --shadow-lg:  0 8px 24px rgba(40, 25, 10, 0.12), 0 16px 40px rgba(40, 25, 10, 0.09);
+  --shadow-glow: 0 0 20px rgba(22, 163, 74, 0.20);
 
-  /* ── Layout ──────────────────────────────────────────────────────────────*/
+  /* ── Layout ──────────────────────────────────────────────────────────*/
   --page-margin: clamp(12px, 4vw, 80px);
 
-  /* ── Border radii ────────────────────────────────────────────────────────*/
+  /* ── Border radii ────────────────────────────────────────────────────*/
   --radius-card:   20px;
   --radius-btn:    999px;
   --radius-badge:  999px;
   --radius-input:  8px;
 
-  /* ── Spacing (8px grid) ─────────────────────────────────────────────────*/
+  /* ── Spacing (8px grid) ─────────────────────────────────────────────*/
   --space-1: 8px;  --space-2: 16px; --space-3: 24px; --space-4: 32px;
   --space-6: 48px; --space-8: 64px; --space-12: 96px;
 
-  /* ── Type scale ──────────────────────────────────────────────────────────*/
+  /* ── Type scale ──────────────────────────────────────────────────────*/
   --font-size-xs:   0.75rem;
   --font-size-sm:   0.8125rem;
   --font-size-body: 0.9375rem;

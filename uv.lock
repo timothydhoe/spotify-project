@@ -2755,6 +2755,7 @@ name = "spotify-project"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "fitparse" },
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "openpyxl" },
@@ -2790,6 +2791,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "fitparse", specifier = ">=1.2.0" },
     { name = "matplotlib", specifier = ">=3.10.8" },
     { name = "numpy", specifier = ">=2.3.5" },
     { name = "openpyxl", specifier = ">=3.1.5" },

@@ -1,41 +1,41 @@
-"""Shared Plotly layout factories and color constants."""
+"""Shared Plotly layout factories and color constants — warm-light theme."""
 import plotly.graph_objects as go
 
-# Design system tokens — warm dark v3 (solid card surfaces)
-BG_BASE     = "#111010"
-BG_CARD     = "rgba(255,235,200,0.09)"
-BG_ELEVATED = "rgba(255,235,200,0.13)"
-ACCENT      = "#16a34a"
-TEXT_PRIMARY   = "rgba(255,248,235,0.95)"
-TEXT_SECONDARY = "rgba(255,232,200,0.72)"
-TEXT_TERTIARY  = "rgba(255,215,165,0.50)"
-STRESS_RED  = "#fc8181"
-GRID_COLOR  = "rgba(255,210,150,0.09)"
-ZERO_COLOR  = "rgba(255,210,150,0.18)"
+# Design system tokens — warm-light v4 (matches tokens.css)
+BG_BASE     = "#F4EFE6"
+BG_CARD     = "#FFFFFF"
+BG_ELEVATED = "#EDE8DE"
+ACCENT      = "#059669"
+TEXT_PRIMARY   = "rgba(26, 20, 18, 0.90)"
+TEXT_SECONDARY = "rgba(26, 20, 18, 0.62)"
+TEXT_TERTIARY  = "rgba(26, 20, 18, 0.40)"
+STRESS_RED  = "#F43F5E"
+GRID_COLOR  = "rgba(180, 140, 80, 0.18)"
+ZERO_COLOR  = "rgba(28, 21, 18, 0.20)"
 
 # Legacy aliases
 BG_PRIMARY   = BG_BASE
 ACCENT_GREEN = ACCENT
-BORDER       = "rgba(255,255,255,0.10)"
+BORDER       = "rgba(180, 140, 80, 0.22)"
 
-# Okabe-Ito colorblind-safe palette — matches notebooks/ml/*.ipynb
-# Calm=#56B4E9 (sky blue), Neutral=#009E73 (bluish green), Energy=#E69F00 (orange)
+# Okabe-Ito colorblind-safe palette — deepened for light-bg readability
+# Calm=#2196C3, Neutral=#009760, Energy=#D4850A
 PLAYLIST_COLORS = {
-    "Calm":    "#63BFEE",   # Okabe sky blue — brightened
-    "Neutral": "#00B87B",   # Okabe teal-green — brightened
-    "Energy":  "#F5AC20",   # Okabe orange — brightened
+    "Calm":    "#0EA5E9",   # sky-500
+    "Neutral": "#10B981",   # emerald-400
+    "Energy":  "#F59E0B",   # amber-400
 }
 
 # General Okabe-Ito sequence for non-playlist categorical charts
-CHART_COLORS = ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7"]
+CHART_COLORS = ["#D4850A", "#2196C3", "#009760", "#8B5CF6", "#0072B2", "#D55E00", "#CC79A7"]
 
 # Shared axis defaults — exported so callers can use them for secondary axes (yaxis2 etc.)
 AXIS_DEFAULTS = dict(
     gridcolor=GRID_COLOR,
     zerolinecolor=ZERO_COLOR,
-    linecolor="rgba(255,210,150,0.12)",
+    linecolor="rgba(180, 140, 80, 0.20)",
     tickfont=dict(color=TEXT_SECONDARY, size=11),
-    title_font=dict(color=TEXT_SECONDARY, family="DM Sans, sans-serif", size=12),
+    title_font=dict(color=TEXT_SECONDARY, family="Figtree, sans-serif", size=12),
 )
 
 # Standard layout to apply to all Plotly charts
@@ -43,12 +43,12 @@ PLOTLY_LAYOUT = dict(
     paper_bgcolor="rgba(0,0,0,0)",
     plot_bgcolor="rgba(0,0,0,0)",
     font=dict(
-        family="DM Sans, sans-serif",
+        family="Figtree, sans-serif",
         color=TEXT_SECONDARY,
         size=13,
     ),
     title_font=dict(
-        family="Sora, sans-serif",
+        family="Figtree, sans-serif",
         size=18,
         color=TEXT_PRIMARY,
     ),
@@ -61,10 +61,10 @@ PLOTLY_LAYOUT = dict(
         borderwidth=0,
     ),
     hoverlabel=dict(
-        bgcolor="#28241f",
-        font_color="rgba(255,255,255,0.90)",
-        bordercolor="rgba(255,255,255,0.18)",
-        font=dict(family="DM Sans, sans-serif", size=13),
+        bgcolor="#1C1A17",
+        font_color="rgba(240, 236, 227, 0.95)",
+        bordercolor="rgba(255, 215, 160, 0.25)",
+        font=dict(family="Figtree, sans-serif", size=13),
     ),
     modebar=dict(
         remove=[
@@ -73,7 +73,7 @@ PLOTLY_LAYOUT = dict(
             "toImage",
         ],
         bgcolor="rgba(0,0,0,0)",
-        color=TEXT_SECONDARY,
+        color=TEXT_TERTIARY,
     ),
 )
 

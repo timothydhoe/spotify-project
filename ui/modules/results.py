@@ -131,7 +131,7 @@ def _longitudinal_chart(p: str, feature_matrix: pd.DataFrame) -> go.Figure:
     if df.empty:
         return empty_figure("Geen pre-studie stressafwijkingdata")
 
-    pl_colors = {"Calm": "#56B4E9", "Neutral": "#009E73", "Energy": "#E69F00"}
+    pl_colors = {"Calm": "#0EA5E9", "Neutral": "#10B981", "Energy": "#F59E0B"}
     nl_map    = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}
     playlists = df["playlist"].tolist() if "playlist" in df.columns else ["Energy"] * len(df)
     point_colors = [pl_colors.get(str(pl), ACCENT) for pl in playlists]
@@ -145,15 +145,17 @@ def _longitudinal_chart(p: str, feature_matrix: pd.DataFrame) -> go.Figure:
     )
     pl_nl  = [nl_map.get(str(pl), str(pl)) for pl in playlists]
 
+    # Round y values so tooltip always shows 1 decimal (format spec unreliable with FigureWidget)
+    y_vals = [round(v, 1) if v == v else v for v in df["pre_study_stress_deviation"].tolist()]
     customdata = list(zip(dates, pl_nl, deltas, df["session_number"].tolist()))
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df["session_number"],
-        y=df["pre_study_stress_deviation"],
+        y=y_vals,
         mode="lines+markers",
         line=dict(color=TEXT_SECONDARY, width=1.5),
-        marker=dict(size=11, color=point_colors, line=dict(width=1.5, color="rgba(255,255,255,0.15)")),
+        marker=dict(size=11, color=point_colors, line=dict(width=1.5, color="#FFFFFF")),
         customdata=customdata,
         hovertemplate=(
             "<b>Sessie %{customdata[3]}</b> — %{customdata[0]}<br>"

@@ -20,6 +20,7 @@ dependencies = [
     "statsmodels>=0.14.6",
     "shap>=0.43.0",
     "openpyxl>=3.1.5",
+    "fitparse>=1.2.0",
 ]
 
 [dependency-groups]

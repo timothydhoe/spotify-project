@@ -67,10 +67,10 @@ def _shift_emoji(label: str, delta: float) -> str:
 
 _ISO_FASE_LABELS = ["Ontmoeting", "De-escalatie", "Regulatie", "Landing"]
 _ISO_FASE_FILLS  = [
-    "rgba(59,130,246,0.05)",
-    "rgba(59,130,246,0.09)",
+    "rgba(59,130,246,0.08)",
     "rgba(59,130,246,0.13)",
-    "rgba(59,130,246,0.17)",
+    "rgba(59,130,246,0.18)",
+    "rgba(59,130,246,0.24)",
 ]
 
 
@@ -96,7 +96,7 @@ def _biometric_chart(
         fig.add_hrect(
             y0=max(0, baseline_stress - baseline_std),
             y1=min(100, baseline_stress + baseline_std),
-            fillcolor="rgba(34,197,94,0.06)", line_width=0,
+            fillcolor="rgba(34,197,94,0.10)", line_width=0,
         )
         hour_label = f" {session_hour:02d}:00" if session_hour is not None else ""
         fig.add_hline(
@@ -230,10 +230,11 @@ def _data_quality_note(trace_df: pd.DataFrame) -> _ui.Tag:
         '<details class="mt-details" style="margin-top:8px;">'
         '<summary style="font-size:11px; color:var(--text-tertiary); cursor:pointer;">Over de datakwaliteit</summary>'
         '<div class="mt-details-body" style="font-size:11px; color:var(--text-tertiary); margin-top:6px; line-height:1.6;">'
-        '<b>Stress:</b> Garmin meet elke 3 minuten — daartussen zijn geen waarden (gaten zijn normaal). '
+        '<b>Stress:</b> Berekend op basis van hartslagvariabiliteit (HRV) — vereist een meetvenster van ≈3 minuten. '
+        'Tussen twee berekeningen is er geen stresswaarde; niets wordt geschat of aangevuld. '
         'Bij afdoen of opladen ontstaan langere gaten.<br>'
         '<b>Hartslag:</b> Continu gemeten maar kan ontbreken bij slechte huidcontact of intense beweging.<br>'
-        '<b>Geen interpolatie:</b> De data is exact zoals gemeten — niets is gesimuleerd of aangevuld.'
+        '<b>Geen interpolatie:</b> Alle waarden zijn exact zoals gemeten — de data is nooit gesimuleerd of bijgeschat.'
         '</div></details>'
     )
 
@@ -310,16 +311,20 @@ def _mood_bio_comparison(bio_row: pd.Series) -> _ui.Tag:
 
 
 def _phase_durations(trace_df: pd.DataFrame):
+    """Return (pre, during, post) visible window durations for the timeline header.
+
+    The chart always shows ±30 min on each side of the session, so VOOR and NA
+    are always 30 min in the visible window — matching the chart x-axis range
+    [-30, during_end + 30]. Using actual data durations (e.g. 59 min) caused
+    TIJDENS SESSIE to appear narrower than the blue zone inside the chart.
+    """
     if trace_df.empty or "phase" not in trace_df.columns:
-        return 60, 30, 60
-    phases = trace_df.groupby("phase")["minutes_relative"].agg(["min", "max"])
-
-    def _dur(phase):
-        if phase in phases.index:
-            return max(5, int(phases.loc[phase, "max"] - phases.loc[phase, "min"]))
-        return 30
-
-    return _dur("pre"), _dur("during"), _dur("post")
+        return 30, 30, 30
+    during = trace_df[trace_df["phase"] == "during"]
+    if during.empty:
+        return 30, 30, 30
+    dur_dur = max(5, int(during["minutes_relative"].max() - during["minutes_relative"].min()))
+    return 30, dur_dur, 30
 
 
 def _mood_arc(bio_row: pd.Series) -> _ui.Tag:
@@ -440,65 +445,43 @@ def _recovery_badge(row: pd.Series) -> _ui.Tag:
 @module.ui
 def ui():
     return _ui.div(
-        # Page hero — aligns to home page pattern
+        # ── Slim header: navigator + compact session stats ────────────────────
+        # All key identifiers in one tight row — no standalone card title
         _ui.div(
-            _ui.div("Sessie Replay", class_="mt-h1"),
-            _ui.p(
-                "Jouw biometrische boog per sessie — stress en hartslag voor, tijdens en na het luisteren.",
-                class_="mt-body mt-secondary",
-                style="margin-top:8px; max-width:520px; margin-left:auto; margin-right:auto;",
-            ),
-            class_="mt-page-hero",
-        ),
-
-        # 2.1 Sessieselector — consistent padding
-        _ui.div(
-            _ui.div("Selecteer sessie", class_="mt-h3", style="margin-bottom:16px;"),
             _ui.div(
                 _ui.output_ui("nav_prev_btn"),
-                _ui.input_select("session_date", None, choices=[], width="280px"),
+                _ui.input_select("session_date", None, choices=[], width="240px"),
                 _ui.output_ui("nav_next_btn"),
                 _ui.output_ui("session_badge"),
-                style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;",
+                style=(
+                    "display:flex; align-items:center; gap:10px; flex-wrap:wrap; "
+                    "padding-bottom:10px; border-bottom:1px solid var(--border-subtle); "
+                    "margin-bottom:10px;"
+                ),
             ),
-            class_="mt-section-card",
-            style="margin:32px var(--page-margin); padding:28px 40px;",
-        ),
-
-        # Sessie-samenvatting
-        _ui.div(
+            # Session stats row: date · starttime · duration (compact)
             _ui.output_ui("session_summary"),
-            style="padding:0 var(--page-margin) 56px;",
+            class_="mt-section-card mt-replay-header",
+            style="margin:8px var(--page-margin) 0; padding:14px 20px 12px;",
         ),
 
-        # Sessie-uitkomst banner
+        # ── THE STAR: chart card, full width, immediately visible ─────────────
         _ui.div(
-            _ui.output_ui("outcome_banner"),
-            style="padding:0 var(--page-margin) 20px;",
-        ),
-
-        # Tijdlijnkoptekst
-        _ui.div(
-            _ui.output_ui("timeline_header"),
-            style="margin:0 var(--page-margin);",
-        ),
-
-        # Biometrische grafiek
-        _ui.div(
+            _ui.output_ui("timeline_header"),   # VOOR / TIJDENS SESSIE / NA
             output_widget("biometric_chart"),
-            _ui.output_ui("data_quality_ui"),
-            class_="mt-section-card",
-            style="margin:0 var(--page-margin); border-radius:0 0 12px 12px; padding:24px 32px;",
+            class_="mt-section-card mt-replay-chart",
+            style="margin:8px var(--page-margin) 0; padding:12px 24px 16px;",
         ),
 
-        # 2.5 Stemming & herstel — grouped into one card
+        # ── Unified result card: outcome + mood + data quality in ONE box ────────
         _ui.div(
-            _ui.div("Stemming & herstel", class_="mt-h3", style="margin-bottom:20px;"),
-            _ui.output_ui("mood_arc_ui"),
-            _ui.div(style="margin-top:20px;"),
-            _ui.output_ui("recovery_badge_ui"),
-            class_="mt-section-card",
-            style="margin:16px var(--page-margin); padding:28px 36px;",
+            _ui.div(
+                _ui.output_ui("outcome_banner"),
+                _ui.output_ui("mood_arc_ui"),
+                _ui.output_ui("data_quality_ui"),
+                class_="mt-replay-context",
+            ),
+            style="padding:0 var(--page-margin) 16px;",
         ),
     )
 

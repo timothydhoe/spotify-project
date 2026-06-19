@@ -8,7 +8,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 
 html, body {
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: 'Figtree', system-ui, sans-serif;
   background: var(--bg-base);
   color: var(--text-primary);
   margin: 0;
@@ -27,7 +27,7 @@ html, body {
 .navbar-toggler { display: none !important; }
 
 .navbar-brand {
-  font-family: 'Sora', sans-serif !important;
+  font-family: 'Figtree', sans-serif !important;
   font-weight: 700 !important;
   font-size: 1.125rem !important;
   color: var(--text-primary) !important;
@@ -81,7 +81,7 @@ html, body {
   padding: 21px 14px !important;   /* fills the 64px navbar height; underline at bottom */
   border-radius: 0 !important;
   color: var(--text-secondary) !important;
-  font-family: 'DM Sans', sans-serif !important;
+  font-family: 'Figtree', sans-serif !important;
   font-weight: 500 !important;
   font-size: 0.9375rem !important;
   transition: color 0.15s ease !important;
@@ -131,7 +131,7 @@ html, body {
 
 .nav-pills .nav-link {
   color: var(--text-secondary) !important;
-  font-family: 'DM Sans', sans-serif !important;
+  font-family: 'Figtree', sans-serif !important;
   font-weight: 500 !important;
   font-size: 0.875rem !important;
   padding: 6px 16px !important;
@@ -169,7 +169,7 @@ body > .container-fluid,
   margin-left: 0 !important;
   max-width: 100vw !important;
   padding: 64px 0 0 !important;   /* 64px = custom navbar height */
-  background: var(--bg-base) !important;
+  background: transparent !important;  /* body provides the cream bg; emoji bleeds through */
 }
 /* When embedded sub-nav is visible the navbar is ~108px (64 + 44) */
 body.mt-subnav-active > .container-fluid,
@@ -182,13 +182,13 @@ body.mt-subnav-active .nav-pills {
 }
 
 .tab-content {
-  background: var(--bg-base) !important;
+  background: transparent !important;  /* body provides cream; emoji shows through */
   min-height: 100vh !important;
 }
 
 .tab-pane {
-  background: var(--bg-base) !important;
-  padding: 40px 0 120px !important;
+  background: transparent !important;  /* body provides cream; emoji shows through */
+  padding: 24px 0 100px !important;
 }
 
 /* ---------- Now-Playing Bar ---------- */
@@ -198,7 +198,7 @@ body.mt-subnav-active .nav-pills {
   left: 0;
   right: 0;
   height: 80px;
-  background: var(--bg-elevated);
+  background: var(--bg-surface);   /* dark player bar — keeps Spotify-style dark footer */
   border-top: 2px solid var(--border-subtle);
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -208,6 +208,12 @@ body.mt-subnav-active .nav-pills {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   transition: border-top-color 0.3s ease;
+  /* Scope light text tokens for dark surface */
+  --text-primary:   rgba(240, 236, 227, 0.95);
+  --text-secondary: rgba(220, 210, 195, 0.72);
+  --text-tertiary:  rgba(200, 185, 165, 0.45);
+  --text-accent:    #fbbf24;
+  --border-subtle:  rgba(255, 215, 160, 0.09);
 }
 
 /* Tint the top border with the active playlist's color */
@@ -326,7 +332,7 @@ body.mt-subnav-active .nav-pills {
 
 /* ---------- Stat Values ---------- */
 .mt-stat-value {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 2rem;
   color: var(--text-accent);
@@ -346,7 +352,7 @@ body.mt-subnav-active .nav-pills {
 
 /* ---------- Typography ---------- */
 .mt-display {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 800;
   font-size: 2rem;
   line-height: 1.1;
@@ -354,7 +360,7 @@ body.mt-subnav-active .nav-pills {
 }
 
 .mt-h1 {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 800;
   font-size: 1.75rem;
   line-height: 1.15;
@@ -362,7 +368,7 @@ body.mt-subnav-active .nav-pills {
 }
 
 .mt-h2 {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 1.625rem;
   line-height: 1.2;
@@ -370,7 +376,7 @@ body.mt-subnav-active .nav-pills {
 }
 
 .mt-h3 {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 600;
   font-size: 1rem;
   line-height: 1.4;
@@ -378,14 +384,14 @@ body.mt-subnav-active .nav-pills {
 }
 
 .mt-body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 400;
   font-size: 0.9375rem;
   line-height: 1.6;
 }
 
 .mt-caption {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 500;
   font-size: 0.75rem;
   letter-spacing: 0.04em;
@@ -442,7 +448,7 @@ body.mt-subnav-active .nav-pills {
   border: 1px solid var(--border-default);
   background: transparent;
   color: var(--text-secondary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 500;
   font-size: 0.875rem;
   cursor: pointer;
@@ -485,16 +491,16 @@ body.mt-subnav-active .nav-pills {
   align-items: center;
   padding: 4px 12px;
   border-radius: 999px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 600;
   font-size: 0.75rem;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
-.mt-badge-energy  { background: rgba(230, 159, 0, 0.15);   color: var(--energy-color); }
-.mt-badge-calm    { background: rgba(86, 180, 233, 0.15);  color: var(--calm-color); }
-.mt-badge-neutral { background: rgba(0, 158, 115, 0.15);   color: var(--neutral-color); }
+.mt-badge-energy  { background: rgba(245, 158, 11, 0.15);   color: var(--energy-color); }
+.mt-badge-calm    { background: rgba(14, 165, 233, 0.15);  color: var(--calm-color); }
+.mt-badge-neutral { background: rgba(16, 185, 129, 0.15);   color: var(--neutral-color); }
 .mt-badge-green   { background: var(--accent-muted); color: var(--text-accent); }
 
 /* Legacy rec badge */
@@ -509,9 +515,9 @@ body.mt-subnav-active .nav-pills {
   margin: 0 auto;
 }
 
-.mt-rec-badge.calm    { background: rgba(86, 180, 233, 0.10);  color: var(--calm-color);    border: 1px solid rgba(86,180,233,0.25); }
-.mt-rec-badge.neutral { background: rgba(0, 158, 115, 0.10);  color: var(--neutral-color); border: 1px solid rgba(0,158,115,0.25); }
-.mt-rec-badge.energy  { background: rgba(230, 159, 0, 0.10);  color: var(--energy-color);  border: 1px solid rgba(230,159,0,0.25); }
+.mt-rec-badge.calm    { background: rgba(14, 165, 233, 0.10);  color: var(--calm-color);    border: 1px solid rgba(86,180,233,0.25); }
+.mt-rec-badge.neutral { background: rgba(16, 185, 129, 0.10);  color: var(--neutral-color); border: 1px solid rgba(0,158,115,0.25); }
+.mt-rec-badge.energy  { background: rgba(245, 158, 11, 0.10);  color: var(--energy-color);  border: 1px solid rgba(230,159,0,0.25); }
 
 /* ---------- Track Rows (Playlist) ---------- */
 .tracklist-section {
@@ -543,6 +549,7 @@ body.mt-subnav-active .nav-pills {
   padding: 10px 24px;
   transition: background 0.15s ease;
   cursor: pointer;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .track-row:hover { background: var(--bg-glass-hover); }
@@ -666,7 +673,7 @@ body.mt-subnav-active .nav-pills {
 }
 
 .playlist-meta h1 {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 2.5rem;
   line-height: 1.15;
@@ -730,7 +737,7 @@ body.mt-subnav-active .nav-pills {
 .mt-btn-primary {
   background: var(--accent-lime);
   color: #090f0a;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 0.9375rem;
   padding: 12px 24px;
@@ -742,12 +749,12 @@ body.mt-subnav-active .nav-pills {
   align-items: center;
   gap: 8px;
   transition: all 0.15s ease;
-  box-shadow: 0 0 20px rgba(163, 230, 53, 0.22);
+  box-shadow: 0 0 20px rgba(101, 163, 13, 0.22);
 }
 
 .mt-btn-primary:hover {
   background: var(--accent-lime-hover);
-  box-shadow: 0 0 28px rgba(163, 230, 53, 0.35);
+  box-shadow: 0 0 28px rgba(101, 163, 13, 0.35);
   transform: scale(1.02);
 }
 
@@ -762,7 +769,7 @@ body.mt-subnav-active .nav-pills {
 .mt-btn-secondary {
   background: transparent;
   color: var(--text-secondary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 500;
   font-size: 0.875rem;
   padding: 10px 20px;
@@ -861,9 +868,9 @@ body.mt-subnav-active .nav-pills {
   color: var(--text-secondary);
 }
 
-.mt-timeline-phase.pre    { background: rgba(255, 255, 255, 0.04); }
-.mt-timeline-phase.during { background: rgba(86, 180, 233, 0.09); border-left: 1px solid var(--border-default); border-right: 1px solid var(--border-default); color: var(--calm-color); }
-.mt-timeline-phase.post   { background: rgba(255, 255, 255, 0.02); }
+.mt-timeline-phase.pre    { background: var(--bg-elevated); }
+.mt-timeline-phase.during { background: rgba(14, 165, 233, 0.09); border-left: 1px solid var(--border-default); border-right: 1px solid var(--border-default); color: var(--calm-color); }
+.mt-timeline-phase.post   { background: var(--bg-card-hover); }
 
 /* ---------- Mood Arc ---------- */
 .mt-mood-arc {
@@ -909,7 +916,7 @@ body.mt-subnav-active .nav-pills {
   border-radius: 8px !important;
   color: var(--text-primary) !important;
   box-shadow: none !important;
-  font-family: 'DM Sans', sans-serif !important;
+  font-family: 'Figtree', sans-serif !important;
 }
 
 .selectize-dropdown {
@@ -967,7 +974,7 @@ label { color: var(--text-secondary) !important; }
   background: transparent;
   display: flex;
   flex-direction: column;
-  padding: 32px 0 24px;
+  padding: 24px 0 16px;
 }
 
 .mt-hero h1 { max-width: 800px; }
@@ -988,7 +995,7 @@ label { color: var(--text-secondary) !important; }
 }
 
 .mt-stat-item  { text-align: center; }
-.mt-stat-value { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 2rem; color: var(--text-accent); line-height: 1; }
+.mt-stat-value { font-family: 'Figtree', sans-serif; font-weight: 700; font-size: 2rem; color: var(--text-accent); line-height: 1; }
 
 /* ---------- Flow Section (Science) ---------- */
 .mt-flow {
@@ -1058,7 +1065,7 @@ label { color: var(--text-secondary) !important; }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
 }
 
 .mt-expand-trigger:hover { text-decoration: underline; }
@@ -1280,7 +1287,7 @@ label { color: var(--text-secondary) !important; }
   color: var(--text-secondary);
   padding: 8px 18px;
   font-size: 0.8125rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -1310,7 +1317,7 @@ label { color: var(--text-secondary) !important; }
 }
 
 .mt-session-summary-item  { text-align: center; }
-.mt-session-summary-value { font-size: 1.125rem; font-weight: 600; line-height: 1.2; font-family: 'Sora', sans-serif; }
+.mt-session-summary-value { font-size: 1.125rem; font-weight: 600; line-height: 1.2; font-family: 'Figtree', sans-serif; }
 .mt-session-summary-label { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
 
 /* ---------- Wrapped / Resultaten ---------- */
@@ -1326,7 +1333,7 @@ label { color: var(--text-secondary) !important; }
 /* Open, transparent page hero — aligns all profiel pages to the home page look */
 .mt-page-hero {
   text-align: center;
-  padding: 80px var(--page-margin) 56px;
+  padding: 32px var(--page-margin) 24px;
   background: transparent;
   position: relative;
   z-index: 1;
@@ -1339,7 +1346,7 @@ label { color: var(--text-secondary) !important; }
   text-align: center;
   padding: 24px;
   font-weight: 500;
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
 }
 
 /* ---------- Shiny Overrides ---------- */
@@ -1351,7 +1358,7 @@ label { color: var(--text-secondary) !important; }
   border: 1px solid var(--border-default) !important;
   color: var(--text-primary) !important;
   border-radius: 8px !important;
-  font-family: 'DM Sans', sans-serif !important;
+  font-family: 'Figtree', sans-serif !important;
 }
 
 .form-control:focus, .form-select:focus {
@@ -1362,7 +1369,7 @@ label { color: var(--text-secondary) !important; }
 label {
   color: var(--text-secondary) !important;
   font-size: 0.875rem !important;
-  font-family: 'DM Sans', sans-serif !important;
+  font-family: 'Figtree', sans-serif !important;
 }
 
 /* ---------- Animations ---------- */
@@ -1448,11 +1455,11 @@ label {
   text-align: center;
   transition: all 0.25s ease;
 }
-.mt-rec-badge-live.calm    { background: rgba(86, 180, 233, 0.06);  border: 1px solid rgba(86,180,233,0.18);  }
-.mt-rec-badge-live.neutral { background: rgba(0, 158, 115, 0.06);   border: 1px solid rgba(0,158,115,0.18);   }
-.mt-rec-badge-live.energy  { background: rgba(230, 159, 0, 0.06);   border: 1px solid rgba(230,159,0,0.18);   }
+.mt-rec-badge-live.calm    { background: rgba(14, 165, 233, 0.06);  border: 1px solid rgba(86,180,233,0.18);  }
+.mt-rec-badge-live.neutral { background: rgba(16, 185, 129, 0.06);   border: 1px solid rgba(0,158,115,0.18);   }
+.mt-rec-badge-live.energy  { background: rgba(245, 158, 11, 0.06);   border: 1px solid rgba(230,159,0,0.18);   }
 .mt-rec-badge-live .mt-rec-live-type {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 1.5rem;
   line-height: 1;
@@ -1478,9 +1485,9 @@ label {
   transition: all 0.25s ease;
 }
 
-.mt-rec-badge-hero.calm    { background: rgba(86, 180, 233, 0.08);  border: 1px solid rgba(86,180,233,0.22);  box-shadow: 0 2px 16px rgba(86,180,233,0.08); }
-.mt-rec-badge-hero.neutral { background: rgba(0, 158, 115, 0.08);  border: 1px solid rgba(0,158,115,0.22);   box-shadow: 0 2px 16px rgba(0,158,115,0.08); }
-.mt-rec-badge-hero.energy  { background: rgba(230, 159, 0, 0.08);  border: 1px solid rgba(230,159,0,0.22);   box-shadow: 0 2px 16px rgba(230,159,0,0.08); }
+.mt-rec-badge-hero.calm    { background: rgba(14, 165, 233, 0.08);  border: 1px solid rgba(14, 165, 233, 0.25);  box-shadow: 0 2px 16px rgba(14, 165, 233, 0.10); }
+.mt-rec-badge-hero.neutral { background: rgba(16, 185, 129, 0.08);  border: 1px solid rgba(16, 185, 129, 0.25);  box-shadow: 0 2px 16px rgba(16, 185, 129, 0.10); }
+.mt-rec-badge-hero.energy  { background: rgba(245, 158, 11, 0.08);  border: 1px solid rgba(245, 158, 11, 0.25);  box-shadow: 0 2px 16px rgba(245, 158, 11, 0.10); }
 
 .mt-rec-hero-eyebrow {
   font-size: 0.6875rem;
@@ -1492,7 +1499,7 @@ label {
 }
 
 .mt-rec-hero-type {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 3.5rem;
   line-height: 1;
@@ -1512,7 +1519,7 @@ label {
 
 /* ---------- Inline Slider Value ---------- */
 .mt-slider-value {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 600;
   font-size: 1rem;
   min-width: 56px;
@@ -1545,9 +1552,9 @@ label {
   transition: opacity 0.2s ease;
 }
 
-.mt-teaser-badge.calm    { background: rgba(86, 180, 233, 0.08);  border: 1px dashed rgba(86,180,233,0.25); }
-.mt-teaser-badge.neutral { background: rgba(0, 158, 115, 0.08);  border: 1px dashed rgba(0,158,115,0.25); }
-.mt-teaser-badge.energy  { background: rgba(230, 159, 0, 0.08);  border: 1px dashed rgba(230,159,0,0.25); }
+.mt-teaser-badge.calm    { background: rgba(14, 165, 233, 0.08);  border: 1px dashed rgba(86,180,233,0.25); }
+.mt-teaser-badge.neutral { background: rgba(16, 185, 129, 0.08);  border: 1px dashed rgba(0,158,115,0.25); }
+.mt-teaser-badge.energy  { background: rgba(245, 158, 11, 0.08);  border: 1px dashed rgba(230,159,0,0.25); }
 
 .mt-teaser-card:hover .mt-teaser-badge { opacity: 0.75; }
 
@@ -1559,7 +1566,7 @@ details.mt-details summary {
   color: var(--text-tertiary);
   font-size: 0.8125rem;
   font-weight: 500;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   list-style: none;
   display: inline-flex;
   align-items: center;
@@ -1682,7 +1689,8 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   background: #0f1117;
   border-radius: 12px;
   padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(180, 140, 80, 0.28);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
   position: relative;
 }
@@ -1717,14 +1725,14 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   align-items: center;
   padding: 2px 8px;
   border-radius: 6px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 600;
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   background: var(--accent-muted);
   color: var(--text-accent);
-  border: 1px solid rgba(22, 163, 74, 0.25);
+  border: 1px solid rgba(5, 150, 105, 0.25);
   margin-left: 8px;
   vertical-align: middle;
   white-space: nowrap;
@@ -1747,9 +1755,9 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   white-space: nowrap;
 }
 
-.mt-class-pill.calm    { background: rgba(86, 180, 233, 0.12);  color: var(--calm-color);    border: 1px solid rgba(86,180,233,0.28); }
-.mt-class-pill.energy  { background: rgba(230, 159, 0, 0.12);  color: var(--energy-color);  border: 1px solid rgba(230,159,0,0.28); }
-.mt-class-pill.other   { background: rgba(255, 255, 255, 0.06); color: var(--text-secondary); border: 1px solid rgba(255,255,255,0.12); }
+.mt-class-pill.calm    { background: rgba(14, 165, 233, 0.12);  color: var(--calm-color);    border: 1px solid rgba(33,150,195,0.28); }
+.mt-class-pill.energy  { background: rgba(245, 158, 11, 0.12);  color: var(--energy-color);  border: 1px solid rgba(212,133,10,0.28); }
+.mt-class-pill.other   { background: rgba(28, 21, 18, 0.06); color: var(--text-secondary); border: 1px solid rgba(28,21,18,0.12); }
 
 /* ---------- Arousal Dot Bar ---------- */
 .mt-arousal-dots {
@@ -1819,7 +1827,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   color: var(--text-secondary);
   padding: 6px 14px;
   font-size: 0.8125rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -1868,7 +1876,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   padding: 6px 18px;
   border-radius: 7px;
   border: none;
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 500;
   font-size: 0.8125rem;
   cursor: pointer;
@@ -1933,13 +1941,41 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   border-bottom: none;
 }
 .mt-session-table tbody tr:hover td {
-  background: rgba(255,255,255,0.03);
+  background: var(--bg-card-hover);
 }
 
 /* ==========================================================================
    Custom Navbar — three-column CSS Grid layout
    Left: logo  |  Center: nav items  |  Right: participant selector
    ========================================================================== */
+
+/* Dark-surface context: override tokens so text stays light inside the dark navbar */
+.mt-navbar,
+.mt-nav-dropdown-menu,
+.mt-mobile-menu {
+  --text-primary:      rgba(240, 236, 227, 0.95);
+  --text-secondary:    rgba(220, 210, 195, 0.72);
+  --text-tertiary:     rgba(200, 185, 165, 0.45);
+  --accent-lime:       #a3e635;
+  --accent-lime-muted: rgba(163, 230, 53, 0.15);
+  --bg-glass-hover:    rgba(255, 225, 170, 0.08);
+  --bg-input:          rgba(255, 255, 255, 0.08);  /* dark-surface inputs stay dark */
+  --border-subtle:     rgba(255, 215, 160, 0.09);
+  --border-default:    rgba(255, 210, 150, 0.16);
+  --border-color:      rgba(255, 210, 150, 0.16);
+}
+
+/* Participant select in navbar — explicit dark surface treatment */
+.mt-navbar-right .form-select {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: rgba(240, 236, 227, 0.90) !important;
+  border-color: rgba(255, 215, 160, 0.18) !important;
+}
+.mt-navbar-right .form-select:focus {
+  background: rgba(255, 255, 255, 0.13) !important;
+  border-color: rgba(255, 215, 160, 0.35) !important;
+  box-shadow: none !important;
+}
 
 .mt-navbar {
   position: fixed;
@@ -1969,7 +2005,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   cursor: pointer;
   text-decoration: none;
   color: var(--text-primary);
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 1.125rem;
   letter-spacing: -0.01em;
@@ -2007,7 +2043,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   border: none;
   border-radius: 999px;
   color: var(--text-secondary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 500;
   font-size: 0.9375rem;
   cursor: pointer;
@@ -2086,7 +2122,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   padding: 8px 12px;
   border-radius: 8px;
   color: var(--text-secondary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   text-decoration: none;
@@ -2135,7 +2171,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   border: 1px solid var(--border-default);
   border-radius: 999px;
   color: var(--text-primary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-size: 0.8125rem;
   font-weight: 500;
   padding: 5px 28px 5px 12px;
@@ -2183,7 +2219,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   border: none;
   background: none;
   color: var(--text-secondary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -2254,7 +2290,7 @@ details.mt-details[open] summary  { color: var(--text-secondary); }
   padding: 10px 16px;
   border-radius: 8px;
   color: var(--text-secondary);
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-size: 0.9375rem;
   font-weight: 500;
   text-decoration: none;
@@ -2320,21 +2356,11 @@ body.mt-home-active .tab-pane.active {
   background: transparent !important;
 }
 
-/* Fallback for browsers supporting :has() */
-.tab-content:has(> .tab-pane.active .mt-home-dark) {
-  background: var(--bg-base) !important;
-}
-.tab-content:has(> .tab-pane.active .mt-home-dark) > .tab-pane.active {
-  background: var(--bg-base) !important;
-}
-
-/* Navbar — glassmorphic on home so the emoji shows through the navbar */
+/* Navbar — keep solid dark on home (light cream bg would bleed muddy through glass) */
 body.mt-home-active .mt-navbar {
-  background: rgba(17, 16, 16, 0.72) !important;
-  backdrop-filter: blur(24px) !important;
-  -webkit-backdrop-filter: blur(24px) !important;
-  border-bottom-color: rgba(255, 215, 160, 0.09) !important;
-  box-shadow: none !important;
+  background: var(--bg-surface) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* ── Home dark wrapper ───────────────────────────────────────────────────── */
@@ -2347,16 +2373,16 @@ body.mt-home-active .mt-navbar {
   overflow: hidden;
 }
 
-/* Layered mesh-gradient blobs — significantly more vivid for uplifting feel */
+/* Layered mesh-gradient blobs — bumped opacity to read on light cream bg */
 .mt-home-dark::before {
   content: '';
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(ellipse 90% 55% at 10% 10%,  rgba(99, 191, 238, 0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 70% 65% at 90% 85%,  rgba(245, 172, 32, 0.20) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 80% at 55% 50%,  rgba(22, 163, 74, 0.10) 0%, transparent 70%),
-    radial-gradient(ellipse 50% 40% at 75% 15%,  rgba(251, 191, 36, 0.14) 0%, transparent 55%);
+    radial-gradient(ellipse 90% 55% at 10% 10%,  rgba(14, 165, 233, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 65% at 90% 85%,  rgba(245, 158, 11, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 80% at 55% 50%,  rgba(5, 150, 105, 0.10) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 75% 15%,  rgba(146, 64, 14, 0.10) 0%, transparent 55%);
   pointer-events: none;
   z-index: 0;
 }
@@ -2377,9 +2403,9 @@ body.mt-home-active .mt-navbar {
   pointer-events: none;
   z-index: 0;
   user-select: none;
-  /* screen blend: emoji colour reads over dark bg; brightness lifts dark emojis */
-  filter: blur(2px) brightness(1.8) saturate(1.1);
-  mix-blend-mode: screen;
+  /* multiply blend: stamps emoji as a watermark into the cream background */
+  filter: blur(2px) saturate(1.3);
+  mix-blend-mode: multiply;
 }
 
 .mt-home-emoji-bg.pop-in {
@@ -2388,8 +2414,8 @@ body.mt-home-active .mt-navbar {
 
 @keyframes emojiSpring {
   0%   { opacity: 0;    transform: translate(-50%, -50%) scale(0.2) rotate(-10deg); }
-  55%  { opacity: 0.22; transform: translate(-50%, -50%) scale(1.10) rotate(1.5deg); }
-  100% { opacity: 0.16; transform: translate(-50%, -50%) scale(1.00) rotate(0deg); }
+  55%  { opacity: 0.18; transform: translate(-50%, -50%) scale(1.10) rotate(1.5deg); }
+  100% { opacity: 0.12; transform: translate(-50%, -50%) scale(1.00) rotate(0deg); }
 }
 
 /* ── Page content (sits above emoji and gradients) ──────────────────────── */
@@ -2399,147 +2425,98 @@ body.mt-home-active .mt-navbar {
   padding: 40px var(--page-margin) 112px;
 }
 
-/* ── Dark-theme text overrides ───────────────────────────────────────────── */
+/* ── Light-theme text overrides for home page ────────────────────────────── */
 .mt-home-dark .mt-eyebrow {
-  color: rgba(99, 191, 238, 0.90) !important;
+  color: var(--calm-color) !important;
 }
 .mt-home-dark .mt-stat-label {
-  color: rgba(255, 232, 200, 0.55) !important;
+  color: var(--text-tertiary) !important;
 }
 .mt-home-dark .mt-caption {
-  color: rgba(255, 228, 190, 0.60) !important;
+  color: var(--text-secondary) !important;
 }
 .mt-home-dark .mt-caption.mt-secondary {
-  color: rgba(255, 228, 190, 0.65) !important;
+  color: var(--text-secondary) !important;
 }
 .mt-home-dark .mt-caption.mt-tertiary {
-  color: rgba(255, 215, 165, 0.48) !important;
+  color: var(--text-tertiary) !important;
 }
-.mt-home-dark .mt-body,
-.mt-home-dark p {
-  color: rgba(255, 240, 215, 0.68) !important;
-}
-.mt-home-dark .mt-btn-secondary {
-  border-color: rgba(255, 210, 150, 0.22) !important;
-  color: rgba(255, 232, 200, 0.68) !important;
-  background: transparent !important;
-}
-.mt-home-dark .mt-btn-secondary:hover {
-  border-color: rgba(255, 210, 150, 0.40) !important;
-  color: rgba(255, 248, 235, 0.95) !important;
-  background: rgba(255, 225, 170, 0.07) !important;
-}
+/* .mt-home-dark text — inherit from global light-theme tokens (no override needed) */
+
 /* Form controls, labels, sliders handled globally — see Form Controls section above */
 
-/* ── Glassmorphism card ──────────────────────────────────────────────────── */
+/* ── Glassmorphism card — solid white for clear hierarchy on cream page ──── */
 .mt-glass-card {
-  background: rgba(255, 225, 170, 0.06);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 210, 150, 0.14);
+  background: #FFFFFF;
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-card);
   padding: 28px;
+  box-shadow: var(--shadow-md);
   transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 .mt-glass-card:hover {
-  background: rgba(255, 225, 170, 0.10);
-  border-color: rgba(255, 210, 150, 0.26);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  background: #FFFFFF;
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-lg);
   transform: translateY(-2px);
 }
-.mt-glass-card .mt-h3 {
-  color: rgba(255, 248, 235, 0.95) !important;
-}
-.mt-glass-card p.mt-caption,
-.mt-glass-card .mt-caption {
-  color: rgba(255, 228, 190, 0.60) !important;
-}
 
-/* ── Recommendation badge — dark variants (brighter with new playlist colours) */
+/* ── Recommendation badge — light-bg variants ────────────────────────────── */
 .mt-home-dark .mt-rec-badge-hero.calm {
-  background: rgba(99, 191, 238, 0.10) !important;
-  border-color: rgba(99, 191, 238, 0.28) !important;
-  box-shadow: 0 4px 28px rgba(99, 191, 238, 0.12) !important;
+  background: rgba(14, 165, 233, 0.10) !important;
+  border-color: rgba(14, 165, 233, 0.28) !important;
+  box-shadow: 0 4px 28px rgba(14, 165, 233, 0.12) !important;
 }
 .mt-home-dark .mt-rec-badge-hero.neutral {
-  background: rgba(0, 184, 123, 0.10) !important;
-  border-color: rgba(0, 184, 123, 0.28) !important;
-  box-shadow: 0 4px 28px rgba(0, 184, 123, 0.12) !important;
+  background: rgba(16, 185, 129, 0.10) !important;
+  border-color: rgba(16, 185, 129, 0.28) !important;
+  box-shadow: 0 4px 28px rgba(16, 185, 129, 0.12) !important;
 }
 .mt-home-dark .mt-rec-badge-hero.energy {
-  background: rgba(245, 172, 32, 0.10) !important;
-  border-color: rgba(245, 172, 32, 0.28) !important;
-  box-shadow: 0 4px 28px rgba(245, 172, 32, 0.12) !important;
-}
-.mt-home-dark .mt-rec-hero-iso { color: rgba(255, 228, 190, 0.60) !important; }
-
-/* Prediction bar borders */
-.mt-home-dark [style*="border-top:1px solid var(--border-subtle)"] {
-  border-top-color: rgba(255, 255, 255, 0.08) !important;
-}
-.mt-home-dark [style*="background:var(--bg-elevated)"] {
-  background: rgba(255, 255, 255, 0.07) !important;
-}
-.mt-home-dark [style*="border-left:2px solid var(--border-default)"] {
-  border-left-color: rgba(255, 255, 255, 0.15) !important;
+  background: rgba(245, 158, 11, 0.10) !important;
+  border-color: rgba(245, 158, 11, 0.28) !important;
+  box-shadow: 0 4px 28px rgba(245, 158, 11, 0.12) !important;
 }
 
 /* ── Glow action buttons ─────────────────────────────────────────────────── */
 .mt-btn-primary.mt-btn-calm {
-  box-shadow: 0 0 22px rgba(86, 180, 233, 0.38), 0 4px 14px rgba(0,0,0,0.28);
+  box-shadow: 0 0 22px rgba(14, 165, 233, 0.38), 0 4px 14px rgba(0,0,0,0.28);
 }
 .mt-btn-primary.mt-btn-neutral {
-  box-shadow: 0 0 22px rgba(0, 158, 115, 0.38), 0 4px 14px rgba(0,0,0,0.28);
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.38), 0 4px 14px rgba(0,0,0,0.28);
 }
 .mt-btn-primary.mt-btn-energy {
-  box-shadow: 0 0 22px rgba(230, 159, 0, 0.38), 0 4px 14px rgba(0,0,0,0.28);
+  box-shadow: 0 0 22px rgba(245, 158, 11, 0.38), 0 4px 14px rgba(0,0,0,0.28);
 }
 .mt-btn-primary.mt-btn-calm:hover {
-  box-shadow: 0 0 38px rgba(86, 180, 233, 0.55), 0 6px 20px rgba(0,0,0,0.32);
+  box-shadow: 0 0 38px rgba(14, 165, 233, 0.55), 0 6px 20px rgba(0,0,0,0.32);
   transform: scale(1.03);
 }
 .mt-btn-primary.mt-btn-neutral:hover {
-  box-shadow: 0 0 38px rgba(0, 158, 115, 0.55), 0 6px 20px rgba(0,0,0,0.32);
+  box-shadow: 0 0 38px rgba(16, 185, 129, 0.55), 0 6px 20px rgba(0,0,0,0.32);
   transform: scale(1.03);
 }
 .mt-btn-primary.mt-btn-energy:hover {
-  box-shadow: 0 0 38px rgba(230, 159, 0, 0.55), 0 6px 20px rgba(0,0,0,0.32);
+  box-shadow: 0 0 38px rgba(245, 158, 11, 0.55), 0 6px 20px rgba(0,0,0,0.32);
   transform: scale(1.03);
 }
 
-/* ── Tracklist — dark skin ───────────────────────────────────────────────── */
+/* ── Tracklist — light skin ──────────────────────────────────────────────── */
 .mt-home-dark .tracklist-section {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border-color: rgba(255, 255, 255, 0.07) !important;
+  background: var(--bg-card) !important;
+  border-color: var(--border-subtle) !important;
 }
-.mt-home-dark .tracklist-header {
-  border-bottom-color: rgba(255, 255, 255, 0.07) !important;
-  color: rgba(255, 255, 255, 0.30) !important;
-}
-.mt-home-dark .track-title    { color: rgba(255, 255, 255, 0.88) !important; }
-.mt-home-dark .track-artist   { color: rgba(255, 255, 255, 0.40) !important; }
-.mt-home-dark .track-number   { color: rgba(255, 255, 255, 0.32) !important; }
-.mt-home-dark .track-duration { color: rgba(255, 255, 255, 0.35) !important; }
-.mt-home-dark .track-bpm      { color: rgba(255, 255, 255, 0.50) !important; }
-.mt-home-dark .track-row:hover { background: rgba(255, 255, 255, 0.05) !important; }
-.mt-home-dark .track-row.playing { background: rgba(22, 163, 74, 0.11) !important; }
-.mt-home-dark .track-energy-bar { background: rgba(255, 255, 255, 0.09) !important; }
-.mt-home-dark .iso-indicator {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border-top-color: rgba(255, 255, 255, 0.07) !important;
-}
-.mt-home-dark .iso-label { color: rgba(255, 255, 255, 0.28) !important; }
+/* Track rows — inherit from global light-theme tokens (no override needed) */
+.mt-home-dark .track-row:hover { background: var(--bg-card-hover) !important; }
+.mt-home-dark .track-row.playing { background: rgba(5, 150, 105, 0.09) !important; }
+.mt-home-dark .track-energy-bar { background: var(--border-subtle) !important; }
 
-/* ── Playlist header — dark skin ─────────────────────────────────────────── */
+/* ── Playlist header — light skin ────────────────────────────────────────── */
 .mt-home-dark .playlist-header {
-  background: rgba(255, 255, 255, 0.03) !important;
-  border-color: rgba(255, 255, 255, 0.07) !important;
+  background: var(--bg-card) !important;
+  border-color: var(--border-default) !important;
 }
-.mt-home-dark .playlist-meta h1  { color: rgba(255, 255, 255, 0.92) !important; }
-.mt-home-dark .playlist-meta .overline { color: rgba(86, 180, 233, 0.80) !important; }
-.mt-home-dark .playlist-meta .subtitle { color: rgba(255, 255, 255, 0.48) !important; }
-.mt-home-dark .meta-detail        { color: rgba(255, 255, 255, 0.42) !important; }
-.mt-home-dark .meta-detail strong { color: rgba(255, 255, 255, 0.62) !important; }
+.mt-home-dark .playlist-meta .overline { color: var(--calm-color) !important; }
 
 /* CTA nav cards on home page — pointer + hover */
 .mt-home-dark .mt-card-elevated[onclick] {
@@ -2553,7 +2530,7 @@ body.mt-home-active .mt-navbar {
 
 /* ── Home display title (gradient text) ─────────────────────────────────── */
 .mt-home-title {
-  background: linear-gradient(140deg, #ffffff 25%, rgba(255,255,255,0.55) 100%);
+  background: linear-gradient(140deg, #1C1512 20%, rgba(92, 64, 14, 0.75) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2583,10 +2560,10 @@ body.mt-home-active .mt-navbar {
 
 /* Alternating rows in session table (Resultaten) */
 .mt-session-table tbody tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.025);
+  background: var(--bg-elevated);
 }
 .mt-session-table tbody tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-card-hover);
 }
 
 /* Music mix summary grid (Jouw Muziek) */
@@ -2637,7 +2614,7 @@ body.mt-home-active .mt-navbar {
 
 /* MadeByShape-style: large centered "statement sentence" between dense blocks */
 .mt-section-intro {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 400;
   font-size: 1.25rem;
   line-height: 1.55;
@@ -2650,7 +2627,7 @@ body.mt-home-active .mt-navbar {
 
 /* Northumberland-style: small uppercase eyebrow above section headings */
 .mt-section-label {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: 0.10em;
@@ -2669,7 +2646,7 @@ body.mt-home-active .mt-navbar {
   border-radius: var(--radius-card);
   padding: 28px;
   box-shadow:
-    0 0 80px rgba(22, 163, 74, 0.05),
+    0 0 80px rgba(5, 150, 105, 0.05),
     var(--shadow-md);
 }
 
@@ -2684,7 +2661,7 @@ body.mt-home-active .mt-navbar {
 
 /* Home hero stat scale bump (Northumberland-editorial numbers) */
 .mt-hero-stat-value {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 2.5rem;
   line-height: 1;
@@ -2695,7 +2672,7 @@ body.mt-home-active .mt-navbar {
 
 /* Stat card value typography (recovery.py _stat_card) */
 .mt-stat-value {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 2rem;
   line-height: 1;
@@ -2807,7 +2784,7 @@ body.mt-home-active .mt-navbar {
   border-color: var(--border-strong);
 }
 .mt-metric-chip-value {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Figtree', sans-serif;
   font-weight: 700;
   font-size: 1.375rem;
   line-height: 1;
@@ -2826,25 +2803,19 @@ body.mt-home-active .mt-navbar {
 /*      child content (home recommendation panel, session replay selector)    */
 
 /* A) Modifier classes */
-.mt-card-calm    { background: rgba(86,  180, 233, 0.05) !important; border-color: rgba(86,  180, 233, 0.20) !important; }
-.mt-card-neutral { background: rgba(0,   158, 115, 0.05) !important; border-color: rgba(0,   158, 115, 0.20) !important; }
-.mt-card-energy  { background: rgba(230, 159, 0,   0.05) !important; border-color: rgba(230, 159, 0,   0.20) !important; }
-.mt-card-other   { background: rgba(156, 163, 175, 0.04) !important; border-color: rgba(156, 163, 175, 0.14) !important; }
+.mt-card-calm    { background: rgba(14, 165, 233, 0.09) !important; border-color: rgba(14, 165, 233, 0.24) !important; }
+.mt-card-neutral { background: rgba(16, 185, 129,  0.09) !important; border-color: rgba(16, 185, 129,  0.24) !important; }
+.mt-card-energy  { background: rgba(245, 158, 11, 0.09) !important; border-color: rgba(245, 158, 11, 0.24) !important; }
+.mt-card-other   { background: rgba(156, 163, 175, 0.06) !important; border-color: rgba(156, 163, 175, 0.18) !important; }
 
-.mt-card-calm:hover    { background: rgba(86,  180, 233, 0.09) !important; border-color: rgba(86,  180, 233, 0.30) !important; }
-.mt-card-neutral:hover { background: rgba(0,   158, 115, 0.09) !important; border-color: rgba(0,   158, 115, 0.30) !important; }
-.mt-card-energy:hover  { background: rgba(230, 159, 0,   0.09) !important; border-color: rgba(230, 159, 0,   0.30) !important; }
-.mt-card-other:hover   { background: rgba(156, 163, 175, 0.07) !important; border-color: rgba(156, 163, 175, 0.22) !important; }
+.mt-card-calm:hover    { background: rgba(14, 165, 233, 0.14) !important; border-color: rgba(14, 165, 233, 0.34) !important; }
+.mt-card-neutral:hover { background: rgba(16, 185, 129,  0.14) !important; border-color: rgba(16, 185, 129,  0.34) !important; }
+.mt-card-energy:hover  { background: rgba(245, 158, 11, 0.14) !important; border-color: rgba(245, 158, 11, 0.34) !important; }
+.mt-card-other:hover   { background: rgba(156, 163, 175, 0.10) !important; border-color: rgba(156, 163, 175, 0.28) !important; }
 
 /* B) :has() — glass card adopts tint from reactive child content            */
 /* Targets: home recommendation panel, any glass card wrapping a rec badge   */
-.mt-glass-card:has(.mt-rec-badge-hero.calm)    { background: rgba(86,  180, 233, 0.06); border-color: rgba(86,  180, 233, 0.22); }
-.mt-glass-card:has(.mt-rec-badge-hero.neutral) { background: rgba(0,   158, 115, 0.06); border-color: rgba(0,   158, 115, 0.22); }
-.mt-glass-card:has(.mt-rec-badge-hero.energy)  { background: rgba(230, 159, 0,   0.06); border-color: rgba(230, 159, 0,   0.22); }
-
-.mt-glass-card:has(.mt-rec-badge-hero.calm):hover    { background: rgba(86,  180, 233, 0.10); border-color: rgba(86,  180, 233, 0.32); }
-.mt-glass-card:has(.mt-rec-badge-hero.neutral):hover { background: rgba(0,   158, 115, 0.10); border-color: rgba(0,   158, 115, 0.32); }
-.mt-glass-card:has(.mt-rec-badge-hero.energy):hover  { background: rgba(230, 159, 0,   0.10); border-color: rgba(230, 159, 0,   0.32); }
+/* Glass cards stay solid white — badge color expressed by the inner badge only */
 
 /* ── Page / tab transition fade-in ──────────────────────────────────────── */
 /* Incoming pane fades in and rises 4 px; outgoing disappears instantly      */
@@ -2861,3 +2832,176 @@ body.mt-home-active .mt-navbar {
 @media (prefers-reduced-motion: reduce) {
   .tab-pane.active { animation: none; }
 }
+
+/* ==========================================================================
+   Plotly / Shiny widget output — tighten spacing
+   ========================================================================== */
+.shiny-bound-output { margin-bottom: 0 !important; }
+.html-widget-output, .shiny-html-output { padding: 0 !important; }
+/* Plotly modebar: use dark tokens to match our palette */
+.modebar { background: transparent !important; }
+.modebar-btn path { fill: rgba(28, 21, 18, 0.35) !important; }
+.modebar-btn:hover path { fill: var(--accent) !important; }
+
+/* ==========================================================================
+   Participant select — clean dark select in the dark navbar
+   ========================================================================== */
+#mt-p-desktop {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: rgba(240, 236, 227, 0.92) !important;
+  border: 1px solid rgba(255, 215, 160, 0.22) !important;
+  font-size: 0.875rem !important;
+  width: auto !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  cursor: pointer;
+  box-shadow: none !important;
+  outline: none !important;
+}
+#mt-p-desktop:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 215, 160, 0.35) !important;
+  box-shadow: none !important;
+}
+#mt-p-desktop:focus {
+  background: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 215, 160, 0.35) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* ==========================================================================
+   Emoji background — suppress on "Hoe het werkt" (achtergrond) section
+   ========================================================================== */
+body.mt-no-emoji .mt-home-emoji-bg {
+  opacity: 0 !important;
+  animation: none !important;
+}
+
+/* ==========================================================================
+   Sessie Replay — compact header + chart-first layout
+   ========================================================================== */
+
+/* Kill double side-margin: session_summary renders margin:0 var(--page-margin)
+   but is now inside a card that already has padding — remove the inner margin */
+.mt-replay-header .shiny-bound-output > div,
+.mt-replay-header .shiny-html-output > div {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Compact session summary card inside the header */
+.mt-replay-header .mt-session-summary-card {
+  padding: 10px 14px !important;
+  gap: 8px !important;
+  margin-bottom: 0 !important;
+}
+.mt-replay-header .mt-session-summary-value {
+  font-size: 0.9375rem !important;
+}
+.mt-replay-header .mt-session-summary-label {
+  font-size: 0.625rem !important;
+  margin-top: 2px !important;
+}
+
+/* Overeenkomst callout inside header — compact */
+.mt-replay-header .mt-callout {
+  padding: 8px 12px !important;
+  font-size: 0.8125rem !important;
+  margin-top: 8px !important;
+  line-height: 1.4 !important;
+}
+
+/* ── Timeline header: align with plotly chart margins ────────────────────
+   Plotly default margin: l=48px, r=24px. The timeline must match so that
+   VOOR / TIJDENS SESSIE / NA bars align with the chart's actual plot area. */
+.mt-replay-chart .mt-timeline-header {
+  padding-left: 52px !important;
+  padding-right: 28px !important;
+}
+
+/* ── Unified result card: outcome + mood + data quality in ONE box ───────
+   Two rows inside a single white card — no separate floating elements.     */
+.mt-replay-context {
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sm);
+  margin: 8px 0 0 !important;
+  padding: 16px 20px 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+/* Row 1 — outcome banner: keep its semantic color, compact size */
+.mt-replay-context .shiny-bound-output:first-child > div {
+  padding: 7px 14px !important;
+  border-radius: 8px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  /* Keep inline background/border — just reduce size */
+}
+
+/* Divider between outcome and mood */
+.mt-replay-context .shiny-bound-output:first-child {
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+}
+
+/* Row 2 — mood arc: single horizontal inline flow, no cards */
+.mt-replay-context .mt-mood-arc {
+  padding: 0 !important;
+  gap: 10px !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+}
+
+/* Each mood item: inline row (VOOR label · emoji · mood word · score) */
+.mt-replay-context .mt-mood-card {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+/* VOOR / NA label: tiny muted prefix */
+.mt-replay-context .mt-mood-card .mt-caption {
+  font-size: 0.6875rem !important;
+  color: var(--text-tertiary) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  white-space: nowrap;
+}
+
+/* Mood emoji: compact */
+.mt-replay-context .mt-mood-card [style*="font-size:32px"] {
+  font-size: 1.5rem !important;
+  margin: 0 !important;
+}
+
+/* Arrow + delta: compact center element */
+.mt-replay-context .mt-mood-arc > div[style*="min-width"],
+.mt-replay-context .mt-mood-arc > div[style*="text-align:center"] {
+  min-width: 40px !important;
+  font-size: 0.875rem !important;
+  gap: 2px !important;
+}
+
+/* Data quality: muted footnote row inside the card */
+.mt-replay-context .shiny-bound-output:last-child,
+.mt-replay-context .shiny-html-output:last-child {
+  border-top: 1px solid var(--border-subtle) !important;
+  padding-top: 10px !important;
+  font-size: 0.75rem !important;
+  color: var(--text-tertiary) !important;
+}
+
+/* Chart card: no top padding so timeline header sits flush */
+.mt-replay-chart { padding-top: 8px !important; }

@@ -19,6 +19,13 @@
                 session: cd[3],
                 stress:  pt.y,
             }, {priority: 'event'});
+            // Scroll to the session detail callout after Shiny re-renders it
+            setTimeout(function () {
+                var detail = document.getElementById('results-lon_session_detail');
+                if (detail && detail.firstElementChild) {
+                    detail.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, 350);
         });
     }
     // Re-attach whenever the chart might be re-rendered

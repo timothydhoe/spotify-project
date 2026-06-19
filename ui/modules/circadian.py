@@ -78,7 +78,7 @@ def _circadian_clock_svg(
     # ── Background track ring ────────────────────────────────────────────────
     parts.append(
         f'<circle cx="{cx}" cy="{cy}" r="{(r_outer+r_inner)//2}" fill="none" '
-        f'stroke="rgba(255,255,255,0.06)" stroke-width="{r_outer-r_inner}"/>'
+        f'stroke="rgba(28,21,18,0.08)" stroke-width="{r_outer-r_inner}"/>'
     )
 
     # ── Stress gradient ring (one arc per hour) ──────────────────────────────
@@ -100,10 +100,10 @@ def _circadian_clock_svg(
 
     # ── Golden hour arc (1 h, bright green) ─────────────────────────────────
     green_path   = _arc_path(golden_hour, golden_hour + 1, r_outer, r_inner, cx, cy)
-    green_glow   = "filter:drop-shadow(0 0 6px #16a34a);" if active_arc == "golden" else ""
-    green_stroke = f'stroke="#86efac" stroke-width="2"' if active_arc == "golden" else ""
+    green_glow   = "filter:drop-shadow(0 0 6px #15803D);" if active_arc == "golden" else ""
+    green_stroke = f'stroke="#4ade80" stroke-width="2"' if active_arc == "golden" else ""
     parts.append(
-        f'<path d="{green_path}" fill="#16a34a" opacity="0.95" '
+        f'<path d="{green_path}" fill="#15803D" opacity="0.95" '
         f'style="cursor:pointer;{green_glow}" {green_stroke} '
         f'onclick="Shiny.setInputValue(\'circadian-clock_click\',\'golden\',{{priority:\'event\'}})"/>'
     )
@@ -192,7 +192,7 @@ def _circadian_clock_svg(
         yi = cy + r_tick_in  * math.sin(angle)
         parts.append(
             f'<line x1="{xi:.1f}" y1="{yi:.1f}" x2="{xo:.1f}" y2="{yo:.1f}" '
-            f'stroke="rgba(255,255,255,0.30)" stroke-width="2.5" stroke-linecap="round"/>'
+            f'stroke="rgba(28,21,18,0.30)" stroke-width="2.5" stroke-linecap="round"/>'
         )
 
     # ── Minor tick marks every 3 h (smaller) ────────────────────────────────
@@ -204,15 +204,29 @@ def _circadian_clock_svg(
         yi = cy + (r_tick_in  + 2) * math.sin(angle)
         parts.append(
             f'<line x1="{xi:.1f}" y1="{yi:.1f}" x2="{xo:.1f}" y2="{yo:.1f}" '
-            f'stroke="rgba(255,255,255,0.15)" stroke-width="1.5" stroke-linecap="round"/>'
+            f'stroke="rgba(28,21,18,0.15)" stroke-width="1.5" stroke-linecap="round"/>'
         )
 
-    # ── Clock face numbers: 12/3/6/9 (= 0h/6h/12h/18h) ──────────────────────
+    # ── Hourly tick marks (every hour, thin) ────────────────────────────────
+    for h in range(24):
+        if h % 3 == 0:
+            continue   # already drawn by the major/minor tick pass above
+        angle = (h / 24) * 2 * math.pi - math.pi / 2
+        xo = cx + (r_tick_out - 3) * math.cos(angle)
+        yo = cy + (r_tick_out - 3) * math.sin(angle)
+        xi = cx + (r_tick_in  + 3) * math.cos(angle)
+        yi = cy + (r_tick_in  + 3) * math.sin(angle)
+        parts.append(
+            f'<line x1="{xi:.1f}" y1="{yi:.1f}" x2="{xo:.1f}" y2="{yo:.1f}" '
+            f'stroke="rgba(28,21,18,0.10)" stroke-width="1" stroke-linecap="round"/>'
+        )
+
+    # ── Clock face numbers — true 24h positions (00/06/12/18) ────────────────
     face_labels = {
-        0:  ("12", "midnight"),
-        6:  ("3",  "06:00"),
-        12: ("6",  "middag"),
-        18: ("9",  "18:00"),
+        0:  ("00", "midnight"),
+        6:  ("06", "06:00"),
+        12: ("12", "middag"),
+        18: ("18", "18:00"),
     }
     for h, (big_lbl, sub_lbl) in face_labels.items():
         angle = (h / 24) * 2 * math.pi - math.pi / 2
@@ -220,16 +234,16 @@ def _circadian_clock_svg(
         ly = cy + r_label * math.sin(angle)
         parts.append(
             f'<text x="{lx:.1f}" y="{ly:.1f}" text-anchor="middle" dominant-baseline="middle" '
-            f'font-size="17" font-weight="600" font-family="Sora,sans-serif" '
-            f'fill="rgba(255,255,255,0.70)">{big_lbl}</text>'
+            f'font-size="15" font-weight="700" font-family="Figtree,sans-serif" '
+            f'fill="rgba(28,21,18,0.70)">{big_lbl}</text>'
         )
         # Small sub-label slightly offset toward edge
         slx = cx + (r_label + 14) * math.cos(angle)
         sly = cy + (r_label + 14) * math.sin(angle)
         parts.append(
             f'<text x="{slx:.1f}" y="{sly:.1f}" text-anchor="middle" dominant-baseline="middle" '
-            f'font-size="9" font-family="DM Sans,sans-serif" '
-            f'fill="rgba(255,255,255,0.28)">{sub_lbl}</text>'
+            f'font-size="9" font-family="Figtree,sans-serif" '
+            f'fill="rgba(28,21,18,0.35)">{sub_lbl}</text>'
         )
 
     # ── Centre: participant-facing summary (IDs let hover JS update the text) ──
@@ -242,9 +256,10 @@ def _circadian_clock_svg(
         f'fill="rgba(255,255,255,0.20)" style="pointer-events:none;">stressritme</text>'
     )
 
+    rendered = int(size * 1.3)   # scale up visually while keeping all coordinate math intact
     return (
-        f'<svg width="{size}" height="{size}" viewBox="0 0 {size} {size}" '
-        f'xmlns="http://www.w3.org/2000/svg" style="display:block; overflow:visible;">'
+        f'<svg width="{rendered}" height="{rendered}" viewBox="0 0 {size} {size}" '
+        f'xmlns="http://www.w3.org/2000/svg" style="display:block; overflow:visible; max-width:100%;">'
         + "".join(parts)
         + "</svg>"
     )
@@ -408,14 +423,13 @@ def ui():
             _ui.div(
                 "↓ jouw persoonlijk stressritme",
                 style=(
-                    "margin-top:auto; padding-top:56px; padding-bottom:32px; "
+                    "padding-top:72px; padding-bottom:20px; "
                     "color:var(--text-tertiary); font-size:0.8125rem; letter-spacing:0.07em;"
                 ),
             ),
             style=(
-                "text-align:center; padding:80px var(--page-margin) 0; "
-                "min-height:calc(70vh - 64px); display:flex; flex-direction:column; "
-                "justify-content:center; align-items:center;"
+                "text-align:center; padding:32px var(--page-margin) 0; "
+                "display:flex; flex-direction:column; align-items:center;"
             ),
         ),
 
@@ -622,7 +636,7 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             key = (pl, md is not None and md > 0)
             if key not in seen:
                 seen.add(key)
-                col = {"Calm": "#56B4E9", "Neutral": "#009E73", "Energy": "#E69F00"}.get(pl, "#86efac")
+                col = {"Calm": "#0EA5E9", "Neutral": "#10B981", "Energy": "#F59E0B"}.get(pl, "#86efac")
                 nl  = {"Calm": "Kalm", "Neutral": "Neutraal", "Energy": "Energiek"}.get(pl, pl)
                 fill_style = f"background:{col};" if (md is not None and md > 0) else f"background:none;border:2px solid {col};"
                 pl_dots.append(_ui.span(
@@ -643,19 +657,18 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
             return _ui.div(
                 _ui.div(
                     _ui.HTML(
-                        f'<span style="display:inline-block;width:10px;height:10px;'
+                        f'<span style="display:inline-block;width:8px;height:8px;'
                         f'border-radius:50%;background:{dot_color};margin-right:6px;'
                         f'vertical-align:middle;flex-shrink:0;"></span>'
                     ),
                     _ui.span(label, style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-tertiary);"),
                     style="display:flex; align-items:center; margin-bottom:6px;",
                 ),
-                _ui.div(time_str, style="font-size:1.625rem; font-weight:700; font-family:'Sora',sans-serif; line-height:1; margin-bottom:4px;"),
-                _ui.div(f"{stress_val:.0f} gem. stresspunten", style="font-size:0.8125rem; color:var(--text-secondary); margin-bottom:8px;"),
-                _ui.p(explanation, style="font-size:0.8125rem; color:var(--text-tertiary); margin:0; line-height:1.55;"),
+                _ui.div(time_str, style="font-size:1.5rem; font-weight:700; font-family:'Figtree',sans-serif; line-height:1; margin-bottom:4px;"),
+                _ui.div(f"{stress_val:.0f} gem. stresspunten", style="font-size:0.8125rem; color:var(--text-secondary); margin:0;"),
                 style=(
-                    f"padding:16px 18px; border-radius:calc(var(--radius-card) - 4px); "
-                    f"background:var(--bg-elevated);"
+                    f"padding:14px 16px; border-radius:calc(var(--radius-card) - 4px); "
+                    f"background:var(--bg-elevated); border-left:3px solid {dot_color};"
                 ),
             )
 
@@ -679,23 +692,22 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
         right_panel = _ui.div(
             _ui.div("Jouw 24-uurs stressritme", class_="mt-h2", style="margin-bottom:4px;"),
             _ui.p(
-                "De ring toont jouw stressverloop over 24 uur: groen = laag, oranje/rood = hoog. "
-                "Stippen zijn luistersessies. Groen arc = gouden uur, oranje arc = piekstressvenster.",
-                style="font-size:0.8125rem; color:var(--text-tertiary); margin-bottom:20px; line-height:1.55;",
+                "De ring toont jouw stressverloop over 24 uur: groen = laag, rood = hoog. "
+                "Gekleurde stippen zijn jouw luistersessies.",
+                style="font-size:0.8125rem; color:var(--text-tertiary); margin-bottom:24px; line-height:1.5;",
             ),
-            _info_block("#16a34a", "Gouden uur",
+            _info_block("#15803D", "Gouden uur",
                         f"{golden_h:02d}:00", golden_stress,
-                        golden_explanation, "#16a34a"),
-            _ui.div(style="height:10px;"),
-            _info_block("#E69F00", "Piekstress",
+                        golden_explanation, "#15803D"),
+            _ui.div(style="height:12px;"),
+            _info_block("#D4850A", "Piekstress",
                         f"{peak_h:02d}–{peak_h+2:02d}:00", peak_stress,
-                        peak_explanation, "#E69F00"),
-            _ui.div(style="height:10px;"),
+                        peak_explanation, "#D4850A"),
+            _ui.div(style="height:12px;"),
             _ui.div(
-                _ui.div("Pre-sessie afwijking", style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-tertiary); margin-bottom:6px;"),
-                _ui.div(dev_str, style=f"font-size:1.625rem; font-weight:700; font-family:'Sora',sans-serif; color:{dev_color}; line-height:1; margin-bottom:4px;"),
-                _ui.p(dev_explanation, style="font-size:0.8125rem; color:var(--text-tertiary); margin:0; line-height:1.55;"),
-                style="padding:16px 18px; border-radius:10px; background:var(--bg-elevated); border:1px solid var(--border-subtle);",
+                _ui.div("Pre-sessie afwijking", style="font-size:0.6875rem; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-tertiary); margin-bottom:4px;"),
+                _ui.div(dev_str, style=f"font-size:1.5rem; font-weight:700; font-family:'Figtree',sans-serif; color:{dev_color}; line-height:1;"),
+                style="padding:14px 16px; border-radius:calc(var(--radius-card) - 4px); background:var(--bg-elevated); border-left:3px solid var(--border-strong);",
             ),
             style="display:flex; flex-direction:column; justify-content:flex-start;",
         )
@@ -708,15 +720,15 @@ def server(input, output, session, app_data: AppData, selected_participant=None)
                     legend,
                     style="display:flex; flex-direction:column; align-items:center;",
                 ),
-                # Right: always-visible info
+                # Right: key stats — compact, no verbose explanations
                 right_panel,
                 style=(
-                    "display:grid; grid-template-columns:380px 1fr; "
-                    "gap:40px; align-items:start;"
+                    "display:grid; grid-template-columns:480px 1fr; "
+                    "gap:32px; align-items:start;"
                 ),
             ),
             class_="mt-section-card",
-            style="padding:32px 40px;",
+            style="padding:28px 40px;",
         )
 
     @output

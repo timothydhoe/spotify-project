@@ -23,8 +23,19 @@ window.mtNavTo = function (section, sub) {
   _curSection = section;
   _curSub     = sub || (_MT_SUBNAV[section] ? _MT_SUBNAV[section][0] : null);
   _mtUpdateSubnav(section, _curSub);
-  // Emoji overlay and transparent bg only apply on the home page
+  // Home class only needed for home-specific transparent-container overrides
   document.body.classList.toggle('mt-home-active', section === 'home');
+  // Suppress emoji on "Hoe het werkt" section
+  document.body.classList.toggle('mt-no-emoji', section === 'achtergrond');
+  // Re-trigger emoji pop-in on every non-achtergrond page change
+  if (section !== 'achtergrond') {
+    var emojiEl = document.getElementById('home-emoji-bg');
+    if (emojiEl) {
+      emojiEl.classList.remove('pop-in');
+      void emojiEl.offsetWidth;
+      emojiEl.classList.add('pop-in');
+    }
+  }
 };
 
 /* ── Dropdown trigger — click navigates to first sub-page ────────────────── */
@@ -154,6 +165,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       _mtUpdateSubnav(sec, _curSub);
       document.body.classList.toggle('mt-home-active', sec === 'home');
+      document.body.classList.toggle('mt-no-emoji', sec === 'achtergrond');
+      // Re-trigger emoji pop-in on all non-achtergrond sections
+      if (sec !== 'achtergrond') {
+        var _emojiEl = document.getElementById('home-emoji-bg');
+        if (_emojiEl) { _emojiEl.classList.remove('pop-in'); void _emojiEl.offsetWidth; _emojiEl.classList.add('pop-in'); }
+      }
 
     } else if (_SUB_TO_SECTION[label]) {
       // Sub-tab changed (e.g., from Bootstrap pills or Shiny update_navset)
@@ -166,12 +183,17 @@ document.addEventListener('DOMContentLoaded', function () {
 /* ── Emoji scroll-fade ────────────────────────────────────────────────────── */
 (function () {
   var FADE_END     = 450;
-  var BASE_OPACITY = 0.16;
+  var BASE_OPACITY = 0.12;   /* matches emojiSpring keyframe target opacity */
   var _prevY       = -1;
 
   function _applyFade(y) {
     var el = document.getElementById('home-emoji-bg');
     if (!el) return;
+    /* Suppress emoji on "Hoe het werkt" section */
+    if (document.body.classList.contains('mt-no-emoji')) {
+      el.style.setProperty('opacity', '0', 'important');
+      return;
+    }
     var t = Math.min(1, Math.max(0, y / FADE_END));
     el.style.setProperty('opacity', String(BASE_OPACITY * (1 - t)), 'important');
   }
@@ -191,7 +213,8 @@ document.addEventListener('DOMContentLoaded', function () {
   document.addEventListener('shown.bs.tab', function () {
     window.scrollTo({ top: 0, behavior: 'instant' });
     _prevY = 0;
-    _applyFade(0);
+    // Defer until after the mt-home-active toggle (listener registration order)
+    requestAnimationFrame(function () { _applyFade(0); });
   });
 })();
 

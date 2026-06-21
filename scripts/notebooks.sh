@@ -72,14 +72,14 @@ echo ""
 _patch_notebook() {
   local src="$1" dst="$2"
   python3 - "$src" "$dst" <<'PYEOF'
-import json, sys
+import json, re, sys
 src, dst = sys.argv[1], sys.argv[2]
 with open(src) as f:
     nb = json.load(f)
 for cell in nb['cells']:
     if cell['cell_type'] == 'code':
         cell['source'] = [
-            line.replace('REUSE_MODEL = True', 'REUSE_MODEL = False')
+            re.sub(r'REUSE_MODEL\s*=\s*True', 'REUSE_MODEL = False', line)
             for line in cell['source']
         ]
         # clear previous outputs so nbconvert doesn't skip cells

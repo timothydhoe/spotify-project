@@ -1,9 +1,9 @@
 {
   "bosbes": {
     "Calm": {
-      "mean": 7.99,
+      "mean": 7.98,
       "ci_low": 7.72,
-      "ci_high": 8.25
+      "ci_high": 8.24
     },
     "Neutral": {
       "mean": 4.99,
@@ -11,21 +11,21 @@
       "ci_high": 5.31
     },
     "Energy": {
-      "mean": 8.01,
-      "ci_low": 7.77,
-      "ci_high": 8.25
+      "mean": 8.0,
+      "ci_low": 7.8,
+      "ci_high": 8.21
     }
   },
   "kiwi": {
     "Calm": {
       "mean": -1.99,
-      "ci_low": -2.43,
-      "ci_high": -1.55
+      "ci_low": -2.42,
+      "ci_high": -1.56
     },
     "Neutral": {
-      "mean": -0.05,
-      "ci_low": -0.52,
-      "ci_high": 0.44
+      "mean": -0.04,
+      "ci_low": -0.5,
+      "ci_high": 0.43
     },
     "Energy": {
       "mean": 1.02,
@@ -35,14 +35,14 @@
   },
   "kokosnoot": {
     "Calm": {
-      "mean": -0.01,
+      "mean": -0.0,
       "ci_low": -0.12,
-      "ci_high": 0.12
+      "ci_high": 0.11
     },
     "Neutral": {
       "mean": -0.0,
-      "ci_low": -0.24,
-      "ci_high": 0.23
+      "ci_low": -0.21,
+      "ci_high": 0.2
     },
     "Energy": {
       "mean": 11.99,
@@ -52,34 +52,34 @@
   },
   "limoen": {
     "Calm": {
-      "mean": 7.02,
-      "ci_low": 6.57,
-      "ci_high": 7.47
+      "mean": 7.01,
+      "ci_low": 6.58,
+      "ci_high": 7.46
     },
     "Neutral": {
       "mean": 8.98,
-      "ci_low": 8.74,
-      "ci_high": 9.23
+      "ci_low": 8.78,
+      "ci_high": 9.19
     },
     "Energy": {
       "mean": 14.99,
-      "ci_low": 14.79,
-      "ci_high": 15.2
+      "ci_low": 14.8,
+      "ci_high": 15.18
     }
   },
   "peer": {
     "Calm": {
       "mean": 4.01,
-      "ci_low": 3.84,
-      "ci_high": 4.19
+      "ci_low": 3.85,
+      "ci_high": 4.18
     },
     "Neutral": {
       "mean": 0.01,
-      "ci_low": -0.17,
-      "ci_high": 0.18
+      "ci_low": -0.15,
+      "ci_high": 0.17
     },
     "Energy": {
-      "mean": 4.02,
+      "mean": 4.01,
       "ci_low": 3.86,
       "ci_high": 4.17
     }
@@ -87,18 +87,18 @@
   "watermeloen": {
     "Calm": {
       "mean": -0.01,
-      "ci_low": -0.48,
+      "ci_low": -0.45,
       "ci_high": 0.45
     },
     "Neutral": {
-      "mean": -0.01,
-      "ci_low": -0.36,
-      "ci_high": 0.34
+      "mean": -0.0,
+      "ci_low": -0.33,
+      "ci_high": 0.33
     },
     "Energy": {
       "mean": 6.0,
-      "ci_low": 5.72,
-      "ci_high": 6.28
+      "ci_low": 5.74,
+      "ci_high": 6.27
     }
   }
 }
